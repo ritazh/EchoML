@@ -13,7 +13,12 @@ config/development.json or config/production.json
 ```json
 
 ```
+### Install GraphicsMagick
 
+MacOS 
+```bash
+brew install graphicsmagick
+```
 ### Development
 
 Start back-end node server.
