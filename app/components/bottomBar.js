@@ -11,10 +11,6 @@ class BottomBar extends React.Component {
     files: React.PropTypes.array,
   };
 
-  state = {
-    showDeleteConfirm: false,
-  };
-
   handleDownload = e => {
     e.stopPropagation(); // to prevent clearing selection
     const selectedFiles = this.props.files.filter(file => file.selected);
@@ -22,25 +18,6 @@ class BottomBar extends React.Component {
     for (const file of selectedFiles) {
       window.open(`${API_HOST}/api/download${fullpath}/${file.name}`);
     }
-  };
-
-  handleConfirm = e => {
-    e.stopPropagation(); // to prevent clearing selection
-    this.setState({ showDeleteConfirm: true });
-  };
-
-  handleModalClose = e => {
-    e.stopPropagation(); // to prevent clearing selection
-    this.setState({ showDeleteConfirm: false });
-  };
-
-  handleModalDelete = e => {
-    e.stopPropagation(); // to prevent clearing selection
-    this.setState({ showDeleteConfirm: false });
-
-    const selectedFiles = this.props.files.filter(file => file.selected);
-    const names = selectedFiles.map(file => file.name);
-    this.props.dispatch(actions.deleteFiles(this.props.loc, names));
   };
 
   render() {
@@ -52,7 +29,7 @@ class BottomBar extends React.Component {
     const fullpath = locToUrl(this.props.loc);
     let files = '';
     let content = '';
-    if (selectedFiles.length === 1) {
+    if (selectedFiles.length === 1 && !selectedFiles[0].isDirectory) {
       files = selectedFiles[0].name;
       content = (
         <Navbar.Text>
@@ -65,57 +42,13 @@ class BottomBar extends React.Component {
           >
             Download
           </a>
-          {' '}
-          <Button
-            bsSize="sm"
-            bsStyle="danger"
-            onClick={this.handleConfirm}
-          >
-            Delete
-          </Button>
         </Navbar.Text>
-      );
-    } else {
-      files = `${selectedFiles.length} files`;
-      content = (
-        <Navbar.Text>
-          {files}
-          {' '}
-          <Button
-            bsSize="sm"
-            bsStyle="danger"
-            onClick={this.handleConfirm}
-          >
-            Delete
-          </Button>
-        </Navbar.Text>
-      );
-    }
-
-    let modal = '';
-    if (this.state.showDeleteConfirm) {
-      modal = (
-        <Modal show onHide={this.handleModalClose}>
-          <Modal.Header>
-            <Modal.Title>Confirm</Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body>
-            Do you want to delete {files}?
-          </Modal.Body>
-
-          <Modal.Footer>
-            <Button onClick={this.handleModalClose}>Close</Button>
-            <Button onClick={this.handleModalDelete} bsStyle="danger">Delete</Button>
-          </Modal.Footer>
-        </Modal>
       );
     }
 
     return (
       <Navbar fixedBottom style={{ boxShadow: '0px 0px 10px #888' }}>
         {content}
-        {modal}
       </Navbar>
     );
   }

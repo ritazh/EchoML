@@ -8,7 +8,6 @@
     "build": "rimraf dist && env NODE_ENV=production webpack --config ./webpack.production.config.js",
     "eslint": "eslint .",
     "jscs": "jscs .",
-    "cook": "node server/cook.js",
     "dev-back": "nodemon -w server -w config server/index.js",
     "dev-front": "webpack-dev-server"
   },
