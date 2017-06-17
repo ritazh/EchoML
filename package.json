@@ -11,12 +11,14 @@
     "dev-back": "nodemon -w server -w config server/index.js",
     "dev-front": "webpack-dev-server"
   },
-  "author": { "name" : "Rita Zhang",
-    "email" : "ritazh@microsoft.com",
-    "url" : "https://ritazh.com"
+  "author": {
+    "name": "Rita Zhang",
+    "email": "ritazh@microsoft.com",
+    "url": "https://ritazh.com"
   },
   "license": "ISC",
   "dependencies": {
+    "azure-storage": "^2.1.0",
     "bluebird": "^3.3.5",
     "co": "^4.6.0",
     "co-busboy": "^1.3.1",
