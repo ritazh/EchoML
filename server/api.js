@@ -3,22 +3,29 @@ const sendfile = require('koa-sendfile');
 const path = require('path');
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs-extra'));
+const azure = require('azure-storage');
 const config = require('config');
 const gm = require('gm');
 const logger = require('./logger');
 const util = require('./util');
 
 Promise.promisifyAll(Object.getPrototypeOf(gm()));
+const blobService = azure.createBlobService();
+let containers = [];
 
 function getFilePath(param) {
+  logger.info("param: " + param);
+
   const result = /(\d+)(.*)/.exec(param);
+  logger.info(result);
   if (!result) {
     return null;
   }
 
-  const bookmarkIndex = parseInt(result[1], 10);
-  const bookmark = config.bookmarks[bookmarkIndex];
-  if (!bookmark) {
+  const containerIndex = parseInt(result[1], 10);
+  const container = containers[containerIndex];
+  logger.info("container: " + container.name);
+  if (!container) {
     return null;
   }
 
@@ -30,13 +37,7 @@ function getFilePath(param) {
 
     subdir = subdir.substr(1);
   }
-
-  const realpath = path.normalize(path.resolve(bookmark.dir, subdir));
-  if (!realpath.startsWith(bookmark.dir)) {
-    return null;
-  }
-
-  return realpath;
+  return container.name;
 }
 
 function getImageInfo(filepath) {
@@ -62,6 +63,72 @@ function getImageInfo(filepath) {
     });
   });
 }
+let blobs = [];
+
+function aggregateContainers(err, result, cb) {
+  if (err) {
+      cb(err);
+  } else {
+      containers = containers.concat(result.entries);
+      if (result.continuationToken !== null) {
+          blobService
+              .listContainersSegmented(result.continuationToken, aggregateContainers);
+      } else {
+          cb(null, containers);
+      }
+  }
+}
+
+function getContainersAsync() {
+  logger.info('getContainers');
+  containers = [];
+  return new Promise(function(resolve, reject) {
+    blobService.listContainersSegmented(null, function(err, result) {
+      aggregateContainers(err, result, function(err, containers) {
+        if (err) {
+          logger.warn(err);
+          reject(err);
+        } else {
+          resolve(containers);
+        }
+      });
+    });
+  });
+}
+
+
+function aggregateBlobs(containerName, err, result, cb) {
+  if (err) {
+      cb(err);
+  } else {
+      blobs = blobs.concat(result.entries);
+      if (result.continuationToken !== null) {
+          blobService
+              .listBlobsSegmented(containerName, result.continuationToken, aggregateBlobs);
+      } else {
+        logger.info(containerName + ": " + blobs.length);
+        cb(null, blobs);
+      }
+  }
+}
+
+function getBlobsAsync(containerName) {
+  logger.info('getBlobs');
+  blobs = [];
+  return new Promise(function(resolve, reject) {
+    blobService.listBlobsSegmented(containerName, null, function(err, result) {
+      aggregateBlobs(containerName, err, result, function(err, blobs) {
+        if (err) {
+          logger.warn(err);
+          reject(err);
+        } else {
+          logger.info(containerName + " resolve: " + blobs.length);
+          resolve(blobs);
+        }
+      });
+    });
+  });
+}
 
 const funcs = {
   *bookmarks() {
@@ -69,21 +136,29 @@ const funcs = {
     this.body = JSON.stringify(bookmarks.map(b => b.name));
   },
 
+  *containers() {
+    containers = yield getContainersAsync();
+    this.body = JSON.stringify(containers.map(c => c.name));;
+  },
+
   *dir(param) {
     const dir = getFilePath(param);
     if (!dir) {
-      this.body = 'invalid location';
+      this.body = 'invalid directory';
       return;
     }
-
-    let files = yield fs.readdirAsync(dir);
+    let files =[];
+    logger.info("dir: " + dir);
+    let containerFiles = yield getBlobsAsync(dir);
+    files = files.concat(containerFiles);
+    
     files = files.map(file => {
-      const stats = fs.lstatSync(path.resolve(dir, file));
+      //const stats = fs.lstatSync(path.resolve(dir, file));
       return {
-        name: file,
-        isDirectory: stats.isDirectory(),
-        size: stats.size,
-        mtime: stats.mtime.getTime(),
+        name: file.name,
+        isDirectory: file.blobType === "BlockBlob",
+        size: file.contentLength,
+        mtime: file.lastModified,
       };
     });
     this.body = files;
