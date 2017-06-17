@@ -1,7 +1,7 @@
 import { locToUrl } from '../common/util';
 
 const initialState = {
-  bookmark: 0,
+  container: 0,
   dir: [],
 };
 

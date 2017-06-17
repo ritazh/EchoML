@@ -3,21 +3,21 @@ import * as actions from '../actions';
 import React from 'react';
 import { SplitButton, MenuItem } from 'react-bootstrap';
 
-class Bookmark extends React.Component {
+class Container extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
     loc: React.PropTypes.object,
-    bookmarks: React.PropTypes.array,
+    containers: React.PropTypes.array,
   };
 
-  handleBookmarkClick = e => {
+  handleContainerClick = e => {
     const index = parseInt(e.target.dataset.index, 10);
-    const loc = { bookmark: index, dir: [] };
+    const loc = { container: index, dir: [] };
     this.props.dispatch(actions.changeLoc(loc));
   };
 
   handleRootClick = () => {
-    const loc = { bookmark: this.props.loc.bookmark, dir: [] };
+    const loc = { container: this.props.loc.container, dir: [] };
     this.props.dispatch(actions.changeLoc(loc));
   };
 
@@ -26,12 +26,12 @@ class Bookmark extends React.Component {
       <SplitButton
         id="location"
         bsStyle="primary"
-        title={this.props.bookmarks[this.props.loc.bookmark]}
+        title={this.props.containers[this.props.loc.container]}
         onClick={this.handleRootClick}
       >
-        {this.props.bookmarks.map((bookmark, index) => (
-          <MenuItem key={index} onClick={this.handleBookmarkClick} data-index={index}>
-            {bookmark}
+        {this.props.containers.map((container, index) => (
+          <MenuItem key={index} onClick={this.handleContainerClick} data-index={index}>
+            {container}
           </MenuItem>
         ))}
       </SplitButton>
@@ -40,8 +40,8 @@ class Bookmark extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  bookmarks: state.bookmarks,
+  containers: state.containers,
   loc: state.loc,
 });
 
-export default connect(mapStateToProps)(Bookmark);
+export default connect(mapStateToProps)(Container);

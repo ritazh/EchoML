@@ -55,7 +55,7 @@ class FileList extends React.Component {
 
   handleDirClick = name => {
     const dir = this.props.loc.dir.concat(name);
-    const loc = { bookmark: this.props.loc.bookmark, dir };
+    const loc = { container: this.props.loc.container, dir };
     this.props.dispatch(actions.changeLoc(loc));
   };
 
@@ -100,7 +100,7 @@ class FileList extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  bookmarks: state.bookmarks,
+  containers: state.containers,
   loc: state.loc,
   files: state.files,
 });

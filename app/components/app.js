@@ -5,7 +5,7 @@ import { Grid, ButtonToolbar } from 'react-bootstrap';
 import { urlToLoc } from '../common/util';
 import Alert from './alert';
 import Login from './login';
-import Bookmark from './bookmark';
+import Container from './container';
 import Location from './location';
 import Toolbar from './toolbar';
 import FileList from './fileList';
@@ -19,7 +19,7 @@ class App extends React.Component {
     dispatch: React.PropTypes.func,
     view: React.PropTypes.string,
     loading: React.PropTypes.bool,
-    bookmarks: React.PropTypes.array,
+    containers: React.PropTypes.array,
     preview: React.PropTypes.object,
     ui: React.PropTypes.object,
   };
@@ -59,7 +59,7 @@ class App extends React.Component {
     return (
       <Grid>
         <ButtonToolbar>
-          <Bookmark />
+          <Container />
           <Location />
           <Toolbar />
         </ButtonToolbar>
@@ -77,7 +77,7 @@ class App extends React.Component {
 const mapStateToProps = state => ({
   view: state.ui.view,
   loading: state.ui.loading,
-  bookmarks: state.bookmarks,
+  containers: state.containers,
   preview: state.preview,
   ui: state.ui,
 });

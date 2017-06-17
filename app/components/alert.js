@@ -28,7 +28,7 @@ class Alert extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  bookmarks: state.bookmarks,
+  containers: state.containers,
   alert: state.alert,
 });
 

@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import uiReducer from './reducers/ui';
 import alertReducer from './reducers/alert';
-import bookmarksReducer from './reducers/bookmarks';
+import containersReducer from './reducers/containers';
 import locReducer from './reducers/loc';
 import filesReducer from './reducers/files';
 import previewReducer from './reducers/preview';
@@ -22,7 +22,7 @@ const store = createStore(
   combineReducers({
     ui: uiReducer,
     alert: alertReducer,
-    bookmarks: bookmarksReducer,
+    containers: containersReducer,
     loc: locReducer,
     files: filesReducer,
     preview: previewReducer,

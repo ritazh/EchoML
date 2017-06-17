@@ -24,16 +24,16 @@ export function fileSizeIEC(a) {
 export function urlToLoc(str) {
   const dir = decodeURIComponent(str).split('/');
   removeAll(dir, '');
-  const bookmark = parseInt(dir[0], 10) || 0;
-  return { bookmark, dir: dir.slice(1) };
+  const container = parseInt(dir[0], 10) || 0;
+  return { container, dir: dir.slice(1) };
 }
 
 export function locToUrl(loc) {
   if (loc.dir.length === 0) {
-    return `/${loc.bookmark}`;
+    console.log(`/${loc.container}`);
+    return `/${loc.container}`;
   }
-
-  return `/${loc.bookmark}/${loc.dir.join('/')}`;
+  return `/${loc.container}/${loc.dir.join('/')}`;
 }
 
 export function responsiveValue(width, phone, tablet, desktop, largeDesktop) {

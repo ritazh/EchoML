@@ -12,7 +12,7 @@ class Location extends React.Component {
   handleClick = e => {
     const index = parseInt(e.target.dataset.index, 10);
     const dir = this.props.loc.dir.slice(0, index);
-    const loc = { bookmark: this.props.loc.bookmark, dir };
+    const loc = { container: this.props.loc.container, dir };
     this.props.dispatch(actions.changeLoc(loc));
   };
 

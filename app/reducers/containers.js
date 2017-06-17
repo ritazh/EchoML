@@ -1,7 +1,7 @@
 const reducer = (state = [], action) => {
   switch (action.type) {
-    case 'SET_BOOKMARKS':
-      return action.bookmarks;
+    case 'SET_CONTAINERS':
+      return action.containers;
 
     default:
       return state;

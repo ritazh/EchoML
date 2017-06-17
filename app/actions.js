@@ -119,9 +119,9 @@ export function initApp() {
       return;
     }
 
-    request(dispatch, '/api/bookmarks')
-    .then(bookmarks => {
-      dispatch({ type: 'SET_BOOKMARKS', bookmarks });
+    request(dispatch, '/api/containers')
+    .then(containers => {
+      dispatch({ type: 'SET_CONTAINERS', containers });
 
       const loc = urlToLoc(location.pathname);
       dispatch({ type: 'SET_LOC', loc });
@@ -140,11 +140,11 @@ export function login(account, password) {
         dispatch({ type: 'SET_LOGIN_MESSAGE', message: 'Login failed' });
         return undefined;
       }
-      return request(dispatch, '/api/bookmarks')
-      .then(bookmarks => {
-        dispatch({ type: 'SET_BOOKMARKS', bookmarks });
+      return request(dispatch, '/api/containers')
+      .then(containers => {
+        dispatch({ type: 'SET_CONTAINERS', containers });
         if (location.pathname === '/') {
-          dispatch(changeLoc({ bookmark: 0, dir: [] }));
+          dispatch(changeLoc({ container: 0, dir: [] }));
         } else {
           const loc = urlToLoc(location.pathname);
           dispatch({ type: 'SET_LOC', loc });
