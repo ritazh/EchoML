@@ -9,6 +9,7 @@ class BottomBar extends React.Component {
     dispatch: React.PropTypes.func,
     loc: React.PropTypes.object,
     files: React.PropTypes.array,
+    containers: React.PropTypes.array,
   };
 
   handleDownload = e => {
@@ -16,7 +17,8 @@ class BottomBar extends React.Component {
     const selectedFiles = this.props.files.filter(file => file.selected);
     const fullpath = locToUrl(this.props.loc);
     for (const file of selectedFiles) {
-      window.open(`${API_HOST}/api/download${fullpath}/${file.name}`);
+      //window.open(`${API_HOST}/api/download${fullpath}/${file.name}`);
+      window.open(`https://${process.env.AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/facedetectbot/${file.name}`);
     }
   };
 
@@ -29,6 +31,9 @@ class BottomBar extends React.Component {
     const fullpath = locToUrl(this.props.loc);
     let files = '';
     let content = '';
+    let index = fullpath.lastIndexOf('/');
+    let containerName = this.props.containers[fullpath.substring(index+1)];
+
     if (selectedFiles.length === 1 && !selectedFiles[0].isDirectory) {
       files = selectedFiles[0].name;
       content = (
@@ -36,7 +41,7 @@ class BottomBar extends React.Component {
           {files}
           {' '}
           <a
-            href={`${API_HOST}/api/download${fullpath}/${selectedFiles[0].name}`}
+            href={`https://ndbenqueueritabfa6.blob.core.windows.net/${containerName}/${selectedFiles[0].name}`}
             className="btn btn-default btn-sm"
             download
           >
@@ -55,6 +60,7 @@ class BottomBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  containers: state.containers,
   loc: state.loc,
   files: state.files,
 });

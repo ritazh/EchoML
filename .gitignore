@@ -3,3 +3,5 @@ logs/
 config/
 npm-debug.log*
 cert
+*.flac
+nodemon.json

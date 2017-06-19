@@ -37,7 +37,10 @@ function getFilePath(param) {
 
     subdir = subdir.substr(1);
   }
-  return container.name;
+  //https://ndbenqueueritabfa6.blob.core.windows.net/facedetectbot/1496783284700.jpeg
+  let path = subdir ? container.name + '/' + subdir : container.name;
+  logger.info(path);
+  return path;
 }
 
 function getImageInfo(filepath) {
@@ -180,11 +183,7 @@ const funcs = {
       this.body = 'invalid location';
       return;
     }
-
-    yield sendfile(this, filepath);
-    if (!this.status) {
-      this.throw(404);
-    }
+    
   },
 
   *image(param) {
