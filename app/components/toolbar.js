@@ -15,10 +15,6 @@ class Toolbar extends React.Component {
     this.props.dispatch({ type: 'CHANGE_VIEW', view: 'list' });
   };
 
-  handleThumbnailView = () => {
-    this.props.dispatch({ type: 'CHANGE_VIEW', view: 'thumbnail' });
-  };
-
   handleLogout = () => {
     this.props.dispatch(logout());
   };
@@ -32,12 +28,6 @@ class Toolbar extends React.Component {
             onClick={this.handleListView}
           >
             <Glyphicon glyph="th-list" />
-          </Button>
-          <Button
-            active={this.props.view === 'thumbnail'}
-            onClick={this.handleThumbnailView}
-          >
-            <Glyphicon glyph="th" />
           </Button>
         </ButtonGroup>
         <ButtonGroup>

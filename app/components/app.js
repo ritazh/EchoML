@@ -9,7 +9,6 @@ import Container from './container';
 import Location from './location';
 import Toolbar from './toolbar';
 import FileList from './fileList';
-import ThumbnailList from './thumbnailList';
 import BottomBar from './bottomBar';
 import Preview from './preview';
 import Spinner from 'react-spin';
@@ -42,7 +41,6 @@ class App extends React.Component {
 
   renderList() {
     switch (this.props.view) {
-      case 'thumbnail': return <ThumbnailList />;
       default:
         return <FileList />;
     }

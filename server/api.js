@@ -41,10 +41,12 @@ function getFilePath(param) {
 }
 
 function getImageInfo(filepath) {
-  let fileparts = filepath.split('/');
+  let fileparts = [];
+  fileparts[0] = filepath.substring(0,filepath.indexOf('/'));
+  fileparts[1] = filepath.substring(filepath.indexOf('/')+1);
   let info = {};
   return new Promise((resolve, reject) => {
-    blobService.getBlobToStream(fileparts[0], fileparts[fileparts.length-1], fs.createWriteStream('output.jpeg'), function(error, result, response) {
+    blobService.getBlobToStream(fileparts[0], fileparts[1], fs.createWriteStream('output.jpeg'), function(error, result, response) {
       if (!error) {
         const img = gm('output.jpeg');
         img.size((err, value) => {
@@ -162,7 +164,7 @@ const funcs = {
       //const stats = fs.lstatSync(path.resolve(dir, file));
       return {
         name: file.name,
-        isDirectory: file.blobType === "BlockBlob",
+        isDirectory: false, //file.name.indexOf('/') > -1,
         size: file.contentLength,
         mtime: file.lastModified,
       };

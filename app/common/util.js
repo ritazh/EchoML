@@ -30,7 +30,6 @@ export function urlToLoc(str) {
 
 export function locToUrl(loc) {
   if (loc.dir.length === 0) {
-    console.log(`/${loc.container}`);
     return `/${loc.container}`;
   }
   return `/${loc.container}/${loc.dir.join('/')}`;

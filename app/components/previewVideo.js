@@ -8,9 +8,17 @@ class PreviewVideo extends React.Component {
     dispatch: React.PropTypes.func,
     loc: React.PropTypes.object,
     preview: React.PropTypes.object,
+    containers: React.PropTypes.array,
+    storageaccount: React.PropTypes.string,
   };
 
   render() {
+    const preImgStyle = {
+      position: 'absolute',
+      width: '100%',
+      textAlign: 'center',
+      color: '#ccc',
+    };
     const preStyle = {
       position: 'relative',
       display: 'block',
@@ -21,6 +29,12 @@ class PreviewVideo extends React.Component {
       width: '100%',
       textAlign: 'center',
       color: '#ccc',
+    };
+    const imageStyle = {
+      position: 'relative',
+      display: 'block',
+      left: '400px',
+      top: '40px',
     };
 
     const outWidth = window.document.documentElement.clientWidth;
@@ -33,12 +47,28 @@ class PreviewVideo extends React.Component {
 
     const captionY = (outHeight - displaySize.height) / 2 + displaySize.height;
     captionStyle.top = `${captionY}px`;
+    const preImgStyleY = (outHeight - displaySize.height) / 2;
+    preImgStyle.top = `${preImgStyleY}px`;
 
     const fullpath = locToUrl(this.props.loc);
-    const src = `${API_HOST}/api/download${fullpath}/${this.props.preview.name}`;
+    let index = fullpath.lastIndexOf('/');
+    let containerName = this.props.containers[fullpath.substring(index+1)];
+    
+    const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}`;
+    let imageFileName = this.props.preview.name.substring(0, this.props.preview.name.lastIndexOf('.'));
 
+    const imgsrc = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${imageFileName}.png`;
+    console.log(imgsrc)
+    
     return (
       <div>
+        <div style={preImgStyle}>
+          <img
+              style={imageStyle}
+              src={imgsrc}
+              alt={this.props.preview.name}
+            />
+        </div>
         <div style={preStyle}>
           <ReactPlayer
             url={src}
@@ -59,6 +89,8 @@ class PreviewVideo extends React.Component {
 const mapStateToProps = state => ({
   loc: state.loc,
   preview: state.preview,
+  containers: state.containers,
+  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(PreviewVideo);
