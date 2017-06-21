@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import uiReducer from './reducers/ui';
 import alertReducer from './reducers/alert';
 import containersReducer from './reducers/containers';
+import storageAccountReducer from './reducers/storageaccount';
 import locReducer from './reducers/loc';
 import filesReducer from './reducers/files';
 import previewReducer from './reducers/preview';
@@ -26,6 +27,7 @@ const store = createStore(
     loc: locReducer,
     files: filesReducer,
     preview: previewReducer,
+    storageaccount: storageAccountReducer,
   }),
   undefined,
   compose(

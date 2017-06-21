@@ -119,6 +119,11 @@ export function initApp() {
       return;
     }
 
+    request(dispatch, '/api/storageaccount')
+    .then(storageaccount => {
+      dispatch({ type: 'SET_STORAGEACCOUNT', storageaccount });
+    });
+
     request(dispatch, '/api/containers')
     .then(containers => {
       dispatch({ type: 'SET_CONTAINERS', containers });

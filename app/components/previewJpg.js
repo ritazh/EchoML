@@ -8,6 +8,8 @@ class PreviewJpg extends React.Component {
     dispatch: React.PropTypes.func,
     loc: React.PropTypes.object,
     preview: React.PropTypes.object,
+    containers: React.PropTypes.array,
+    storageaccount: React.PropTypes.string,
   };
 
   componentDidMount() {
@@ -26,7 +28,10 @@ class PreviewJpg extends React.Component {
     }
 
     const fullpath = locToUrl(this.props.loc);
-    const src = `${API_HOST}/api/image${fullpath}/${this.props.preview.name}?type=max800`;
+    let index = fullpath.lastIndexOf('/');
+    let containerName = this.props.containers[fullpath.substring(index+1)];
+    
+    const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}?type=max800`;
     const imageStyle = {
       position: 'relative',
       display: 'block',
@@ -91,6 +96,8 @@ class PreviewJpg extends React.Component {
 const mapStateToProps = state => ({
   loc: state.loc,
   preview: state.preview,
+  containers: state.containers,
+  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(PreviewJpg);

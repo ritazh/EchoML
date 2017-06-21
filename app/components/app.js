@@ -22,6 +22,7 @@ class App extends React.Component {
     containers: React.PropTypes.array,
     preview: React.PropTypes.object,
     ui: React.PropTypes.object,
+    storageaccount: React.PropTypes.string,
   };
 
   componentDidMount() {
@@ -80,6 +81,7 @@ const mapStateToProps = state => ({
   containers: state.containers,
   preview: state.preview,
   ui: state.ui,
+  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(App);

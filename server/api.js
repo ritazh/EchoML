@@ -24,7 +24,6 @@ function getFilePath(param) {
 
   const containerIndex = parseInt(result[1], 10);
   const container = containers[containerIndex];
-  logger.info("container: " + container.name);
   if (!container) {
     return null;
   }
@@ -37,33 +36,37 @@ function getFilePath(param) {
 
     subdir = subdir.substr(1);
   }
-  //https://ndbenqueueritabfa6.blob.core.windows.net/facedetectbot/1496783284700.jpeg
   let path = subdir ? container.name + '/' + subdir : container.name;
-  logger.info(path);
   return path;
 }
 
 function getImageInfo(filepath) {
-  const info = {};
+  let fileparts = filepath.split('/');
+  let info = {};
   return new Promise((resolve, reject) => {
-    const img = gm(filepath);
-    img.size((err, value) => {
-      if (err) {
-        reject(err);
-        return;
+    blobService.getBlobToStream(fileparts[0], fileparts[fileparts.length-1], fs.createWriteStream('output.jpeg'), function(error, result, response) {
+      if (!error) {
+        const img = gm('output.jpeg');
+        img.size((err, value) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          info.size = value;
+          img.orientation((err2, value2) => {
+            if (err2) {
+              reject(err2);
+              return;
+            }
+
+            info.orientation = value2;
+            resolve(info);
+          });
+        });
       }
-
-      info.size = value;
-      img.orientation((err2, value2) => {
-        if (err2) {
-          reject(err2);
-          return;
-        }
-
-        info.orientation = value2;
-        resolve(info);
-      });
     });
+    
   });
 }
 let blobs = [];
@@ -83,7 +86,6 @@ function aggregateContainers(err, result, cb) {
 }
 
 function getContainersAsync() {
-  logger.info('getContainers');
   containers = [];
   return new Promise(function(resolve, reject) {
     blobService.listContainersSegmented(null, function(err, result) {
@@ -109,14 +111,12 @@ function aggregateBlobs(containerName, err, result, cb) {
           blobService
               .listBlobsSegmented(containerName, result.continuationToken, aggregateBlobs);
       } else {
-        logger.info(containerName + ": " + blobs.length);
         cb(null, blobs);
       }
   }
 }
 
 function getBlobsAsync(containerName) {
-  logger.info('getBlobs');
   blobs = [];
   return new Promise(function(resolve, reject) {
     blobService.listBlobsSegmented(containerName, null, function(err, result) {
@@ -125,7 +125,6 @@ function getBlobsAsync(containerName) {
           logger.warn(err);
           reject(err);
         } else {
-          logger.info(containerName + " resolve: " + blobs.length);
           resolve(blobs);
         }
       });
@@ -134,6 +133,10 @@ function getBlobsAsync(containerName) {
 }
 
 const funcs = {
+  *storageaccount() {
+    this.body = JSON.stringify(process.env.AZURE_STORAGE_ACCOUNT);
+  },
+  
   *bookmarks() {
     const bookmarks = config.get('bookmarks');
     this.body = JSON.stringify(bookmarks.map(b => b.name));

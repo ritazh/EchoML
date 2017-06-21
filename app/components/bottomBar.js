@@ -10,6 +10,7 @@ class BottomBar extends React.Component {
     loc: React.PropTypes.object,
     files: React.PropTypes.array,
     containers: React.PropTypes.array,
+    storageaccount: React.PropTypes.string,
   };
 
   handleDownload = e => {
@@ -41,7 +42,7 @@ class BottomBar extends React.Component {
           {files}
           {' '}
           <a
-            href={`https://ndbenqueueritabfa6.blob.core.windows.net/${containerName}/${selectedFiles[0].name}`}
+            href={`https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${selectedFiles[0].name}`}
             className="btn btn-default btn-sm"
             download
           >
@@ -63,6 +64,7 @@ const mapStateToProps = state => ({
   containers: state.containers,
   loc: state.loc,
   files: state.files,
+  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(BottomBar);
