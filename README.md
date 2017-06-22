@@ -4,6 +4,10 @@ A web app to play, visualize, and label audio files.
 
 ## Screenshot
 
+![List of containers and files](images/files.png)
+
+![Play and visualize an audio file](images/audio.png)
+
 ## Run
 
 ### Sample config file
@@ -11,6 +15,13 @@ A web app to play, visualize, and label audio files.
 config/development.json or config/production.json
 
 ```json
+{
+  "auth": {
+    "keys": ["some secret"],
+    "account": "test",
+    "password": "test"
+  }
+}
 
 ```
 ### Install GraphicsMagick
@@ -46,4 +57,3 @@ npm start
 ```
 
 Open your browser and connect to http://localhost:5000.
-Default username/password is test/test.
