@@ -160,16 +160,19 @@ const funcs = {
     let containerFiles = yield getBlobsAsync(dir);
     files = files.concat(containerFiles);
     
-    files = files.map(file => {
+    let data = files.reduce(function(result, file) {
       //const stats = fs.lstatSync(path.resolve(dir, file));
-      return {
-        name: file.name,
-        isDirectory: false, //file.name.indexOf('/') > -1,
-        size: file.contentLength,
-        mtime: file.lastModified,
-      };
-    });
-    this.body = files;
+      if (file.name.indexOf('.flac') > -1){
+        result.push({
+          name: file.name,
+          isDirectory: false, //file.name.indexOf('/') > -1,
+          size: file.contentLength,
+          mtime: file.lastModified,
+        });
+      }
+      return result
+    }, []);
+    this.body = data;
   },
 
   *imageInfo(param) {
