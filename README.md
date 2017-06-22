@@ -10,6 +10,19 @@ A web app to play, visualize, and label audio files.
 
 ## Run
 
+### Set ENV variables
+
+Set ENV variables for Azure Storage account. You can add the following to your `nodemon.json`:
+
+```json
+{
+  "env": {
+    "AZURE_STORAGE_ACCOUNT": "",
+    "AZURE_STORAGE_ACCESS_KEY": ""
+  }
+}
+```
+
 ### Sample config file
 
 config/development.json or config/production.json
