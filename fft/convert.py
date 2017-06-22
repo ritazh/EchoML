@@ -16,7 +16,7 @@ for (dirpath, dirnames, filenames) in os.walk(current_dir):
 		if extension == '.flac':
 			soundfile = Sndfile(path, "r")
 			signal = soundfile.read_frames(soundfile.nframes)
-			plt.specgram(signal, NFFT=256, Fs=Fs)
+			plt.specgram(signal, NFFT=512, Fs=Fs)
 			
 			outputfile = path.replace(extension, '.png')
 			print (outputfile)
