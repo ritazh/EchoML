@@ -8,6 +8,14 @@ A web app to play, visualize, and label audio files.
 
 ![Play and visualize an audio file](images/audio.png)
 
+## Generate fft Visualization
+
+To generate fft visualization files for your audio files, copy the fft folder into a file directory with your audio files. Run the following to generate a fft visualization for each audio file:
+
+```bash
+python fft/convert.py
+
+```
 ## Run
 
 ### Set ENV variables
