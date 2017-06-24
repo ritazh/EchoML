@@ -156,6 +156,11 @@ export function login(account, password) {
           dispatch(updateFiles(loc));
         }
         dispatch({ type: 'SET_LOGIN', login: true });
+
+        return request(dispatch, '/api/storageaccount')
+        .then(storageaccount => {
+          dispatch({ type: 'SET_STORAGEACCOUNT', storageaccount });
+        });
       });
     })
     .catch(err => {
