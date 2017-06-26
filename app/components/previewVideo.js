@@ -58,16 +58,10 @@ class PreviewVideo extends React.Component {
     let imageFileName = this.props.preview.name.substring(0, this.props.preview.name.lastIndexOf('.'));
 
     const imgsrc = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${imageFileName}.png`;
-    console.log(imgsrc)
     
     return (
       <div>
-        <div style={preImgStyle}>
-          <img
-              style={imageStyle}
-              src={imgsrc}
-              alt={this.props.preview.name}
-            />
+        <div id="playlist">
         </div>
         <div style={preStyle}>
           <ReactPlayer
