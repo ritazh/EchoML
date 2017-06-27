@@ -18,6 +18,7 @@ import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import '../node_modules/font-awesome/css/font-awesome.css';
 import './public/style.css';
 import App from './components/app';
+import './annotations';
 
 const store = createStore(
   combineReducers({
