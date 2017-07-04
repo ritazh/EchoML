@@ -4,6 +4,8 @@ import React from 'react';
 import PreviewJpg from './previewJpg';
 import PreviewVideo from './previewVideo';
 import PreviewTxt from './previewTxt';
+import Login from './login';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 class Preview extends React.Component {
   static propTypes = {
@@ -68,6 +70,15 @@ class Preview extends React.Component {
     e.preventDefault();
   };
 
+  showDetail() {
+    return (
+     <BrowserRouter>
+        <div>
+        <Route exact path="/detail" component={Login}/>
+        </div>
+      </BrowserRouter>
+    );
+  }
   renderByExt() {
     switch (path.extname(this.props.preview.name).toLowerCase()) {
       case '.jpg':
@@ -78,7 +89,7 @@ class Preview extends React.Component {
       case '.ogv':
       case '.webm':
       case '.flac':
-        return <PreviewVideo />;
+        this.showDetail();
       case '.txt':
       case '.md':
       case '.js':
@@ -136,6 +147,7 @@ const mapStateToProps = state => ({
   loc: state.loc,
   files: state.files,
   preview: state.preview,
+  router: state.router,
 });
 
 export default connect(mapStateToProps)(Preview);
