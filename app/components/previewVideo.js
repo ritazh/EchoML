@@ -16,13 +16,12 @@ class PreviewVideo extends React.Component {
 
   handleLoadState() {
     this.playlist = window.loadAnnotation();
-
+    window.loadEmitter(this.playlist);
     const fullpath = locToUrl(this.props.loc);
     let index = fullpath.lastIndexOf('/');
     let containerName = this.props.containers[fullpath.substring(index+1)];
     
-    //const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}`;
-    const src = "../app/public/media/SM01_20000101_000000.flac";
+    const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}`;
     window.playFile(this.playlist, src);
   };
 
@@ -41,6 +40,7 @@ class PreviewVideo extends React.Component {
       position: 'relative',
       display: 'block',
       overflow: 'hidden',
+      background: '#fff',
     };
     const playlistStyle = {
       background: '#fff',
@@ -83,6 +83,55 @@ class PreviewVideo extends React.Component {
     return (
       <div>
         <div style={preStyle}>
+          <div id="top-bar" className="playlist-top-bar">
+            <div className="playlist-toolbar">
+              <div className="btn-group">
+                <span className="btn-pause btn btn-warning">
+                  <i className="fa fa-pause"></i>
+                </span>
+                <span className="btn-play btn btn-success">
+                  <i className="fa fa-play"></i>
+                </span>
+                <span className="btn-stop btn btn-danger">
+                  <i className="fa fa-stop"></i>
+                </span>
+                <span className="btn-rewind btn btn-success">
+                  <i className="fa fa-fast-backward"></i>
+                </span>
+                <span className="btn-fast-forward btn btn-success">
+                  <i className="fa fa-fast-forward"></i>
+                </span>
+              </div>
+              <div className="btn-group">
+                <span title="zoom in" className="btn-zoom-in btn btn-default">
+                  <i className="fa fa-search-plus"></i>
+                </span>
+                <span title="zoom out" className="btn-zoom-out btn btn-default">
+                  <i className="fa fa-search-minus"></i>
+                </span>
+              </div>
+              <div className="btn-group btn-playlist-state-group">
+                <span className="btn-cursor btn btn-default active" title="select cursor">
+                  <i className="fa fa-headphones"></i>
+                </span>
+                <span className="btn-select btn btn-default" title="select audio region">
+                  <i className="fa fa-italic"></i>
+                </span>
+              </div>
+              <div className="btn-group btn-select-state-group">
+                <span className="btn-loop btn btn-success disabled" title="loop a selected segment of audio">
+                  <i className="fa fa-repeat"></i>
+                </span>
+                <span title="keep only the selected audio region for a track"
+                      className="btn-trim-audio btn btn-primary disabled">Trim</span>
+              </div>
+              <div className="btn-group">
+                <span title="Download the current file" className="btn btn-download btn-primary">
+                  <i className="fa fa-download"></i>
+                </span>
+              </div>
+            </div>
+          </div>
           <div id="playlist" style={playlistStyle}></div>
         </div>
         <div style={captionStyle}>

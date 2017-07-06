@@ -89,7 +89,6 @@ var actions = [
 ];
 
 function loadAnnotation(){
-  console.log('loadAnnotation()')
   var playlist = WaveformPlaylist.init({
     container: document.getElementById("playlist"),
     timescale: true,
@@ -119,6 +118,8 @@ function playFile(playlist, url){
     }
   ]).then(function() {
     //can do stuff with the playlist.
+    //initialize the WAV exporter.
+    playlist.initExporter();
   });
 }
 

@@ -1,3 +1,5 @@
+var audioContext = new window.AudioContext();
+
 var WaveformPlaylist =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -88,8 +90,6 @@ var WaveformPlaylist =
 	  window.OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
 	  window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	
-	  var audioContext = new window.AudioContext();
-	
 	  var defaults = {
 	    ac: audioContext,
 	    sampleRate: audioContext.sampleRate,
@@ -153,7 +153,6 @@ var WaveformPlaylist =
 	  // take care of initial virtual dom rendering.
 	  var tree = playlist.render();
 	  var rootNode = (0, _createElement2.default)(tree);
-	  console.log(config)
 	  config.container.appendChild(rootNode);
 	  playlist.tree = tree;
 	  playlist.rootNode = rootNode;
@@ -2058,13 +2057,13 @@ var WaveformPlaylist =
 	        TODO cleanup of different audio playouts handling.
 	      */
 	      this.offlineAudioContext.startRendering().then(function (audioBuffer) {
-	        if (type === 'buffer') {
+	        if (type === 'buffer' ) {
 	          _this4.ee.emit('audiorenderingfinished', type, audioBuffer);
 	          _this4.isRendering = false;
 	          return;
 	        }
 	
-	        if (type === 'wav') {
+	        if (type === 'wav' || type === 'flac') {
 	          _this4.exportWorker.postMessage({
 	            command: 'init',
 	            config: {
@@ -4834,12 +4833,9 @@ var WaveformPlaylist =
 	  _createClass(_class, null, [{
 	    key: 'createLoader',
 	    value: function createLoader(src, audioContext, ee) {
-	    	console.log(src)
 	      if (src instanceof Blob) {
-	      	console.log('blob')
 	        return new _BlobLoader2.default(src, audioContext, ee);
 	      } else if (typeof src === 'string') {
-	      	console.log('string')
 	        return new _XHRLoader2.default(src, audioContext, ee);
 	      }
 	

@@ -69,14 +69,6 @@ class Preview extends React.Component {
     e.preventDefault();
   };
 
-  showDetail() {
-    return 
-     <BrowserRouter>
-        <div>
-        <Route exact path="/detail" component={Login}/>
-        </div>
-      </BrowserRouter>;
-  }
   renderByExt() {
     switch (path.extname(this.props.preview.name).toLowerCase()) {
       case '.jpg':
