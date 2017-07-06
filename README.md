@@ -1,26 +1,22 @@
 # EchoML
 
-A web app to play, visualize, and label audio files.
+Play, visualize, and annotate your audio files
 
 ## Screenshot
 
 ![List of containers and files](images/files.png)
 
-![Play and visualize an audio file](images/audio.png)
+![Play, visualize, and annotate your audio files](images/audio.png)
 
-## Generate fft Visualization
-
-To generate fft visualization files for your audio files, copy the fft folder into a file directory with your audio files. Run the following to generate a fft visualization for each audio file:
-
-```bash
-python fft/convert.py
-
-```
 ## Run
+
+### Supported storage providers
+
+Azure blob storage
 
 ### Set ENV variables
 
-Set ENV variables for Azure Storage account. You can add the following to your `nodemon.json`:
+For Azure blob storage: set ENV variables for the Azure Storage account. You can add the following to your `nodemon.json`:
 
 ```json
 {
@@ -78,3 +74,12 @@ npm start
 ```
 
 Open your browser and connect to http://localhost:5000.
+
+
+## Acknowledgement
+
+Leverage the awesome [waveform-playlist](https://www.npmjs.com/package/waveform-playlist) module created by @naomiaro. 
+
+## License
+
+[MIT License](http://doge.mit-license.org)
