@@ -1,4 +1,5 @@
 const initialState = {
+  annotate: null,
   login: null,
   loginMessage: null,
   view: 'list',

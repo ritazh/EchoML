@@ -2,8 +2,10 @@ import { connect } from 'react-redux';
 import React from 'react';
 import ReactPlayer from 'react-player';
 import { locToUrl, calcDisplaySize } from '../common/util';
+import annotations from '../annotations';
 
 class PreviewVideo extends React.Component {
+  playlist = null;
   static propTypes = {
     dispatch: React.PropTypes.func,
     loc: React.PropTypes.object,
@@ -11,6 +13,22 @@ class PreviewVideo extends React.Component {
     containers: React.PropTypes.array,
     storageaccount: React.PropTypes.string,
   };
+
+  handleLoadState() {
+    this.playlist = window.loadAnnotation();
+
+    const fullpath = locToUrl(this.props.loc);
+    let index = fullpath.lastIndexOf('/');
+    let containerName = this.props.containers[fullpath.substring(index+1)];
+    
+    //const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}`;
+    const src = "../app/public/media/SM01_20000101_000000.flac";
+    window.playFile(this.playlist, src);
+  };
+
+  componentDidMount() {
+    this.handleLoadState();
+  }
 
   render() {
     const preImgStyle = {
@@ -23,6 +41,9 @@ class PreviewVideo extends React.Component {
       position: 'relative',
       display: 'block',
       overflow: 'hidden',
+    };
+    const playlistStyle = {
+      background: '#fff',
     };
     const captionStyle = {
       position: 'absolute',
@@ -61,16 +82,8 @@ class PreviewVideo extends React.Component {
     
     return (
       <div>
-        <div id="playlist">
-        </div>
         <div style={preStyle}>
-          <ReactPlayer
-            url={src}
-            width={displaySize.width}
-            height={displaySize.height}
-            playing
-            controls
-          />
+          <div id="playlist" style={playlistStyle}></div>
         </div>
         <div style={captionStyle}>
           {this.props.preview.name}
