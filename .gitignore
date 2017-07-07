@@ -8,3 +8,4 @@ cert
 nodemon.json
 output.jpeg
 *.png
+dist/

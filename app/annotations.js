@@ -1,4 +1,4 @@
-
+var WaveformPlaylist = require('waveform-playlist');
 
 var notes = [
   {
@@ -88,7 +88,7 @@ var actions = [
   }
 ];
 
-function loadAnnotation(){
+export function loadAnnotation(){
   var playlist = WaveformPlaylist.init({
     container: document.getElementById("playlist"),
     timescale: true,
@@ -110,7 +110,7 @@ function loadAnnotation(){
   return playlist;
 }
 
-function playFile(playlist, url){
+export function playFile(playlist, url){
 
   playlist.load([
     {

@@ -16,7 +16,7 @@ var downloadUrl = undefined;
 var isLooping = false;
 var playoutPromises;
 
-function loadEmitter(playlist){
+export function loadEmitter(playlist){
   ee = playlist.getEventEmitter();
   $container = $("body");
   $timeFormat = $container.find('.time-format');

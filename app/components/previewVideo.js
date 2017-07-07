@@ -2,7 +2,8 @@ import { connect } from 'react-redux';
 import React from 'react';
 import ReactPlayer from 'react-player';
 import { locToUrl, calcDisplaySize } from '../common/util';
-import annotations from '../annotations';
+import { loadAnnotation, playFile } from '../annotations';
+import { loadEmitter } from '../emitter';
 
 class PreviewVideo extends React.Component {
   playlist = null;
@@ -15,14 +16,14 @@ class PreviewVideo extends React.Component {
   };
 
   handleLoadState() {
-    this.playlist = window.loadAnnotation();
-    window.loadEmitter(this.playlist);
+    this.playlist = loadAnnotation();
+    loadEmitter(this.playlist);
     const fullpath = locToUrl(this.props.loc);
     let index = fullpath.lastIndexOf('/');
     let containerName = this.props.containers[fullpath.substring(index+1)];
     
     const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}`;
-    window.playFile(this.playlist, src);
+    playFile(this.playlist, src);
   };
 
   componentDidMount() {
