@@ -1,6 +1,7 @@
 node_modules/
 logs/
-config/
+config/development.json
+config/production.json
 npm-debug.log*
 cert
 *.flac

@@ -1,0 +1,21 @@
+{
+  "hostname": "0.0.0.0",
+  "port": 5000,
+  "serveStatic": false,
+  "cors": true,
+  "log": {
+    "console": {
+      "level": "debug",
+      "handleExceptions": true,
+      "colorize": true
+    },
+    "file": {
+      "level": "info",
+      "filename": "logs/winston.log",
+      "prepend": true,
+      "handleExceptions": true,
+      "colorize": false,
+      "json": false
+    }
+  }
+}
