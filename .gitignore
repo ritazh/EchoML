@@ -1,11 +1,31 @@
-node_modules/
-logs/
+# Dependency directories
+node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Configuration
 config/development.json
 config/production.json
-npm-debug.log*
 cert
-*.flac
 nodemon.json
+
+# Assets
+*.flac
 output.jpeg
 *.png
-dist/
+
+# Builds/Articats
+dist
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# IDE
+*.iml
+.idea
