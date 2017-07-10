@@ -3,7 +3,7 @@ const path = require('path');
 const HtmlwebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  devtool: 'cheap-module-source-map',
+  devtool: 'source-map',
   entry: './app/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -11,18 +11,8 @@ module.exports = {
     publicPath: '/',
   },
   plugins: [
-    new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-      },
       API_HOST: JSON.stringify(''),
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        screw_ie8: true,
-        warnings: false,
-      },
     }),
     new HtmlwebpackPlugin({
       title: 'EchoML',
@@ -33,24 +23,24 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /\.js$/,
-        loader: 'babel',
+        test: /\.jsx?$/,
+        loader: 'babel-loader',
         exclude: /node_modules/,
       }, {
         test: /\.css$/,
-        loader: 'style!css',
+        loader: 'style-loader!css-loader',
       }, {
         test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&minetype=application/font-woff',
+        loader: 'url-loader?limit=10000&minetype=application/font-woff',
       }, {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&minetype=application/octet-stream',
+        loader: 'url-loader?limit=10000&minetype=application/octet-stream',
       }, {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'file',
+        loader: 'file-loader',
       }, {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&minetype=image/svg+xml',
+        loader: 'url-loader?limit=10000&minetype=image/svg+xml',
       },
     ],
   },
