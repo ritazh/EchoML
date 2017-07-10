@@ -9,7 +9,7 @@
     "eslint": "./node_modules/eslint/bin/eslint.js app/**  server/**; exit 0;",
     "eslint-fix": "./node_modules/eslint/bin/eslint.js app/**  server/** --fix; exit 0;",
     "jscs": "jscs .",
-    "dev-back": "nodemon -w server -w config server/index.js",
+    "dev-back": "./node_modules/nodemon/bin/nodemon.js -w server -w config server/index.js",
     "dev-front": "webpack-dev-server"
   },
   "author": {
