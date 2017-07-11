@@ -71,7 +71,7 @@ function getImageInfo(filepath) {
             });
           });
         }
-      },
+      }
     );
   });
 }
