@@ -112,6 +112,15 @@ export function startPreviewTxt(loc, name) {
   };
 }
 
+export function loadLabels(loc, index, name) {  
+  return (dispatch) => {
+    request(dispatch, `/api/labels${locToUrl(loc)}/${name}`)
+      .then((labels) => {
+        dispatch({ type: 'START_PREVIEW', loc: loc, index: index, name: name, labels: labels });
+      });
+  };
+}
+
 export function initApp() {
   return (dispatch) => {
     if (location.pathname === '/') {

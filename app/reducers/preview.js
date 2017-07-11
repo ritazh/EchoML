@@ -4,6 +4,7 @@ const reducer = (state = null, action) => {
       return {
         index: action.index,
         name: action.name,
+        labels: action.labels,
       };
 
     case 'START_PREVIEW_JPG':

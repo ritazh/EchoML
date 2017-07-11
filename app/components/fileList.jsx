@@ -40,7 +40,7 @@ class FileList extends React.Component {
   handleWindowResize = () => {
     clearTimeout(this.timerHandle);
     this.timerHandle = setTimeout(this.updateTimer, 16);
-  };
+  }
 
   updateTimer = () => {
     this.setState({ colPerRow: this.calcColPerRow() });
@@ -61,12 +61,7 @@ class FileList extends React.Component {
 
   handlePreviewClick = (index) => {
     const name = this.props.files[index].name;
-    this.props.dispatch({
-      type: 'START_PREVIEW',
-      loc: this.props.loc,
-      index,
-      name,
-    });
+    this.props.dispatch(actions.loadLabels(this.props.loc, index, name));
   };
 
   handleToggle = (index) => {
@@ -79,10 +74,10 @@ class FileList extends React.Component {
     let fileIndex = 0;
     return (
       <div>
-        {arrayChunk(this.props.files, this.state.colPerRow).map(chunk =>
-          (<Row key={chunk.reduce((acc, file) => `${acc}/${file.name}`, '')}>
-            {chunk.map(file =>
-              (<Col
+        {arrayChunk(this.props.files, this.state.colPerRow).map(chunk => (
+          <Row key={chunk.reduce((acc, file) => `${acc}/${file.name}`, '')}>
+            {chunk.map(file => (
+              <Col
                 key={file.name}
                 lg={3}
                 md={3}
@@ -98,10 +93,10 @@ class FileList extends React.Component {
                   onPreviewClick={this.handlePreviewClick}
                   onToggle={this.handleToggle}
                 />
-              </Col>),
-            )}
-          </Row>),
-        )}
+              </Col>
+          ))}
+          </Row>
+      ))}
       </div>
     );
   }
