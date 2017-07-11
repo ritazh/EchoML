@@ -1,17 +1,17 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
-import React from 'react';
 import { Grid, ButtonToolbar } from 'react-bootstrap';
-import { urlToLoc } from '../common/util';
-import Alert from './alert';
-import Login from './login';
-import Container from './container';
-import Location from './location';
-import Toolbar from './toolbar';
-import FileList from './fileList';
-import BottomBar from './bottomBar';
-import Preview from './preview';
+import React from 'react';
 import Spinner from 'react-spin';
+import { urlToLoc } from '../common/util';
+import * as actions from '../actions';
+import Alert from './alert';
+import BottomBar from './bottomBar';
+import Container from './container';
+import FileList from './fileList';
+import Location from './location';
+import Login from './login';
+import Preview from './preview';
+import Toolbar from './toolbar';
 
 class App extends React.Component {
   static propTypes = {
@@ -52,7 +52,11 @@ class App extends React.Component {
     }
 
     if (this.props.ui.login === false) {
-      return <Grid><Login /></Grid>;
+      return (
+        <Grid>
+          <Login />
+        </Grid>
+      );
     }
 
     return (
@@ -67,7 +71,11 @@ class App extends React.Component {
         {this.renderList()}
         <BottomBar />
         {this.props.preview ? <Preview /> : ''}
-        {this.props.loading ? <div className="loading"><Spinner /></div> : ''}
+        {this.props.loading
+          ? <div className="loading">
+            <Spinner />
+          </div>
+          : ''}
       </Grid>
     );
   }

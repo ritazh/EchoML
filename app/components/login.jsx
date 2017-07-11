@@ -1,9 +1,18 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Grid, Row, Col, Panel, Button, FormGroup, ControlLabel,
-  FormControl, Alert } from 'react-bootstrap';
+import * as actions from '../actions';
+import {
+  Grid,
+  Row,
+  Col,
+  Panel,
+  Button,
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Alert,
+} from 'react-bootstrap';
 
 class Login extends React.Component {
   static propTypes = {
@@ -53,10 +62,7 @@ class Login extends React.Component {
                 <ControlLabel>Password</ControlLabel>
                 <FormControl ref="password" type="password" />
               </FormGroup>
-              <Button
-                bsStyle="primary"
-                onClick={this.handleLogin}
-              >
+              <Button bsStyle="primary" onClick={this.handleLogin}>
                 Login
               </Button>
             </Panel>

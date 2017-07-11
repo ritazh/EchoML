@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { ButtonGroup, ButtonToolbar, Button, Glyphicon, Modal, FormControl } from 'react-bootstrap';
+import { ButtonGroup, ButtonToolbar, Button, Glyphicon } from 'react-bootstrap';
 import FontAwesome from 'react-fontawesome';
-import { createFolder, logout } from '../actions';
+import { logout } from '../actions';
 
 class Toolbar extends React.Component {
   static propTypes = {
@@ -31,9 +31,7 @@ class Toolbar extends React.Component {
           </Button>
         </ButtonGroup>
         <ButtonGroup>
-          <Button
-            onClick={this.handleLogout}
-          >
+          <Button onClick={this.handleLogout}>
             <FontAwesome name="sign-out" />
           </Button>
         </ButtonGroup>

@@ -1,7 +1,7 @@
-import { connect } from 'react-redux';
-import * as actions from '../actions';
-import React from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import React from 'react';
+import * as actions from '../actions';
 
 class Location extends React.Component {
   static propTypes = {
@@ -19,11 +19,11 @@ class Location extends React.Component {
   render() {
     return (
       <ButtonGroup>
-        {this.props.loc.dir.map((name, index) => (
-          <Button key={index} onClick={this.handleClick} data-index={index + 1}>
+        {this.props.loc.dir.map((name, index) =>
+          (<Button key={index} onClick={this.handleClick} data-index={index + 1}>
             {name}
-          </Button>
-        ))}
+          </Button>),
+        )}
       </ButtonGroup>
     );
   }

@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
+import { Row, Col } from 'react-bootstrap';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Row, Col } from 'react-bootstrap';
 import { locToUrl, responsiveValue, arrayChunk } from '../common/util';
+import * as actions from '../actions';
 import File from './file';
 
 const selectedStyle = {
@@ -40,7 +40,7 @@ class FileList extends React.Component {
   handleWindowResize = () => {
     clearTimeout(this.timerHandle);
     this.timerHandle = setTimeout(this.updateTimer, 16);
-  }
+  };
 
   updateTimer = () => {
     this.setState({ colPerRow: this.calcColPerRow() });
@@ -61,7 +61,12 @@ class FileList extends React.Component {
 
   handlePreviewClick = (index) => {
     const name = this.props.files[index].name;
-    this.props.dispatch({ type: 'START_PREVIEW', loc: this.props.loc, index, name });
+    this.props.dispatch({
+      type: 'START_PREVIEW',
+      loc: this.props.loc,
+      index,
+      name,
+    });
   };
 
   handleToggle = (index) => {
@@ -74,10 +79,10 @@ class FileList extends React.Component {
     let fileIndex = 0;
     return (
       <div>
-        {arrayChunk(this.props.files, this.state.colPerRow).map(chunk => (
-          <Row key={chunk.reduce((acc, file) => `${acc}/${file.name}`, '')}>
-            {chunk.map(file => (
-              <Col
+        {arrayChunk(this.props.files, this.state.colPerRow).map(chunk =>
+          (<Row key={chunk.reduce((acc, file) => `${acc}/${file.name}`, '')}>
+            {chunk.map(file =>
+              (<Col
                 key={file.name}
                 lg={3}
                 md={3}
@@ -93,10 +98,10 @@ class FileList extends React.Component {
                   onPreviewClick={this.handlePreviewClick}
                   onToggle={this.handleToggle}
                 />
-              </Col>
-          ))}
-          </Row>
-      ))}
+              </Col>),
+            )}
+          </Row>),
+        )}
       </div>
     );
   }

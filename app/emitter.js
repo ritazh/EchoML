@@ -195,7 +195,7 @@ export function loadEmitter(playlist) {
     ee.emit('automaticscroll', $(e.target).is(':checked'));
   });
 
-    /*
+  /*
   * Code below receives updates from the playlist.
   */
   ee.on('select', updateSelect);
@@ -217,7 +217,6 @@ export function loadEmitter(playlist) {
   ee.on('mastervolumechange', (volume) => {
     displaySoundStatus(`Master volume now has volume ${volume}.`);
   });
-
 
   const audioStates = ['uninitialized', 'loading', 'decoding', 'finished'];
 
@@ -272,7 +271,6 @@ export function loadEmitter(playlist) {
   });
 }
 
-
 function toggleActive(node) {
   const active = node.parentNode.querySelectorAll('.active');
   let i = 0,
@@ -297,7 +295,10 @@ function cueFormatters(format) {
     secs = seconds % 60;
     secs = secs.toFixed(decimals);
 
-    result = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${secs < 10 ? `0${secs}` : secs}`;
+    result = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${secs <
+    10
+      ? `0${secs}`
+      : secs}`;
 
     return result;
   }
@@ -351,7 +352,6 @@ function updateTime(time) {
 // updateSelect(startTime, endTime);
 // updateTime(audioPos);
 
-
 /*
 * Code below sets up events to send messages to the playlist.
 */
@@ -369,7 +369,6 @@ function updateTime(time) {
 //   }
 // });
 
-
 function displaySoundStatus(status) {
   $('.sound-status').html(status);
 }
@@ -380,7 +379,7 @@ function displayLoadingData(data) {
 }
 
 function displayDownloadLink(link) {
-  const dateString = (new Date()).toISOString();
+  const dateString = new Date().toISOString();
   const $link = $('<a/>', {
     href: link,
     download: `waveformplaylist${dateString}.wav`,
@@ -391,4 +390,3 @@ function displayDownloadLink(link) {
   $('.btn-download-link').remove();
   $('.btn-download').after($link);
 }
-

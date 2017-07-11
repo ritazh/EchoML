@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import ReactPlayer from 'react-player';
 import { locToUrl, calcDisplaySize } from '../common/util';
 import { loadAnnotation, playFile } from '../annotations';
 import { loadEmitter } from '../emitter';
@@ -22,7 +21,9 @@ class PreviewVideo extends React.Component {
     const index = fullpath.lastIndexOf('/');
     const containerName = this.props.containers[fullpath.substring(index + 1)];
 
-    const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}`;
+    const src = `https://${this.props
+      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
+      .preview.name}`;
     playFile(this.playlist, src);
   }
 
@@ -60,7 +61,12 @@ class PreviewVideo extends React.Component {
 
     const outWidth = window.document.documentElement.clientWidth;
     const outHeight = window.document.documentElement.clientHeight;
-    const displaySize = calcDisplaySize(outWidth, outHeight, outWidth, outHeight);
+    const displaySize = calcDisplaySize(
+      outWidth,
+      outHeight,
+      outWidth,
+      outHeight,
+    );
     preStyle.width = `${displaySize.width}px`;
     preStyle.height = `${displaySize.height}px`;
     preStyle.left = `${(outWidth - displaySize.width) / 2}px`;
@@ -75,10 +81,16 @@ class PreviewVideo extends React.Component {
     const index = fullpath.lastIndexOf('/');
     const containerName = this.props.containers[fullpath.substring(index + 1)];
 
-    const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}`;
-    const imageFileName = this.props.preview.name.substring(0, this.props.preview.name.lastIndexOf('.'));
+    const src = `https://${this.props
+      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
+      .preview.name}`;
+    const imageFileName = this.props.preview.name.substring(
+      0,
+      this.props.preview.name.lastIndexOf('.'),
+    );
 
-    const imgsrc = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${imageFileName}.png`;
+    const imgsrc = `https://${this.props
+      .storageaccount}.blob.core.windows.net/${containerName}/${imageFileName}.png`;
 
     return (
       <div>
@@ -111,24 +123,40 @@ class PreviewVideo extends React.Component {
                 </span>
               </div>
               <div className="btn-group btn-playlist-state-group">
-                <span className="btn-cursor btn btn-default active" title="select cursor">
+                <span
+                  className="btn-cursor btn btn-default active"
+                  title="select cursor"
+                >
                   <i className="fa fa-headphones" />
                 </span>
-                <span className="btn-select btn btn-default" title="select audio region">
+                <span
+                  className="btn-select btn btn-default"
+                  title="select audio region"
+                >
                   <i className="fa fa-italic" />
                 </span>
               </div>
               <div className="btn-group btn-select-state-group">
-                <span className="btn-loop btn btn-success disabled" title="loop a selected segment of audio">
+                <span
+                  className="btn-loop btn btn-success disabled"
+                  title="loop a selected segment of audio"
+                >
                   <i className="fa fa-repeat" />
                 </span>
                 <span
                   title="keep only the selected audio region for a track"
                   className="btn-trim-audio btn btn-primary disabled"
-                >Trim</span>
+                >
+                  Trim
+                </span>
               </div>
               <div className="btn-group">
-                <span title="Download the annotations as json" className="btn-annotations-download btn btn-success">Download JSON</span>
+                <span
+                  title="Download the annotations as json"
+                  className="btn-annotations-download btn btn-success"
+                >
+                  Download JSON
+                </span>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 import React from 'react';
+import * as actions from '../actions';
 import { locToUrl, calcDisplaySize } from '../common/util';
 
 class PreviewJpg extends React.Component {
@@ -13,12 +13,16 @@ class PreviewJpg extends React.Component {
   };
 
   componentDidMount() {
-    this.props.dispatch(actions.startPreviewJpg(this.props.loc, this.props.preview.name));
+    this.props.dispatch(
+      actions.startPreviewJpg(this.props.loc, this.props.preview.name),
+    );
   }
 
   componentWillReceiveProps(props) {
     if (this.props.preview.name !== props.preview.name) {
-      this.props.dispatch(actions.startPreviewJpg(props.loc, props.preview.name));
+      this.props.dispatch(
+        actions.startPreviewJpg(props.loc, props.preview.name),
+      );
     }
   }
 
@@ -30,7 +34,9 @@ class PreviewJpg extends React.Component {
     const index = fullpath.indexOf('/');
     const containerName = this.props.containers[fullpath.substring(index + 1)];
 
-    const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}?type=max800`;
+    const src = `https://${this.props
+      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
+      .preview.name}?type=max800`;
     const imageStyle = {
       position: 'relative',
       display: 'block',
@@ -67,7 +73,8 @@ class PreviewJpg extends React.Component {
       imageStyle.transform = ' rotate(270deg)';
       imageStyle.left = `${(outWidth - displaySize.height) / 2}px`;
       imageStyle.top = `${(outHeight - displaySize.width) / 2}px`;
-    } else { // TopLeft or unknown
+    } else {
+      // TopLeft or unknown
       displaySize = calcDisplaySize(outWidth, outHeight, width, height);
       imageStyle.width = `${displaySize.width}px`;
       imageStyle.left = `${(outWidth - displaySize.width) / 2}px`;
@@ -79,11 +86,7 @@ class PreviewJpg extends React.Component {
 
     return (
       <div>
-        <img
-          style={imageStyle}
-          src={src}
-          alt={this.props.preview.name}
-        />
+        <img style={imageStyle} src={src} alt={this.props.preview.name} />
         <div style={captionStyle}>
           {this.props.preview.name}
         </div>

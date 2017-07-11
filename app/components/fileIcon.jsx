@@ -74,7 +74,7 @@ export default class File extends React.Component {
     filename: React.PropTypes.string,
     selected: React.PropTypes.bool,
     onClick: React.PropTypes.func,
-  }
+  };
 
   render() {
     let style = fileStyle;
