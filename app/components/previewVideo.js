@@ -129,9 +129,6 @@ class PreviewVideo extends React.Component {
               </div>
               <div className="btn-group">
                 <span title="Download the annotations as json" className="btn-annotations-download btn btn-success">Download JSON</span>
-                <span title="Download the current file" className="btn btn-download btn-primary">
-                  <i className="fa fa-download" />
-                </span>
               </div>
             </div>
           </div>
