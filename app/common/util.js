@@ -15,9 +15,9 @@ export function removeAll(arr, value) {
 }
 
 export function fileSizeIEC(a) {
-  const e = Math.log(a) / Math.log(1024) | 0;
+  const e = (Math.log(a) / Math.log(1024)) | 0;
   const number = (a / Math.pow(1024, e)).toFixed(2);
-  const unit = (e ? `${'KMGTPEZY'[e - 1]}iB` : 'Bytes');
+  const unit = e ? `${'KMGTPEZY'[e - 1]}iB` : 'Bytes';
   return `${number} ${unit}`;
 }
 
@@ -36,9 +36,15 @@ export function locToUrl(loc) {
 }
 
 export function responsiveValue(width, phone, tablet, desktop, largeDesktop) {
-  if (width < 768) { return phone; }
-  if (width < 992) { return tablet; }
-  if (width < 1200) { return desktop; }
+  if (width < 768) {
+    return phone;
+  }
+  if (width < 992) {
+    return tablet;
+  }
+  if (width < 1200) {
+    return desktop;
+  }
   return largeDesktop;
 }
 

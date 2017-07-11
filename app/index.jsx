@@ -1,15 +1,15 @@
 import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import uiReducer from './reducers/ui';
-import alertReducer from './reducers/alert';
-import containersReducer from './reducers/containers';
-import storageAccountReducer from './reducers/storageaccount';
-import locReducer from './reducers/loc';
-import filesReducer from './reducers/files';
-import previewReducer from './reducers/preview';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import thunk from 'redux-thunk';
+import alertReducer from './reducers/alert';
+import containersReducer from './reducers/containers';
+import filesReducer from './reducers/files';
+import locReducer from './reducers/loc';
+import previewReducer from './reducers/preview';
+import storageAccountReducer from './reducers/storageaccount';
+import uiReducer from './reducers/ui';
 
 // Uncomment to check performance
 // window.Perf = require('react-addons-perf');
@@ -30,17 +30,15 @@ const store = createStore(
     storageaccount: storageAccountReducer,
   }),
   undefined,
-  compose(
-    applyMiddleware(thunk),
-    window.devToolsExtension ? window.devToolsExtension() : f => f,
-  ),
+  compose(applyMiddleware(thunk), window.devToolsExtension ? window.devToolsExtension() : f => f),
 );
 
 const app = document.createElement('div');
 document.body.appendChild(app);
 
-ReactDOM.render((
+ReactDOM.render(
   <Provider store={store}>
     <App />
-  </Provider>
-), app);
+  </Provider>,
+  app,
+);

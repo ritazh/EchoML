@@ -30,7 +30,8 @@ export default class Thumbnail extends React.Component {
       return (
         <img
           style={style}
-          src={`${API_HOST}/api/image${this.props.fullpath}/${this.props.name}?type=sq100`}
+          src={`${API_HOST}/api/image${this.props.fullpath}/${this.props
+            .name}?type=sq100`}
           alt={this.props.name}
           onClick={this.handleClick}
         />
@@ -50,10 +51,7 @@ export default class Thumbnail extends React.Component {
     };
 
     return (
-      <div
-        style={divStyle}
-        onClick={this.handleClick}
-      >
+      <div style={divStyle} onClick={this.handleClick}>
         <div style={innerStyle}>
           {this.props.name}
         </div>

@@ -32,7 +32,12 @@ class Preview extends React.Component {
     if (this.props.preview.index > 0) {
       const index = this.props.preview.index - 1;
       const name = this.props.files[index].name;
-      this.props.dispatch({ type: 'START_PREVIEW', loc: this.props.loc, index, name });
+      this.props.dispatch({
+        type: 'START_PREVIEW',
+        loc: this.props.loc,
+        index,
+        name,
+      });
     }
   };
 
@@ -40,7 +45,12 @@ class Preview extends React.Component {
     if (this.props.preview.index < this.props.files.length - 1) {
       const index = this.props.preview.index + 1;
       const name = this.props.files[index].name;
-      this.props.dispatch({ type: 'START_PREVIEW', loc: this.props.loc, index, name });
+      this.props.dispatch({
+        type: 'START_PREVIEW',
+        loc: this.props.loc,
+        index,
+        name,
+      });
     }
   };
 
@@ -56,11 +66,14 @@ class Preview extends React.Component {
   };
 
   handleKeyUp = (e) => {
-    if (e.keyCode === 27) { // ESC
+    if (e.keyCode === 27) {
+      // ESC
       this.handleClose();
-    } else if (e.keyCode === 37) { // Left arrow
+    } else if (e.keyCode === 37) {
+      // Left arrow
       this.handlePrev();
-    } else if (e.keyCode === 39 || e.keyCode === 32) { // Right arrow or Space
+    } else if (e.keyCode === 39 || e.keyCode === 32) {
+      // Right arrow or Space
       this.handleNext();
     }
   };
@@ -104,7 +117,9 @@ class Preview extends React.Component {
 
     return (
       <div style={outerStyle}>
-        <span style={innerStyle}>{this.props.preview.name}: Unknown format</span>
+        <span style={innerStyle}>
+          {this.props.preview.name}: Unknown format
+        </span>
       </div>
     );
   }
@@ -124,7 +139,6 @@ class Preview extends React.Component {
 
     return (
       <div className="preview">
-
         {this.renderByExt()}
       </div>
     );

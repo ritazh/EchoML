@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 import React from 'react';
-import { Navbar, Button, Modal } from 'react-bootstrap';
+import { Navbar } from 'react-bootstrap';
 import { locToUrl } from '../common/util';
 
 class BottomBar extends React.Component {
@@ -16,11 +15,13 @@ class BottomBar extends React.Component {
   handleDownload = (e) => {
     e.stopPropagation(); // to prevent clearing selection
     const selectedFiles = this.props.files.filter(file => file.selected);
-    const fullpath = locToUrl(this.props.loc);
-    for (const file of selectedFiles) {
+    selectedFiles.forEach((file) => {
       // window.open(`${API_HOST}/api/download${fullpath}/${file.name}`);
-      window.open(`https://${process.env.AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/facedetectbot/${file.name}`);
-    }
+      window.open(
+        `https://${process.env
+          .AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/facedetectbot/${file.name}`,
+      );
+    });
   };
 
   render() {
@@ -39,10 +40,11 @@ class BottomBar extends React.Component {
       files = selectedFiles[0].name;
       content = (
         <Navbar.Text>
-          {files}
-          {' '}
+          {files}{' '}
           <a
-            href={`https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${selectedFiles[0].name}`}
+            href={`https://${this.props
+              .storageaccount}.blob.core.windows.net/${containerName}/${selectedFiles[0]
+              .name}`}
             className="btn btn-default btn-sm"
             download
           >

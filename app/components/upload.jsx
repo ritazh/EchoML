@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
-import React from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import Dropzone from 'react-dropzone';
+import React from 'react';
 import request from 'superagent';
+import * as actions from '../actions';
 
 class Upload extends React.Component {
   static propTypes = {
@@ -19,17 +19,21 @@ class Upload extends React.Component {
   handleFileDrop = (files) => {
     this.setState({ upload: files });
 
-    const curFullPath = `/${this.props.loc.bookmark}/${this.props.loc.dir.join('/')}`;
+    const curFullPath = `/${this.props.loc.bookmark}/${this.props.loc.dir.join(
+      '/',
+    )}`;
     const req = request.post(`${API_HOST}/api/upload${curFullPath}`);
     files.forEach((file) => {
       req.attach(file.name, file, file.name);
     });
-    req.on('progress', (e) => {
-      this.setState({ progress: Math.trunc(e.percent) });
-    }).end((err) => {
-      this.handleUploadEnded(err);
-      this.setState({ upload: [] });
-    });
+    req
+      .on('progress', (e) => {
+        this.setState({ progress: Math.trunc(e.percent) });
+      })
+      .end((err) => {
+        this.handleUploadEnded(err);
+        this.setState({ upload: [] });
+      });
   };
 
   handleUploadEnded = (err) => {
@@ -93,7 +97,9 @@ class Upload extends React.Component {
 
     return (
       <div style={uploadStyle}>
-        <div>Uploading {this.state.upload.length} files...</div>
+        <div>
+          Uploading {this.state.upload.length} files...
+        </div>
         <ProgressBar
           style={progressStyle}
           active

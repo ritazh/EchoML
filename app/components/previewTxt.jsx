@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 import React from 'react';
+import * as actions from '../actions';
 import { calcDisplaySize } from '../common/util';
 
 class PreviewTxt extends React.Component {
@@ -11,12 +11,16 @@ class PreviewTxt extends React.Component {
   };
 
   componentDidMount() {
-    this.props.dispatch(actions.startPreviewTxt(this.props.loc, this.props.preview.name));
+    this.props.dispatch(
+      actions.startPreviewTxt(this.props.loc, this.props.preview.name),
+    );
   }
 
   componentWillReceiveProps(props) {
     if (this.props.preview.name !== props.preview.name) {
-      this.props.dispatch(actions.startPreviewTxt(props.loc, props.preview.name));
+      this.props.dispatch(
+        actions.startPreviewTxt(props.loc, props.preview.name),
+      );
     }
   }
 
@@ -39,7 +43,12 @@ class PreviewTxt extends React.Component {
 
     const outWidth = window.document.documentElement.clientWidth;
     const outHeight = window.document.documentElement.clientHeight;
-    const displaySize = calcDisplaySize(outWidth, outHeight, outWidth, outHeight);
+    const displaySize = calcDisplaySize(
+      outWidth,
+      outHeight,
+      outWidth,
+      outHeight,
+    );
     preStyle.width = `${displaySize.width}px`;
     preStyle.height = `${displaySize.height}px`;
     preStyle.left = `${(outWidth - displaySize.width) / 2}px`;

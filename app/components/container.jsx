@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
-import * as actions from '../actions';
 import React from 'react';
 import { SplitButton, MenuItem } from 'react-bootstrap';
+import * as actions from '../actions';
 
 class Container extends React.Component {
   static propTypes = {
@@ -29,11 +29,15 @@ class Container extends React.Component {
         title={this.props.containers[this.props.loc.container]}
         onClick={this.handleRootClick}
       >
-        {this.props.containers.map((container, index) => (
-          <MenuItem key={index} onClick={this.handleContainerClick} data-index={index}>
+        {this.props.containers.map((container, index) =>
+          (<MenuItem
+            key={index}
+            onClick={this.handleContainerClick}
+            data-index={index}
+          >
             {container}
-          </MenuItem>
-        ))}
+          </MenuItem>),
+        )}
       </SplitButton>
     );
   }

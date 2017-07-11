@@ -46,28 +46,33 @@ function getImageInfo(filepath) {
   fileparts[1] = filepath.substring(filepath.indexOf('/') + 1);
   const info = {};
   return new Promise((resolve, reject) => {
-    blobService.getBlobToStream(fileparts[0], fileparts[1], fs.createWriteStream('output.jpeg'), (error, result, response) => {
-      if (!error) {
-        const img = gm('output.jpeg');
-        img.size((err, value) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-
-          info.size = value;
-          img.orientation((err2, value2) => {
-            if (err2) {
-              reject(err2);
+    blobService.getBlobToStream(
+      fileparts[0],
+      fileparts[1],
+      fs.createWriteStream('output.jpeg'),
+      (error, result, response) => {
+        if (!error) {
+          const img = gm('output.jpeg');
+          img.size((err, value) => {
+            if (err) {
+              reject(err);
               return;
             }
 
-            info.orientation = value2;
-            resolve(info);
+            info.size = value;
+            img.orientation((err2, value2) => {
+              if (err2) {
+                reject(err2);
+                return;
+              }
+
+              info.orientation = value2;
+              resolve(info);
+            });
           });
-        });
-      }
-    });
+        }
+      },
+    );
   });
 }
 let blobs = [];
@@ -78,8 +83,7 @@ function aggregateContainers(err, result, cb) {
   } else {
     containers = containers.concat(result.entries);
     if (result.continuationToken !== null) {
-      blobService
-              .listContainersSegmented(result.continuationToken, aggregateContainers);
+      blobService.listContainersSegmented(result.continuationToken, aggregateContainers);
     } else {
       cb(null, containers);
     }
@@ -102,15 +106,13 @@ function getContainersAsync() {
   });
 }
 
-
 function aggregateBlobs(containerName, err, result, cb) {
   if (err) {
     cb(err);
   } else {
     blobs = blobs.concat(result.entries);
     if (result.continuationToken !== null) {
-      blobService
-              .listBlobsSegmented(containerName, result.continuationToken, aggregateBlobs);
+      blobService.listBlobsSegmented(containerName, result.continuationToken, aggregateBlobs);
     } else {
       cb(null, blobs);
     }

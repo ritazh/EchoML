@@ -18,7 +18,9 @@ export default class File extends React.Component {
 
   constructor(props) {
     super(props);
-    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(
+      this,
+    );
   }
 
   handleClick = () => {
@@ -36,10 +38,7 @@ export default class File extends React.Component {
 
   render() {
     return (
-      <div
-        onClick={this.handleClick}
-        style={{ padding: '5px 0px' }}
-      >
+      <div onClick={this.handleClick} style={{ padding: '5px 0px' }}>
         <div
           style={{
             float: 'left',
