@@ -4,7 +4,7 @@ const HtmlwebpackPlugin = require('html-webpack-plugin');
 const config = require('config');
 
 module.exports = {
-  entry: './app/index.js',
+  entry: './app/index.jsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
@@ -54,5 +54,9 @@ module.exports = {
         loader: 'url-loader?limit=10000&minetype=image/svg+xml',
       },
     ],
+  },
+  // https://webpack.js.org/configuration/resolve/#resolve-extensions
+  resolve: {
+    extensions: ['.js', '.jsx'],
   },
 };
