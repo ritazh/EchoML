@@ -4,7 +4,7 @@ const HtmlwebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   devtool: 'source-map',
-  entry: './app/index.js',
+  entry: './app/index.jsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
@@ -43,5 +43,8 @@ module.exports = {
         loader: 'url-loader?limit=10000&minetype=image/svg+xml',
       },
     ],
+  },
+  resolve: {
+    extensions: ['.js', '.jsx'],
   },
 };
