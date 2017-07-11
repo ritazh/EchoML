@@ -71,6 +71,12 @@ Build bundle.
 npm run build
 ```
 
+Set ENV for storage account.
+```bash
+export AZURE_STORAGE_ACCESS_KEY=
+export AZURE_STORAGE_ACCOUNT=
+```
+
 Start server.
 ```bash
 npm start
