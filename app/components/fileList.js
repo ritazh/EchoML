@@ -46,53 +46,56 @@ class FileList extends React.Component {
     this.setState({ colPerRow: this.calcColPerRow() });
   };
 
-  handleWindowClick = e => {
+  handleWindowClick = (e) => {
     const clickedOutside = !ReactDOM.findDOMNode(this).contains(e.target);
     if (clickedOutside) {
       this.props.dispatch({ type: 'SELECT_NONE' });
     }
   };
 
-  handleDirClick = name => {
+  handleDirClick = (name) => {
     const dir = this.props.loc.dir.concat(name);
     const loc = { container: this.props.loc.container, dir };
     this.props.dispatch(actions.changeLoc(loc));
   };
 
-  handlePreviewClick = index => {
+  handlePreviewClick = (index) => {
     const name = this.props.files[index].name;
     this.props.dispatch({ type: 'START_PREVIEW', loc: this.props.loc, index, name });
   };
 
-  handleToggle = index => {
+  handleToggle = (index) => {
     this.props.dispatch({ type: 'TOGGLE_FILE', index });
   };
 
   render() {
-    let fullpath = locToUrl(this.props.loc);
+    const fullpath = locToUrl(this.props.loc);
 
     let fileIndex = 0;
     return (
       <div>
-      {arrayChunk(this.props.files, this.state.colPerRow).map(chunk => (
-        <Row key={chunk.reduce((acc, file) => `${acc}/${file.name}`, '')}>
-          {chunk.map(file => (
-            <Col
-              key={file.name}
-              lg={3} md={3} sm={4} xs={6}
-              style={file.selected ? selectedStyle : {}}
-            >
-              <File
-                fullpath={fullpath}
-                fileIndex={fileIndex++}
-                {...file}
-                onDirClick={this.handleDirClick}
-                onPreviewClick={this.handlePreviewClick}
-                onToggle={this.handleToggle}
-              />
-            </Col>
+        {arrayChunk(this.props.files, this.state.colPerRow).map(chunk => (
+          <Row key={chunk.reduce((acc, file) => `${acc}/${file.name}`, '')}>
+            {chunk.map(file => (
+              <Col
+                key={file.name}
+                lg={3}
+                md={3}
+                sm={4}
+                xs={6}
+                style={file.selected ? selectedStyle : {}}
+              >
+                <File
+                  fullpath={fullpath}
+                  fileIndex={fileIndex++}
+                  {...file}
+                  onDirClick={this.handleDirClick}
+                  onPreviewClick={this.handlePreviewClick}
+                  onToggle={this.handleToggle}
+                />
+              </Col>
           ))}
-        </Row>
+          </Row>
       ))}
       </div>
     );

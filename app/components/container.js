@@ -10,7 +10,7 @@ class Container extends React.Component {
     containers: React.PropTypes.array,
   };
 
-  handleContainerClick = e => {
+  handleContainerClick = (e) => {
     const index = parseInt(e.target.dataset.index, 10);
     const loc = { container: index, dir: [] };
     this.props.dispatch(actions.changeLoc(loc));

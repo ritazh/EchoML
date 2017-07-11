@@ -9,7 +9,7 @@ class Location extends React.Component {
     loc: React.PropTypes.object,
   };
 
-  handleClick = e => {
+  handleClick = (e) => {
     const index = parseInt(e.target.dataset.index, 10);
     const dir = this.props.loc.dir.slice(0, index);
     const loc = { container: this.props.loc.container, dir };

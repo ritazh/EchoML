@@ -3,7 +3,7 @@ import { locToUrl, urlToLoc } from './common/util';
 function request(dispatch, path, json = true) {
   dispatch({ type: 'SET_LOADING' });
   return fetch(`${API_HOST}${path}`, { credentials: 'include' })
-    .then(res => {
+    .then((res) => {
       if (res.status === 401) {
         dispatch({ type: 'SET_LOGIN', login: false });
         throw new Error('unauthorized');
@@ -12,7 +12,7 @@ function request(dispatch, path, json = true) {
       dispatch({ type: 'CLEAR_LOADING' });
       return json ? res.json() : res.text();
     })
-    .catch(err => {
+    .catch((err) => {
       dispatch({ type: 'CLEAR_LOADING' });
       throw err;
     });
@@ -29,20 +29,20 @@ function post(dispatch, path, body) {
     body: JSON.stringify(body),
   };
   return fetch(`${API_HOST}${path}`, options)
-    .then(res => {
+    .then((res) => {
       dispatch({ type: 'CLEAR_LOADING' });
       return res.json();
     })
-    .catch(err => {
+    .catch((err) => {
       dispatch({ type: 'CLEAR_LOADING' });
       throw err;
     });
 }
 
 export function updateFiles(loc) {
-  return dispatch => {
+  return (dispatch) => {
     request(dispatch, `/api/dir${locToUrl(loc)}`)
-      .then(files => {
+      .then((files) => {
         dispatch({ type: 'SET_FILES', files });
       })
       .catch(() => {});
@@ -50,14 +50,14 @@ export function updateFiles(loc) {
 }
 
 export function changeLoc(loc) {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({ type: 'PUSH_LOC', loc });
     dispatch(updateFiles(loc));
   };
 }
 
 export function createFolder(loc, name) {
-  return dispatch => {
+  return (dispatch) => {
     post(dispatch, `/api/createFolder${locToUrl(loc)}`, { name })
       .then(() => {
         dispatch({
@@ -66,7 +66,7 @@ export function createFolder(loc, name) {
         });
         dispatch(updateFiles(loc));
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch({
           type: 'SHOW_ALERT',
           alert: { type: 'danger', message: err.toString() },
@@ -76,7 +76,7 @@ export function createFolder(loc, name) {
 }
 
 export function deleteFiles(loc, names) {
-  return dispatch => {
+  return (dispatch) => {
     post(dispatch, `/api/delete${locToUrl(loc)}`, names)
       .then(() => {
         dispatch({
@@ -85,7 +85,7 @@ export function deleteFiles(loc, names) {
         });
         dispatch(updateFiles(loc));
       })
-      .catch(err => {
+      .catch((err) => {
         dispatch({
           type: 'SHOW_ALERT',
           alert: { type: 'danger', message: err.toString() },
@@ -95,37 +95,37 @@ export function deleteFiles(loc, names) {
 }
 
 export function startPreviewJpg(loc, name) {
-  return dispatch => {
+  return (dispatch) => {
     request(dispatch, `/api/imageInfo${locToUrl(loc)}/${name}`)
-      .then(info => {
+      .then((info) => {
         dispatch({ type: 'START_PREVIEW_JPG', info });
       });
   };
 }
 
 export function startPreviewTxt(loc, name) {
-  return dispatch => {
+  return (dispatch) => {
     request(dispatch, `/api/download${locToUrl(loc)}/${name}`, false)
-      .then(text => {
+      .then((text) => {
         dispatch({ type: 'START_PREVIEW_TXT', text });
       });
   };
 }
 
 export function initApp() {
-  return dispatch => {
+  return (dispatch) => {
     if (location.pathname === '/') {
       dispatch({ type: 'SET_LOGIN', login: false });
       return;
     }
 
     request(dispatch, '/api/storageaccount')
-    .then(storageaccount => {
+    .then((storageaccount) => {
       dispatch({ type: 'SET_STORAGEACCOUNT', storageaccount });
     });
 
     request(dispatch, '/api/containers')
-    .then(containers => {
+    .then((containers) => {
       dispatch({ type: 'SET_CONTAINERS', containers });
 
       const loc = urlToLoc(location.pathname);
@@ -138,15 +138,15 @@ export function initApp() {
 }
 
 export function login(account, password) {
-  return dispatch => {
+  return (dispatch) => {
     post(dispatch, '/login', { account, password })
-    .then(res => {
+    .then((res) => {
       if (res.result !== 'success') {
         dispatch({ type: 'SET_LOGIN_MESSAGE', message: 'Login failed' });
         return undefined;
       }
       return request(dispatch, '/api/containers')
-      .then(containers => {
+      .then((containers) => {
         dispatch({ type: 'SET_CONTAINERS', containers });
         if (location.pathname === '/') {
           dispatch(changeLoc({ container: 0, dir: [] }));
@@ -158,25 +158,25 @@ export function login(account, password) {
         dispatch({ type: 'SET_LOGIN', login: true });
 
         return request(dispatch, '/api/storageaccount')
-        .then(storageaccount => {
+        .then((storageaccount) => {
           dispatch({ type: 'SET_STORAGEACCOUNT', storageaccount });
         });
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err.stack);
     });
   };
 }
 
 export function logout() {
-  return dispatch => {
+  return (dispatch) => {
     post(dispatch, '/logout')
     .then(() => {
       history.pushState(null, null, '/');
       dispatch({ type: 'SET_LOGIN', login: false });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err.stack);
     });
   };

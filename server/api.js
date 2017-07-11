@@ -14,7 +14,7 @@ const blobService = azure.createBlobService();
 let containers = [];
 
 function getFilePath(param) {
-  logger.info("param: " + param);
+  logger.info(`param: ${param}`);
 
   const result = /(\d+)(.*)/.exec(param);
   logger.info(result);
@@ -36,17 +36,17 @@ function getFilePath(param) {
 
     subdir = subdir.substr(1);
   }
-  let path = subdir ? container.name + '/' + subdir : container.name;
+  const path = subdir ? `${container.name}/${subdir}` : container.name;
   return path;
 }
 
 function getImageInfo(filepath) {
-  let fileparts = [];
-  fileparts[0] = filepath.substring(0,filepath.indexOf('/'));
-  fileparts[1] = filepath.substring(filepath.indexOf('/')+1);
-  let info = {};
+  const fileparts = [];
+  fileparts[0] = filepath.substring(0, filepath.indexOf('/'));
+  fileparts[1] = filepath.substring(filepath.indexOf('/') + 1);
+  const info = {};
   return new Promise((resolve, reject) => {
-    blobService.getBlobToStream(fileparts[0], fileparts[1], fs.createWriteStream('output.jpeg'), function(error, result, response) {
+    blobService.getBlobToStream(fileparts[0], fileparts[1], fs.createWriteStream('output.jpeg'), (error, result, response) => {
       if (!error) {
         const img = gm('output.jpeg');
         img.size((err, value) => {
@@ -68,30 +68,29 @@ function getImageInfo(filepath) {
         });
       }
     });
-    
   });
 }
 let blobs = [];
 
 function aggregateContainers(err, result, cb) {
   if (err) {
-      cb(err);
+    cb(err);
   } else {
-      containers = containers.concat(result.entries);
-      if (result.continuationToken !== null) {
-          blobService
+    containers = containers.concat(result.entries);
+    if (result.continuationToken !== null) {
+      blobService
               .listContainersSegmented(result.continuationToken, aggregateContainers);
-      } else {
-          cb(null, containers);
-      }
+    } else {
+      cb(null, containers);
+    }
   }
 }
 
 function getContainersAsync() {
   containers = [];
-  return new Promise(function(resolve, reject) {
-    blobService.listContainersSegmented(null, function(err, result) {
-      aggregateContainers(err, result, function(err, containers) {
+  return new Promise((resolve, reject) => {
+    blobService.listContainersSegmented(null, (err, result) => {
+      aggregateContainers(err, result, (err, containers) => {
         if (err) {
           logger.warn(err);
           reject(err);
@@ -106,23 +105,23 @@ function getContainersAsync() {
 
 function aggregateBlobs(containerName, err, result, cb) {
   if (err) {
-      cb(err);
+    cb(err);
   } else {
-      blobs = blobs.concat(result.entries);
-      if (result.continuationToken !== null) {
-          blobService
+    blobs = blobs.concat(result.entries);
+    if (result.continuationToken !== null) {
+      blobService
               .listBlobsSegmented(containerName, result.continuationToken, aggregateBlobs);
-      } else {
-        cb(null, blobs);
-      }
+    } else {
+      cb(null, blobs);
+    }
   }
 }
 
 function getBlobsAsync(containerName) {
   blobs = [];
-  return new Promise(function(resolve, reject) {
-    blobService.listBlobsSegmented(containerName, null, function(err, result) {
-      aggregateBlobs(containerName, err, result, function(err, blobs) {
+  return new Promise((resolve, reject) => {
+    blobService.listBlobsSegmented(containerName, null, (err, result) => {
+      aggregateBlobs(containerName, err, result, (err, blobs) => {
         if (err) {
           logger.warn(err);
           reject(err);
@@ -135,47 +134,47 @@ function getBlobsAsync(containerName) {
 }
 
 const funcs = {
-  *storageaccount() {
+  * storageaccount() {
     this.body = JSON.stringify(process.env.AZURE_STORAGE_ACCOUNT);
   },
-  
-  *bookmarks() {
+
+  * bookmarks() {
     const bookmarks = config.get('bookmarks');
     this.body = JSON.stringify(bookmarks.map(b => b.name));
   },
 
-  *containers() {
+  * containers() {
     containers = yield getContainersAsync();
-    this.body = JSON.stringify(containers.map(c => c.name));;
+    this.body = JSON.stringify(containers.map(c => c.name));
   },
 
-  *dir(param) {
+  * dir(param) {
     const dir = getFilePath(param);
     if (!dir) {
       this.body = 'invalid directory';
       return;
     }
-    let files =[];
-    logger.info("dir: " + dir);
-    let containerFiles = yield getBlobsAsync(dir);
+    let files = [];
+    logger.info(`dir: ${dir}`);
+    const containerFiles = yield getBlobsAsync(dir);
     files = files.concat(containerFiles);
-    
-    let data = files.reduce(function(result, file) {
-      //const stats = fs.lstatSync(path.resolve(dir, file));
-      if (file.name.indexOf('.flac') > -1){
+
+    const data = files.reduce((result, file) => {
+      // const stats = fs.lstatSync(path.resolve(dir, file));
+      if (file.name.indexOf('.flac') > -1) {
         result.push({
           name: file.name,
-          isDirectory: false, //file.name.indexOf('/') > -1,
+          isDirectory: false, // file.name.indexOf('/') > -1,
           size: file.contentLength,
           mtime: file.lastModified,
         });
       }
-      return result
+      return result;
     }, []);
     this.body = data;
   },
 
-  *imageInfo(param) {
+  * imageInfo(param) {
     const filepath = getFilePath(param);
     if (!filepath) {
       this.body = 'invalid location';
@@ -185,16 +184,14 @@ const funcs = {
     this.body = yield getImageInfo(filepath);
   },
 
-  *download(param) {
+  * download(param) {
     const filepath = getFilePath(param);
     if (!filepath) {
       this.body = 'invalid location';
-      return;
     }
-    
   },
 
-  *image(param) {
+  * image(param) {
     const filepath = getFilePath(param);
     if (!filepath) {
       this.body = 'invalid location';
@@ -221,7 +218,7 @@ const funcs = {
     }
   },
 
-  *upload(param) {
+  * upload(param) {
     const dir = getFilePath(param);
     if (!dir) {
       this.body = 'invalid location';
@@ -247,7 +244,7 @@ const funcs = {
     this.status = 200;
   },
 
-  *createFolder(param) {
+  * createFolder(param) {
     const dir = getFilePath(param);
     if (!dir) {
       this.body = 'invalid location';
@@ -262,7 +259,7 @@ const funcs = {
     this.body = '{}';
   },
 
-  *delete(param) {
+  * delete(param) {
     const dir = getFilePath(param);
     if (!dir) {
       this.body = 'invalid location';

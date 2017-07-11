@@ -11,13 +11,13 @@ class ThumbnailList extends React.Component {
     files: React.PropTypes.array,
   };
 
-  handleDirClick = name => {
+  handleDirClick = (name) => {
     const dir = this.props.loc.dir.concat(name);
     const loc = { container: this.props.loc.container, dir };
     this.props.dispatch(actions.changeLoc(loc));
   };
 
-  handlePreviewClick = index => {
+  handlePreviewClick = (index) => {
     const name = this.props.files[index].name;
     this.props.dispatch({ type: 'START_PREVIEW', loc: this.props.loc, index, name });
   };
@@ -25,15 +25,15 @@ class ThumbnailList extends React.Component {
   render() {
     return (
       <div>
-      {this.props.files.map((file, index) => (
-        <Thumbnail
-          key={index}
-          fullpath={locToUrl(this.props.loc)}
-          fileIndex={index}
-          {...file}
-          onDirClick={this.handleDirClick}
-          onPreviewClick={this.handlePreviewClick}
-        />
+        {this.props.files.map((file, index) => (
+          <Thumbnail
+            key={index}
+            fullpath={locToUrl(this.props.loc)}
+            fileIndex={index}
+            {...file}
+            onDirClick={this.handleDirClick}
+            onPreviewClick={this.handlePreviewClick}
+          />
       ))}
       </div>
     );

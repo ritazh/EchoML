@@ -62,7 +62,7 @@ class App extends React.Component {
           <Location />
           <Toolbar />
         </ButtonToolbar>
-        <br/>
+        <br />
         <Alert />
         {this.renderList()}
         <BottomBar />

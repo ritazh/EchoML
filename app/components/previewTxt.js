@@ -22,7 +22,7 @@ class PreviewTxt extends React.Component {
 
   render() {
     if (!this.props.preview.text) {
-      return <div></div>;
+      return <div />;
     }
 
     const preStyle = {

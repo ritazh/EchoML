@@ -13,12 +13,12 @@ class BottomBar extends React.Component {
     storageaccount: React.PropTypes.string,
   };
 
-  handleDownload = e => {
+  handleDownload = (e) => {
     e.stopPropagation(); // to prevent clearing selection
     const selectedFiles = this.props.files.filter(file => file.selected);
     const fullpath = locToUrl(this.props.loc);
     for (const file of selectedFiles) {
-      //window.open(`${API_HOST}/api/download${fullpath}/${file.name}`);
+      // window.open(`${API_HOST}/api/download${fullpath}/${file.name}`);
       window.open(`https://${process.env.AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/facedetectbot/${file.name}`);
     }
   };
@@ -26,14 +26,14 @@ class BottomBar extends React.Component {
   render() {
     const selectedFiles = this.props.files.filter(file => file.selected);
     if (selectedFiles.length === 0) {
-      return <div></div>;
+      return <div />;
     }
 
     const fullpath = locToUrl(this.props.loc);
     let files = '';
     let content = '';
-    let index = fullpath.lastIndexOf('/');
-    let containerName = this.props.containers[fullpath.substring(index+1)];
+    const index = fullpath.lastIndexOf('/');
+    const containerName = this.props.containers[fullpath.substring(index + 1)];
 
     if (selectedFiles.length === 1 && !selectedFiles[0].isDirectory) {
       files = selectedFiles[0].name;

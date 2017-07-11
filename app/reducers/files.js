@@ -40,7 +40,7 @@ const reducer = (state = [], action) => {
       });
 
     case 'SELECT_NONE':
-      return state.map(file => {
+      return state.map((file) => {
         if (!file.selected) {
           return file;
         }

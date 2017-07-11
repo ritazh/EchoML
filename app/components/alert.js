@@ -10,7 +10,7 @@ class Alert extends React.Component {
 
   render() {
     if (!this.props.alert) {
-      return <div></div>;
+      return <div />;
     }
 
     const alertStyle = {

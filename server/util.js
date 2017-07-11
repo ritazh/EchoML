@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const mkdirpAsync = Promise.promisify(require('mkdirp'));
 const gm = require('gm');
+
 Promise.promisifyAll(Object.getPrototypeOf(gm()));
 
 function getImageCacheFilepath(filepath, type) {

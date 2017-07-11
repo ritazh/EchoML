@@ -44,7 +44,7 @@ class Preview extends React.Component {
     }
   };
 
-  handleClick = e => {
+  handleClick = (e) => {
     const outWidth = window.document.documentElement.clientWidth;
     if (e.clientX < outWidth / 3) {
       this.handlePrev();
@@ -55,7 +55,7 @@ class Preview extends React.Component {
     }
   };
 
-  handleKeyUp = e => {
+  handleKeyUp = (e) => {
     if (e.keyCode === 27) { // ESC
       this.handleClose();
     } else if (e.keyCode === 37) { // Left arrow
@@ -65,7 +65,7 @@ class Preview extends React.Component {
     }
   };
 
-  handleWheel = e => {
+  handleWheel = (e) => {
     e.preventDefault();
   };
 
@@ -111,15 +111,15 @@ class Preview extends React.Component {
 
   render() {
     if (!this.props.preview) {
-      return <div></div>;
+      return <div />;
     }
 
     if (this.props.preview.backgroundOnly) {
-      return <div className="preview"></div>;
+      return <div className="preview" />;
     }
 
     if (!this.props.preview.name) {
-      return <div></div>;
+      return <div />;
     }
 
     return (
@@ -130,7 +130,7 @@ class Preview extends React.Component {
     );
   }
 }
-//onClick={this.handleClick}
+// onClick={this.handleClick}
 const mapStateToProps = state => ({
   loc: state.loc,
   files: state.files,

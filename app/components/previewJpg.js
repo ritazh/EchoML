@@ -24,12 +24,12 @@ class PreviewJpg extends React.Component {
 
   render() {
     if (!this.props.preview.orientation) {
-      return <div></div>;
+      return <div />;
     }
     const fullpath = locToUrl(this.props.loc);
-    let index = fullpath.indexOf('/');
-    let containerName = this.props.containers[fullpath.substring(index+1)];
-    
+    const index = fullpath.indexOf('/');
+    const containerName = this.props.containers[fullpath.substring(index + 1)];
+
     const src = `https://${this.props.storageaccount}.blob.core.windows.net/${containerName}/${this.props.preview.name}?type=max800`;
     const imageStyle = {
       position: 'relative',

@@ -29,7 +29,7 @@ export default class File extends React.Component {
     }
   };
 
-  handleIconClick = e => {
+  handleIconClick = (e) => {
     e.stopPropagation(); // to prevent handleClick
     this.props.onToggle(this.props.fileIndex);
   };

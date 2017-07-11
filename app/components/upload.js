@@ -16,15 +16,15 @@ class Upload extends React.Component {
     progress: 0,
   };
 
-  handleFileDrop = files => {
+  handleFileDrop = (files) => {
     this.setState({ upload: files });
 
     const curFullPath = `/${this.props.loc.bookmark}/${this.props.loc.dir.join('/')}`;
     const req = request.post(`${API_HOST}/api/upload${curFullPath}`);
-    files.forEach(file => {
+    files.forEach((file) => {
       req.attach(file.name, file, file.name);
     });
-    req.on('progress', e => {
+    req.on('progress', (e) => {
       this.setState({ progress: Math.trunc(e.percent) });
     }).end((err) => {
       this.handleUploadEnded(err);
@@ -32,7 +32,7 @@ class Upload extends React.Component {
     });
   };
 
-  handleUploadEnded = err => {
+  handleUploadEnded = (err) => {
     if (err) {
       this.props.dispatch({
         type: 'SHOW_ALERT',
@@ -49,7 +49,7 @@ class Upload extends React.Component {
   };
 
   render() {
-    let dropzoneStyle = {
+    const dropzoneStyle = {
       width: '100%',
       height: '50px',
       lineHeight: '50px',
@@ -60,18 +60,18 @@ class Upload extends React.Component {
       border: '2px dashed #C7C7C7',
     };
 
-    let dropzoneActiveStyle = JSON.parse(JSON.stringify(dropzoneStyle));
+    const dropzoneActiveStyle = JSON.parse(JSON.stringify(dropzoneStyle));
     dropzoneActiveStyle.backgroundColor = '#AAA';
     dropzoneActiveStyle.border = '2px dashed black';
 
-    let uploadStyle = {
+    const uploadStyle = {
       position: 'relative',
       width: '100%',
       height: '50px',
       margin: '15px 0px',
     };
 
-    let progressStyle = {
+    const progressStyle = {
       position: 'absolute',
       bottom: '0px',
       left: '0px',
