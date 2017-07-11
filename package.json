@@ -37,6 +37,7 @@
     "koa-static": "^2.0.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.10.6",
+    "mongoose": "^4.11.1",
     "react": "^15.0.2",
     "react-addons-pure-render-mixin": "^15.1.0",
     "react-bootstrap": "^0.30.0",
