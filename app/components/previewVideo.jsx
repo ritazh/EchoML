@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import { locToUrl, calcDisplaySize } from '../common/util';
-import { loadAnnotation, playFile } from '../annotations';
+import { loadAnnotation, loadLabels, playFile } from '../annotations';
 import { loadEmitter } from '../emitter';
 
 class PreviewVideo extends React.Component {
@@ -15,7 +15,8 @@ class PreviewVideo extends React.Component {
   };
 
   handleLoadState() {
-    this.playlist = loadAnnotation();
+    const labels = loadLabels(this.props.preview.labels);
+    this.playlist = loadAnnotation(labels);
     loadEmitter(this.playlist);
     const fullpath = locToUrl(this.props.loc);
     const index = fullpath.lastIndexOf('/');

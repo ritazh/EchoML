@@ -1,37 +1,37 @@
 const WaveformPlaylist = require('waveform-playlist');
 
-const notes = [
-  {
-    begin: '0.000',
-    children: [],
-    end: '3.680',
-    id: 'f000001',
-    language: 'eng',
-    lines: [
-      '1',
-    ],
-  },
-  {
-    begin: '3.680',
-    children: [],
-    end: '10.880',
-    id: 'f000002',
-    language: 'eng',
-    lines: [
-      'bird one',
-    ],
-  },
-  {
-    begin: '10.880',
-    children: [],
-    end: '29.240',
-    id: 'f000003',
-    language: 'eng',
-    lines: [
-      'bird two',
-    ],
-  },
-];
+// const notes = [
+//   {
+//     begin: '0.000',
+//     children: [],
+//     end: '3.680',
+//     id: 'f000001',
+//     language: 'eng',
+//     lines: [
+//       '1',
+//     ],
+//   },
+//   {
+//     begin: '3.680',
+//     children: [],
+//     end: '10.880',
+//     id: 'f000002',
+//     language: 'eng',
+//     lines: [
+//       'bird one',
+//     ],
+//   },
+//   {
+//     begin: '10.880',
+//     children: [],
+//     end: '29.240',
+//     id: 'f000003',
+//     language: 'eng',
+//     lines: [
+//       'bird two',
+//     ],
+//   },
+// ];
 
 const actions = [
   {
@@ -69,7 +69,7 @@ const actions = [
       const halfDuration = (annotation.end - annotation.start) / 2;
 
       annotations.splice(i + 1, 0, {
-        id: 'test',
+        id: 'New',
         start: annotation.end - halfDuration,
         end: annotation.end,
         lines: ['----'],
@@ -88,7 +88,34 @@ const actions = [
   },
 ];
 
-export function loadAnnotation() {
+export function loadLabels(data) {
+  const notes = [];
+  if(data.length > 0){
+    for (let i = 0; i < data.length; i++) {
+      notes.push({
+        begin: data[i].begin,
+        end: data[i].end,
+        id: ""+i,
+        language: 'eng',
+        lines: [
+          data[i].label,
+        ],
+      });
+    }
+  } else {
+    notes.push({
+      begin: '0.000',
+      end: '5.000',
+      id: 'New',
+      language: 'eng',
+      lines: ['----'],
+    });
+  }
+  
+  return notes;
+}
+
+export function loadAnnotation(notes) {
   const playlist = WaveformPlaylist.init({
     container: document.getElementById('playlist'),
     timescale: true,
