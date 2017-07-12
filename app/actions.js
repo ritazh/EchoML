@@ -112,11 +112,11 @@ export function startPreviewTxt(loc, name) {
   };
 }
 
-export function loadLabels(loc, index, name) {  
+export function loadLabels(loc, index, name) {
   return (dispatch) => {
     request(dispatch, `/api/labels${locToUrl(loc)}/${name}`)
       .then((labels) => {
-        dispatch({ type: 'START_PREVIEW', loc: loc, index: index, name: name, labels: labels });
+        dispatch({ type: 'START_PREVIEW', loc, index, name, labels });
       });
   };
 }

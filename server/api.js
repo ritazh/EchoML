@@ -9,8 +9,9 @@ const gm = require('gm');
 const logger = require('./logger');
 const util = require('./util');
 require('./label');
-const mongoose = require("mongoose");
-const LabelModel = mongoose.model("Label");
+const mongoose = require('mongoose');
+
+const LabelModel = mongoose.model('Label');
 
 Promise.promisifyAll(Object.getPrototypeOf(gm()));
 const blobService = azure.createBlobService();
@@ -49,7 +50,7 @@ function getLabels(filepath) {
   fileparts[1] = filepath.substring(filepath.indexOf('/') + 1);
   const docUrl = `https://${process.env.AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/${fileparts[0]}/${fileparts[1]}`;
   return new Promise((resolve, reject) => {
-    const labels = LabelModel.find( { "docurl": docUrl}).exec();
+    const labels = LabelModel.find({ docurl: docUrl }).exec();
     resolve(labels);
   });
 }
@@ -72,27 +73,27 @@ function getImageInfo(filepath) {
       fileparts[1],
       fs.createWriteStream('output.jpeg'),
       (error, result, response) => {
-      if (!error) {
-        const img = gm('output.jpeg');
-        img.size((err, value) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-
-          info.size = value;
-          img.orientation((err2, value2) => {
-            if (err2) {
-              reject(err2);
+        if (!error) {
+          const img = gm('output.jpeg');
+          img.size((err, value) => {
+            if (err) {
+              reject(err);
               return;
             }
 
-            info.orientation = value2;
-            resolve(info);
+            info.size = value;
+            img.orientation((err2, value2) => {
+              if (err2) {
+                reject(err2);
+                return;
+              }
+
+              info.orientation = value2;
+              resolve(info);
+            });
           });
-        });
-      }
-    });
+        }
+      });
   });
 }
 let blobs = [];
