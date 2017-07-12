@@ -10,7 +10,7 @@ const config = require('config');
 const fs = require('fs');
 const logger = require('./logger');
 const api = require('./api');
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 function createServer(hostname, port) {
   const app = koa();
@@ -18,10 +18,10 @@ function createServer(hostname, port) {
    * Connect to database
    */
   mongoose.connect(config.mongo.url);
-  mongoose.connection.on("error", function(err) {
+  mongoose.connection.on('error', (err) => {
     logger.error(err);
   });
-  
+
   const stream = {
     write(message) {
       logger.info(message.slice(0, -1));

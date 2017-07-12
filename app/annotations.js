@@ -90,12 +90,12 @@ const actions = [
 
 export function loadLabels(data) {
   const notes = [];
-  if(data.length > 0){
+  if (data.length > 0) {
     for (let i = 0; i < data.length; i++) {
       notes.push({
         begin: data[i].begin,
         end: data[i].end,
-        id: ""+i,
+        id: `${i}`,
         language: 'eng',
         lines: [
           data[i].label,
@@ -111,7 +111,7 @@ export function loadLabels(data) {
       lines: ['----'],
     });
   }
-  
+
   return notes;
 }
 
