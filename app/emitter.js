@@ -16,7 +16,13 @@ let downloadUrl;
 let isLooping = false;
 let playoutPromises;
 
+function unbindContainer() {
+  $container = $('body');
+  $container.unbind('click');
+}
 export function loadEmitter(playlist) {
+  unbindContainer();
+
   ee = playlist.getEventEmitter();
   $container = $('body');
   $timeFormat = $container.find('.time-format');
@@ -25,10 +31,6 @@ export function loadEmitter(playlist) {
   $time = $container.find('.audio-pos');
   updateSelect(startTime, endTime);
   updateTime(audioPos);
-
-  $container.on('click', '.btn-annotations-download', () => {
-    ee.emit('annotationsrequest');
-  });
 
   $container.on('click', '.btn-loop', () => {
     isLooping = true;
