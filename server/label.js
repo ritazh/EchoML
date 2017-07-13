@@ -10,9 +10,7 @@ const LabelSchema = new Schema({
   docUrl: { type: String, required: true },
 });
 
-LabelSchema.pre('save', function (done) {
-  return done;
-});
+LabelSchema.pre('save', done => done);
 
 // Model creation
 mongoose.model('Label', LabelSchema);
