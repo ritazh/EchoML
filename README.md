@@ -11,26 +11,19 @@ Play, visualize, and annotate your audio files
 
 ![Play, visualize, and annotate your audio files](images/audio.png)
 
+## Supported storage providers
+
+- Azure blob storage
+- AWS S3 (coming)
+
 ## Run
 
-### Supported storage providers
+### Set variables
 
-Azure blob storage
+- Provide configurations for `storage` where you are storing the audio files
+- Provide databae connection information to your mongo database instance where you are storing the labels for each audio file
 
-### Set ENV variables
-
-For Azure blob storage: set ENV variables for the Azure Storage account. You can add the following to your `nodemon.json`:
-
-```json
-{
-  "env": {
-    "AZURE_STORAGE_ACCOUNT": "",
-    "AZURE_STORAGE_ACCESS_KEY": ""
-  }
-}
-```
-
-### Sample config file
+#### Sample config file
 
 config/development.json or config/production.json
 
@@ -40,6 +33,14 @@ config/development.json or config/production.json
     "keys": ["some secret"],
     "account": "test",
     "password": "test"
+  },
+  "storage": {
+    "STORAGE_TYPE": "azureblob",
+    "STORAGE_ACCOUNT": "",
+    "STORAGE_ACCESS_KEY": ""
+  },
+  "mongo":{
+    "url": "mongodb://localhost:27017/echoml"
   }
 }
 
@@ -50,6 +51,7 @@ MacOS
 ```bash
 brew install graphicsmagick
 ```
+
 ### Development
 
 Start back-end node server.
@@ -69,12 +71,6 @@ Open your browser and connect to http://localhost:5001.
 Build bundle.
 ```bash
 npm run build
-```
-
-Set ENV for storage account.
-```bash
-export AZURE_STORAGE_ACCESS_KEY=
-export AZURE_STORAGE_ACCOUNT=
 ```
 
 Start server.
@@ -102,7 +98,7 @@ To run the image, either pull my image from docker hub or use your own.
 
 Run the docker image
 ```
-docker run -p 80:80 -e AZURE_STORAGE_ACCOUNT=<UPDATE THIS> -e AZURE_STORAGE_ACCESS_KEY=<UPDATE THIS> -it ritazh/echoml:latest
+docker run -p 80:80 -it ritazh/echoml:latest
 ```
 
 ## Acknowledgement

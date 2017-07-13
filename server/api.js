@@ -14,7 +14,7 @@ const mongoose = require('mongoose');
 const LabelModel = mongoose.model('Label');
 
 Promise.promisifyAll(Object.getPrototypeOf(gm()));
-const blobService = azure.createBlobService();
+const blobService = azure.createBlobService(config.storage.STORAGE_ACCOUNT, config.storage.STORAGE_ACCESS_KEY);
 let containers = [];
 
 function getFilePath(param) {
@@ -48,7 +48,7 @@ function getLabels(filepath) {
   const fileparts = [];
   fileparts[0] = filepath.substring(0, filepath.indexOf('/'));
   fileparts[1] = filepath.substring(filepath.indexOf('/') + 1);
-  const docUrl = `https://${process.env.AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/${fileparts[0]}/${fileparts[1]}`;
+  const docUrl = `https://${config.storage.STORAGE_ACCOUNT}.blob.core.windows.net/${fileparts[0]}/${fileparts[1]}`;
   return new Promise((resolve, reject) => {
     const labels = LabelModel.find({ docUrl }).exec();
     resolve(labels);
@@ -194,7 +194,7 @@ const funcs = {
   },
 
   * storageaccount() {
-    this.body = JSON.stringify(process.env.AZURE_STORAGE_ACCOUNT);
+    this.body = JSON.stringify(config.storage.STORAGE_ACCOUNT);
   },
 
   * bookmarks() {
