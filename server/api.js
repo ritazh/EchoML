@@ -50,16 +50,31 @@ function getLabels(filepath) {
   fileparts[1] = filepath.substring(filepath.indexOf('/') + 1);
   const docUrl = `https://${process.env.AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/${fileparts[0]}/${fileparts[1]}`;
   return new Promise((resolve, reject) => {
-    const labels = LabelModel.find({ docurl: docUrl }).exec();
+    const labels = LabelModel.find({ docUrl: docUrl }).exec();
     resolve(labels);
   });
 }
 
-function addLabel(data) {
-  if (!data) {
-    label = new Label(data);
-  }
-  this.body = label;
+function deleteLabels(filepath) {
+  return new Promise((resolve, reject) => {
+    const labels = LabelModel.deleteMany({ docUrl: filepath }).exec();
+    resolve(labels);
+  });
+}
+
+function addLabels(filepath, labels) {
+  const data = [];
+  for (var i = labels.length - 1; i >= 0; i--) {
+    data.push({"docUrl": filepath, "begin": labels[i].start, "end": labels[i].end, "label": labels[i].lines[0]});
+  };
+  var newLabels = [];
+  return new Promise((resolve, reject) => {
+    LabelModel.insertMany(data, function(err, result){
+      newLabels = result;
+      resolve(newLabels);
+    });
+    
+  });
 }
 
 function getImageInfo(filepath) {
@@ -165,6 +180,18 @@ const funcs = {
     }
 
     this.body = yield getLabels(filepath);
+  },
+
+  * saveLabels(param) {
+    const filepath = param;
+    if (!filepath) {
+      this.body = 'invalid location';
+      return;
+    }
+
+    const data = this.request.body.labels;
+    this.body = yield deleteLabels(filepath);
+    this.body = yield addLabels(filepath, data);
   },
 
   * storageaccount() {

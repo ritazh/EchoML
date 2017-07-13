@@ -7,12 +7,10 @@ const LabelSchema = new Schema({
   begin: { type: Number, default: 0, required: true },
   end: { type: Number, default: 0, required: true },
   label: { type: String, required: true },
-  updated: { type: Date, default: Date.now },
+  docUrl: { type: String, required: true },
 });
 
 LabelSchema.pre('save', function (done) {
-  // only update record when it has been modified (or is new)
-  this.updated = new Date();
   return done;
 });
 
