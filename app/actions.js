@@ -121,6 +121,24 @@ export function loadLabels(loc, index, name) {
   };
 }
 
+export function saveLabels(src, labels) {
+  return (dispatch) => {
+    post(dispatch, `/api/saveLabels/${src}`, { labels })
+      .then(() => {
+        dispatch({
+          type: 'SHOW_ALERT',
+          alert: { type: 'success', message: 'Success' },
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: 'SHOW_ALERT',
+          alert: { type: 'danger', message: err.toString() },
+        });
+      });
+  };
+}
+
 export function initApp() {
   return (dispatch) => {
     if (location.pathname === '/') {
