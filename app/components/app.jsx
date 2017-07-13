@@ -4,7 +4,6 @@ import React from 'react';
 import Spinner from 'react-spin';
 import { urlToLoc } from '../common/util';
 import * as actions from '../actions';
-import Alert from './alert';
 import BottomBar from './bottomBar';
 import Container from './container';
 import FileList from './fileList';
@@ -67,7 +66,6 @@ class App extends React.Component {
           <Toolbar />
         </ButtonToolbar>
         <br />
-        <Alert />
         {this.renderList()}
         <BottomBar />
         {this.props.preview ? <Preview /> : ''}

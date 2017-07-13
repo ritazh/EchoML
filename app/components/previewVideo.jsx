@@ -4,6 +4,7 @@ import { locToUrl, calcDisplaySize } from '../common/util';
 import { loadAnnotation, loadLabels, playFile } from '../annotations';
 import { loadEmitter } from '../emitter';
 import * as actions from '../actions';
+import Alert from './alert';
 
 class PreviewVideo extends React.Component {
   playlist = null;
@@ -60,10 +61,9 @@ class PreviewVideo extends React.Component {
       background: '#fff',
     };
     const captionStyle = {
-      position: 'absolute',
+      position: 'relative',
       width: '100%',
       textAlign: 'center',
-      color: '#ccc',
     };
     const imageStyle = {
       position: 'relative',
@@ -85,8 +85,9 @@ class PreviewVideo extends React.Component {
     preStyle.left = `${(outWidth - displaySize.width) / 2}px`;
     preStyle.top = `${(outHeight - displaySize.height) / 2}px`;
 
-    const captionY = (outHeight - displaySize.height) / 2 + displaySize.height;
-    captionStyle.top = `${captionY}px`;
+    playlistStyle.height = `${displaySize.height/2}px`;
+    captionStyle.bottom = `${displaySize.height/3}px`;
+
     const preImgStyleY = (outHeight - displaySize.height) / 2;
     preImgStyle.top = `${preImgStyleY}px`;
 
@@ -108,6 +109,7 @@ class PreviewVideo extends React.Component {
     return (
       <div>
         <div style={preStyle}>
+          <Alert />
           <div id="top-bar" className="playlist-top-bar">
             <div className="playlist-toolbar">
               <div className="btn-group">
@@ -175,6 +177,7 @@ class PreviewVideo extends React.Component {
           </div>
           <div id="playlist" style={playlistStyle} />
         </div>
+
         <div style={captionStyle}>
           {this.props.preview.name}
         </div>
