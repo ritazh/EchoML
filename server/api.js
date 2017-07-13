@@ -50,7 +50,7 @@ function getLabels(filepath) {
   fileparts[1] = filepath.substring(filepath.indexOf('/') + 1);
   const docUrl = `https://${process.env.AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/${fileparts[0]}/${fileparts[1]}`;
   return new Promise((resolve, reject) => {
-    const labels = LabelModel.find({ docUrl: docUrl }).exec();
+    const labels = LabelModel.find({ docUrl }).exec();
     resolve(labels);
   });
 }
@@ -64,16 +64,15 @@ function deleteLabels(filepath) {
 
 function addLabels(filepath, labels) {
   const data = [];
-  for (var i = labels.length - 1; i >= 0; i--) {
-    data.push({"docUrl": filepath, "begin": labels[i].start, "end": labels[i].end, "label": labels[i].lines[0]});
-  };
-  var newLabels = [];
+  for (let i = labels.length - 1; i >= 0; i--) {
+    data.push({ docUrl: filepath, begin: labels[i].start, end: labels[i].end, label: labels[i].lines[0] });
+  }
+  let newLabels = [];
   return new Promise((resolve, reject) => {
-    LabelModel.insertMany(data, function(err, result){
+    LabelModel.insertMany(data, (err, result) => {
       newLabels = result;
       resolve(newLabels);
     });
-    
   });
 }
 

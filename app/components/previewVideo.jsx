@@ -22,8 +22,10 @@ class PreviewVideo extends React.Component {
     const containerName = this.props.containers[fullpath.substring(index + 1)];
     const src = `https://${this.props
       .storageaccount}.blob.core.windows.net/${containerName}/${this.props
-      .preview.name}`
-    this.props.dispatch(actions.saveLabels(src, this.playlist.annotationList.annotations));
+      .preview.name}`;
+    this.props.dispatch(
+      actions.saveLabels(src, this.playlist.annotationList.annotations),
+    );
   }
 
   handleLoadState() {
@@ -90,8 +92,8 @@ class PreviewVideo extends React.Component {
     preStyle.left = `${(outWidth - displaySize.width) / 2}px`;
     preStyle.top = `${(outHeight - displaySize.height) / 2}px`;
 
-    playlistStyle.height = `${displaySize.height/2}px`;
-    captionStyle.bottom = `${displaySize.height/3}px`;
+    playlistStyle.height = `${displaySize.height / 2}px`;
+    captionStyle.bottom = `${displaySize.height / 3}px`;
 
     const preImgStyleY = (outHeight - displaySize.height) / 2;
     preImgStyle.top = `${preImgStyleY}px`;
@@ -170,7 +172,7 @@ class PreviewVideo extends React.Component {
                   Trim
                 </span>
               </div>
-              <div className="btn-group" onClick={(e) => this.saveLabels()}>
+              <div className="btn-group" onClick={e => this.saveLabels()}>
                 <span
                   title="Save the labels as json"
                   className="btn-annotations-download btn btn-success"
