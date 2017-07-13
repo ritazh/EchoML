@@ -3,6 +3,7 @@ import React from 'react';
 import { locToUrl, calcDisplaySize } from '../common/util';
 import { loadAnnotation, loadLabels, playFile } from '../annotations';
 import { loadEmitter } from '../emitter';
+import * as actions from '../actions';
 
 class PreviewVideo extends React.Component {
   playlist = null;
@@ -14,9 +15,20 @@ class PreviewVideo extends React.Component {
     storageaccount: React.PropTypes.string,
   };
 
+  saveLabels() {
+    const fullpath = locToUrl(this.props.loc);
+    const index = fullpath.lastIndexOf('/');
+    const containerName = this.props.containers[fullpath.substring(index + 1)];
+    const src = `https://${this.props
+      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
+      .preview.name}`
+    this.props.dispatch(actions.saveLabels(src, this.playlist.annotationList.annotations));
+  }
+
   handleLoadState() {
     const labels = loadLabels(this.props.preview.labels);
     this.playlist = loadAnnotation(labels);
+
     loadEmitter(this.playlist);
     const fullpath = locToUrl(this.props.loc);
     const index = fullpath.lastIndexOf('/');
@@ -151,12 +163,12 @@ class PreviewVideo extends React.Component {
                   Trim
                 </span>
               </div>
-              <div className="btn-group">
+              <div className="btn-group" onClick={(e) => this.saveLabels()}>
                 <span
-                  title="Download the annotations as json"
+                  title="Save the labels as json"
                   className="btn-annotations-download btn btn-success"
                 >
-                  Download JSON
+                  Save JSON
                 </span>
               </div>
             </div>
