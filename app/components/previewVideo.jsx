@@ -45,6 +45,11 @@ class PreviewVideo extends React.Component {
     this.handleLoadState();
   }
 
+  componentWillUnmount() {
+    // fixes issue with 'AudioContext': number of hardware contexts reached maximum
+    this.playlist.ac.close();
+  }
+
   render() {
     const preImgStyle = {
       position: 'absolute',
