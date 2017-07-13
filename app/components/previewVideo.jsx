@@ -177,7 +177,7 @@ class PreviewVideo extends React.Component {
                   title="Save the labels as json"
                   className="btn-annotations-download btn btn-success"
                 >
-                  Save JSON
+                  Save Labels
                 </span>
               </div>
             </div>

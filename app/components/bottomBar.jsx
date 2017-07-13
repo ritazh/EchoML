@@ -12,18 +12,6 @@ class BottomBar extends React.Component {
     storageaccount: React.PropTypes.string,
   };
 
-  handleDownload = (e) => {
-    e.stopPropagation(); // to prevent clearing selection
-    const selectedFiles = this.props.files.filter(file => file.selected);
-    selectedFiles.forEach((file) => {
-      // window.open(`${API_HOST}/api/download${fullpath}/${file.name}`);
-      window.open(
-        `https://${process.env
-          .AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/facedetectbot/${file.name}`,
-      );
-    });
-  };
-
   render() {
     const selectedFiles = this.props.files.filter(file => file.selected);
     if (selectedFiles.length === 0) {
