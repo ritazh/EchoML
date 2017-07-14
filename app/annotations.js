@@ -89,6 +89,8 @@ const actions = [
 ];
 
 export function loadLabels(data) {
+  data.sort((a, b) => (a.start < b.start) ? -1 : 1);
+
   const notes = [];
   if (data.length > 0) {
     for (let i = 0; i < data.length; i++) {
