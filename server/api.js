@@ -62,14 +62,18 @@ function deleteLabels(filepath) {
   });
 }
 
-function addLabels(filepath, labels) {
-  const data = [];
-  for (let i = labels.length - 1; i >= 0; i--) {
-    data.push({ docUrl: filepath, begin: labels[i].start, end: labels[i].end, label: labels[i].lines[0] });
+function addLabels(filepath, data) {
+  const newData = [];
+  for (let i = data.length - 1; i >= 0; i--) {
+    let labels = data[i].lines[0].split(';');
+    for (var j = labels.length - 1; j >= 0; j--) {
+      newData.push({ docUrl: filepath, begin: data[i].start, end: data[i].end, label: labels[j].trim() });
+    };
+    
   }
   let newLabels = [];
   return new Promise((resolve, reject) => {
-    LabelModel.insertMany(data, (err, result) => {
+    LabelModel.insertMany(newData, (err, result) => {
       newLabels = result;
       resolve(newLabels);
     });

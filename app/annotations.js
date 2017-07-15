@@ -93,16 +93,39 @@ export function loadLabels(data) {
 
   const notes = [];
   if (data.length > 0) {
+    let lastBegin = -1;
+    let lastEnd = -1;
+    let repeatIndex = -1;
+    let setIndex = -1;
+
     for (let i = 0; i < data.length; i++) {
-      notes.push({
-        begin: data[i].begin,
-        end: data[i].end,
-        id: `${i}`,
-        language: 'eng',
-        lines: [
-          data[i].label,
-        ],
-      });
+      if (lastBegin == data[i].begin && lastEnd == data[i].end){
+        let last = notes.splice(-1, 1)[0];
+        let text = last.lines[0];
+        notes.push({
+          begin: data[i].begin,
+          end: data[i].end,
+          id: `${repeatIndex}`,
+          language: 'eng',
+          lines: [
+            text + "; " + data[i].label,
+          ],
+        });
+      } else {
+        repeatIndex = i;
+        notes.push({
+          begin: data[i].begin,
+          end: data[i].end,
+          id: `${repeatIndex}`,
+          language: 'eng',
+          lines: [
+            data[i].label,
+          ],
+        });
+      }
+      
+      lastBegin = data[i].begin;
+      lastEnd = data[i].end;
     }
   } else {
     notes.push({
