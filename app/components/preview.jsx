@@ -28,40 +28,10 @@ class Preview extends React.Component {
     this.props.dispatch({ type: 'STOP_PREVIEW' });
   };
 
-  handlePrev = () => {
-    if (this.props.preview.index > 0) {
-      const index = this.props.preview.index - 1;
-      const name = this.props.files[index].name;
-      this.props.dispatch({
-        type: 'START_PREVIEW',
-        loc: this.props.loc,
-        index,
-        name,
-      });
-    }
-  };
-
-  handleNext = () => {
-    if (this.props.preview.index < this.props.files.length - 1) {
-      const index = this.props.preview.index + 1;
-      const name = this.props.files[index].name;
-      this.props.dispatch({
-        type: 'START_PREVIEW',
-        loc: this.props.loc,
-        index,
-        name,
-      });
-    }
-  };
-
   handleClick = (e) => {
     const outWidth = window.document.documentElement.clientWidth;
-    if (e.clientX < outWidth / 3) {
-      this.handlePrev();
-    } else if (e.clientX < outWidth * 2 / 3) {
+    if (e.clientX < outWidth * 2 / 3) {
       this.handleClose();
-    } else {
-      this.handleNext();
     }
   };
 
@@ -69,12 +39,6 @@ class Preview extends React.Component {
     if (e.keyCode === 27) {
       // ESC
       this.handleClose();
-    } else if (e.keyCode === 37) {
-      // Left arrow
-      this.handlePrev();
-    } else if (e.keyCode === 39 || e.keyCode === 32) {
-      // Right arrow or Space
-      this.handleNext();
     }
   };
 
