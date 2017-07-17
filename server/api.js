@@ -65,11 +65,10 @@ function deleteLabels(filepath) {
 function addLabels(filepath, data) {
   const newData = [];
   for (let i = data.length - 1; i >= 0; i--) {
-    let labels = data[i].lines[0].split(';');
-    for (var j = labels.length - 1; j >= 0; j--) {
+    const labels = data[i].lines[0].split(';');
+    for (let j = labels.length - 1; j >= 0; j--) {
       newData.push({ docUrl: filepath, begin: data[i].start, end: data[i].end, label: labels[j].trim() });
-    };
-    
+    }
   }
   let newLabels = [];
   return new Promise((resolve, reject) => {

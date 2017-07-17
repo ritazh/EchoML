@@ -96,19 +96,19 @@ export function loadLabels(data) {
     let lastBegin = -1;
     let lastEnd = -1;
     let repeatIndex = -1;
-    let setIndex = -1;
+    const setIndex = -1;
 
     for (let i = 0; i < data.length; i++) {
-      if (lastBegin == data[i].begin && lastEnd == data[i].end){
-        let last = notes.splice(-1, 1)[0];
-        let text = last.lines[0];
+      if (lastBegin == data[i].begin && lastEnd == data[i].end) {
+        const last = notes.splice(-1, 1)[0];
+        const text = last.lines[0];
         notes.push({
           begin: data[i].begin,
           end: data[i].end,
           id: `${repeatIndex}`,
           language: 'eng',
           lines: [
-            text + "; " + data[i].label,
+            `${text}; ${data[i].label}`,
           ],
         });
       } else {
@@ -123,7 +123,7 @@ export function loadLabels(data) {
           ],
         });
       }
-      
+
       lastBegin = data[i].begin;
       lastEnd = data[i].end;
     }
