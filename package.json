@@ -18,6 +18,7 @@
   },
   "license": "ISC",
   "dependencies": {
+    "@types/mkdirp": "^0.5.0",
     "azure-storage": "^2.1.0",
     "bluebird": "^3.3.5",
     "co": "^4.6.0",
@@ -38,6 +39,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.10.6",
     "mongoose": "^4.11.1",
+    "pkgcloud": "^1.4.0",
     "react": "^15.0.2",
     "react-addons-pure-render-mixin": "^15.1.0",
     "react-bootstrap": "^0.30.0",
@@ -55,6 +57,7 @@
     "winston-daily-rotate-file": "^1.0.1"
   },
   "devDependencies": {
+    "@types/node": "^8.0.13",
     "babel-core": "^6.8.0",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",
