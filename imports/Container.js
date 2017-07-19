@@ -15,22 +15,25 @@ class Container {
         this.getName().then(name => (this.name = name));
         this.files = this.getFiles();
     }
-    static getContainers(client) {
+    static getContainersAsync(client) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                if (Container.containers.length <= 0) {
-                    client.getContainers((err, containers) => {
-                        if (err) {
-                            reject([]);
-                        }
-                        else {
-                            const models = containers.map(container => new Container(container));
-                            Container.containers = models;
-                        }
-                    });
-                }
-                resolve(Container.containers);
-            });
+            return Container.getContainers(client);
+        });
+    }
+    static getContainers(client) {
+        return new Promise((resolve, reject) => {
+            if (Container.containers.length <= 0) {
+                client.getContainers((err, containers) => {
+                    if (err) {
+                        reject([]);
+                    }
+                    else {
+                        const models = containers.map(container => new Container(container));
+                        Container.containers = models;
+                    }
+                });
+            }
+            resolve(Container.containers);
         });
     }
     getFiles() {

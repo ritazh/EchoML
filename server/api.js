@@ -208,20 +208,33 @@ function aggregateContainers(err, result, cb) {
 }
 
 function getContainersAsync() {
-  return Container.getContainers(storageClient);
-  // containers = [];
   // return new Promise((resolve, reject) => {
-  //   blobService.listContainersSegmented(null, (err, result) => {
-  //     aggregateContainers(err, result, (err, containers) => {
-  //       if (err) {
-  //         logger.warn(err);
-  //         reject(err);
-  //       } else {
-  //         resolve(containers);
-  //       }
-  //     });
+  //   Container.getContainers(storageClient).then((containers) => {
+  //     for (const container of containers) {
+  //       console.log(container.container.original);
+  //       console.log(container.container.azure);
+  //     }
+  //     resolve(containers.map(container => container.container.original));
+  //   }).catch((err) => {
+  //     console.error(err);
+  //     reject([]);
   //   });
   // });
+
+  containers = [];
+  return new Promise((resolve, reject) => {
+    blobService.listContainersSegmented(null, (err, result) => {
+      aggregateContainers(err, result, (err, containers) => {
+        if (err) {
+          logger.warn(err);
+          reject(err);
+        } else {
+          console.log(containers);
+          resolve(containers);
+        }
+      });
+    });
+  });
 }
 
 function aggregateBlobs(containerName, err, result, cb) {
@@ -242,22 +255,39 @@ function aggregateBlobs(containerName, err, result, cb) {
 }
 
 function getBlobsAsync(containerName) {
-  return new Promise((resolve, reject) => {
-    let files = [];
-    Container.getContainers(storageClient).then((storageContainers) => {
-      const matchingContainers = storageContainers.filter(container => container.name === containerName);
+  // return new Promise((resolve, reject) => {
+  //   let files = [];
+  //   Container.getContainers(storageClient).then((storageContainers) => {
+  //     const matchingContainers = storageContainers.filter(container => container.name === containerName);
 
-      if (matchingContainers.length > 0) {
-        matchingContainers.forEach((container) => {
-          container.files.then((containerFiles) => {
-            files = files.concat(containerFiles);
-            resolve(files);
+  //     if (matchingContainers.length > 0) {
+  //       matchingContainers.forEach((container) => {
+  //         container.files.then((containerFiles) => {
+  //           files = files.concat(containerFiles);
+  //           resolve(files);
+  //         });
+  //       });
+  //     }
+  //   }).catch((err) => {
+  //     console.error(err);
+  //     reject(files);
+  //   });
+  // });
+
+  blobs = [];
+  return new Promise((resolve, reject) => {
+    blobService.listBlobsSegmented(containerName, null, (err, result) => {
+      aggregateBlobs(containerName, err, result, (err, blobs) => {
+        if (err) {
+          logger.warn(err);
+          reject(err);
+        } else {
+          blobs.forEach((blob) => {
+            console.log(blob);
           });
-        });
-      }
-    }).catch((err) => {
-      console.error(err);
-      reject(files);
+          resolve(blobs);
+        }
+      });
     });
   });
 }
