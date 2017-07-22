@@ -40,7 +40,12 @@ class PreviewVideo extends React.Component {
     const src = `https://${this.props
       .storageaccount}.blob.core.windows.net/${containerName}/${this.props
       .preview.name}`;
-    playFile(this.playlist, src);
+
+    const spectrogramsrc = `https://${this.props
+      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
+      .preview.name}`.replace('.flac', '.png');
+
+    playFile(this.playlist, src, spectrogramsrc);
   }
 
   componentDidMount() {

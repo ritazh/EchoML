@@ -145,7 +145,8 @@ export function loadAnnotation(notes) {
     container: document.getElementById('playlist'),
     timescale: true,
     state: 'select',
-    samplesPerPixel: 1024,
+    samplesPerPixel: 3400,
+    zoomLevels: [1000, 2000, 3400, 4000],
     colors: {
       waveOutlineColor: '#E0EFF1',
       timeColor: 'grey',
@@ -162,10 +163,11 @@ export function loadAnnotation(notes) {
   return playlist;
 }
 
-export function playFile(playlist, url) {
+export function playFile(playlist, url, spectrogramurl) {
   playlist.load([
     {
       src: url,
+      spectrogramsrc: spectrogramurl,
     },
   ]).then(() => {
     // can do stuff with the playlist.
