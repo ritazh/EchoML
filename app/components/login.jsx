@@ -62,6 +62,10 @@ class Login extends React.Component {
                 <ControlLabel>Password</ControlLabel>
                 <FormControl ref="password" type="password" />
               </FormGroup>
+              <ControlLabel>
+              For test account, use "test/test"
+              </ControlLabel>
+              <br/>
               <Button bsStyle="primary" onClick={this.handleLogin}>
                 Login
               </Button>
