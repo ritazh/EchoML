@@ -141,14 +141,6 @@ class PreviewVideo extends React.Component {
                   <i className="fa fa-fast-forward" />
                 </span>
               </div>
-              <div className="btn-group">
-                <span title="zoom in" className="btn-zoom-in btn btn-default">
-                  <i className="fa fa-search-plus" />
-                </span>
-                <span title="zoom out" className="btn-zoom-out btn btn-default">
-                  <i className="fa fa-search-minus" />
-                </span>
-              </div>
               <div className="btn-group btn-playlist-state-group">
                 <span
                   className="btn-cursor btn btn-default active"
@@ -161,20 +153,6 @@ class PreviewVideo extends React.Component {
                   title="select audio region"
                 >
                   <i className="fa fa-italic" />
-                </span>
-              </div>
-              <div className="btn-group btn-select-state-group">
-                <span
-                  className="btn-loop btn btn-success disabled"
-                  title="loop a selected segment of audio"
-                >
-                  <i className="fa fa-repeat" />
-                </span>
-                <span
-                  title="keep only the selected audio region for a track"
-                  className="btn-trim-audio btn btn-primary disabled"
-                >
-                  Trim
                 </span>
               </div>
               <div className="btn-group" onClick={e => this.saveLabels()}>
