@@ -1,3 +1,4 @@
+// @flow
 import { locToUrl, urlToLoc } from './common/util';
 
 function request(dispatch, path, json = true) {
@@ -10,7 +11,16 @@ function request(dispatch, path, json = true) {
       }
 
       dispatch({ type: 'CLEAR_LOADING' });
-      return json ? res.json() : res.text();
+
+      // add type check if blob
+      if (typeof json === 'boolean' && json) {
+        return json ? res.json() : res.text();
+      } else if (typeof json === 'string' && json === 'blob') {
+        return res.blob();
+      }
+
+      // defualt to text(); safest
+      return res.text();
     })
     .catch((err) => {
       dispatch({ type: 'CLEAR_LOADING' });
@@ -39,8 +49,8 @@ function post(dispatch, path, body) {
     });
 }
 
-export function updateFiles(loc) {
-  return (dispatch) => {
+export function updateFiles(loc /* :{container: number, dir: string[]} */) {
+  return (dispatch /* :function */) => {
     request(dispatch, `/api/dir${locToUrl(loc)}`)
       .then((files) => {
         dispatch({ type: 'SET_FILES', files });
@@ -49,15 +59,15 @@ export function updateFiles(loc) {
   };
 }
 
-export function changeLoc(loc) {
-  return (dispatch) => {
+export function changeLoc(loc /* :{container: number, dir: string[]} */) {
+  return (dispatch /* :function */) => {
     dispatch({ type: 'PUSH_LOC', loc });
     dispatch(updateFiles(loc));
   };
 }
 
-export function createFolder(loc, name) {
-  return (dispatch) => {
+export function createFolder(loc /* :string */, name /* :string */) {
+  return (dispatch /* :function */) => {
     post(dispatch, `/api/createFolder${locToUrl(loc)}`, { name })
       .then(() => {
         dispatch({
@@ -75,8 +85,8 @@ export function createFolder(loc, name) {
   };
 }
 
-export function deleteFiles(loc, names) {
-  return (dispatch) => {
+export function deleteFiles(loc /* :string */, names /* :string */) {
+  return (dispatch /* :function */) => {
     post(dispatch, `/api/delete${locToUrl(loc)}`, names)
       .then(() => {
         dispatch({
@@ -94,41 +104,66 @@ export function deleteFiles(loc, names) {
   };
 }
 
-export function startPreviewJpg(loc, name) {
-  return (dispatch) => {
-    request(dispatch, `/api/imageInfo${locToUrl(loc)}/${name}`)
-      .then((info) => {
-        dispatch({ type: 'START_PREVIEW_JPG', info });
-      });
+/**
+ * @param {string} loc
+ * @param {string} name
+ */
+export function startPreviewJpg(loc /* :string */, name /* :string */) {
+  return (dispatch /* :function */) => {
+    request(dispatch, `/api/imageInfo${locToUrl(loc)}/${name}`).then((info) => {
+      dispatch({ type: 'START_PREVIEW_JPG', info });
+    });
   };
 }
 
-export function startPreviewTxt(loc, name) {
-  return (dispatch) => {
-    request(dispatch, `/api/download${locToUrl(loc)}/${name}`, false)
-      .then((text) => {
-        dispatch({ type: 'START_PREVIEW_TXT', text });
-      });
+export function startPreviewTxt(loc /* :string */, name /* :string */) {
+  return (dispatch /* :function */) => {
+    request(dispatch, `/api/download${locToUrl(loc)}/${name}`, false).then((text) => {
+      dispatch({ type: 'START_PREVIEW_TXT', text });
+    });
   };
 }
 
-export function loadLabels(loc, index, name) {
-  return (dispatch) => {
-    request(dispatch, `/api/labels${locToUrl(loc)}/${name}`)
-      .then((labels) => {
-        dispatch({
-          type: 'START_PREVIEW', loc, index, name, labels });
-        dispatch({
-          type: 'SHOW_ALERT',
-          alert: null,
-        });
+export function loadLabels(storageAccount, containerName, filename) {
+  const getParams = Object.entries({ storageAccount, containerName, filename })
+    .map(tuple => `${encodeURIComponent(tuple[0])}=${encodeURIComponent(tuple[1])}`)
+    .join('&');
+  return (dispatch /* :function */) => {
+    request(dispatch, `/api/labels?${getParams}`).then((labels) => {
+      dispatch({
+        type: 'START_PREVIEW',
+        storageAccount,
+        containerName,
+        filename,
+        labels,
       });
+      dispatch({
+        type: 'SHOW_ALERT',
+        alert: null,
+      });
+    });
   };
 }
 
-export function saveLabels(src, labels) {
-  return (dispatch) => {
-    post(dispatch, `/api/saveLabels/${src}`, { labels })
+/**
+ * @param {string} account
+ * @param {string} containerName
+ * @param {string} filename
+ * @param {array} labels
+ */
+export function saveLabels(
+  storageAccount /* :string */,
+  containerName /* :string */,
+  filename /* :string */,
+  labels /* :Object[]*/,
+) {
+  return (dispatch /* :function */) => {
+    post(dispatch, '/api/saveLabels', {
+      labels,
+      storageAccount,
+      containerName,
+      filename,
+    })
       .then(() => {
         dispatch({
           type: 'SHOW_ALERT',
@@ -145,71 +180,130 @@ export function saveLabels(src, labels) {
 }
 
 export function initApp() {
-  return (dispatch) => {
+  return (dispatch /* :function */) => {
     if (location.pathname === '/') {
       dispatch({ type: 'SET_LOGIN', login: false });
-      return;
     }
-
-    request(dispatch, '/api/storageaccount')
-    .then((storageaccount) => {
-      dispatch({ type: 'SET_STORAGEACCOUNT', storageaccount });
-    });
-
-    request(dispatch, '/api/containers')
-    .then((containers) => {
-      dispatch({ type: 'SET_CONTAINERS', containers });
-
-      const loc = urlToLoc(location.pathname);
-      dispatch({ type: 'SET_LOC', loc });
-      dispatch(updateFiles(loc));
-      dispatch({ type: 'SET_LOGIN', login: true });
-    })
-    .catch(() => {});
   };
 }
 
-export function login(account, password) {
-  return (dispatch) => {
-    post(dispatch, '/login', { account, password })
-    .then((res) => {
-      if (res.result !== 'success') {
-        dispatch({ type: 'SET_LOGIN_MESSAGE', message: 'Login failed' });
-        return undefined;
-      }
-      return request(dispatch, '/api/containers')
-      .then((containers) => {
-        dispatch({ type: 'SET_CONTAINERS', containers });
-        if (location.pathname === '/') {
-          dispatch(changeLoc({ container: 0, dir: [] }));
-        } else {
-          const loc = urlToLoc(location.pathname);
-          dispatch({ type: 'SET_LOC', loc });
-          dispatch(updateFiles(loc));
+export function login(email /* :string */, password /* :string */) {
+  return (dispatch /* :function */) => {
+    post(dispatch, '/login', { email, password })
+      .then((res) => {
+        if (!res.success) {
+          return dispatch({ type: 'SET_LOGIN_MESSAGE', ...res });
         }
-        dispatch({ type: 'SET_LOGIN', login: true });
-
-        return request(dispatch, '/api/storageaccount')
-        .then((storageaccount) => {
-          dispatch({ type: 'SET_STORAGEACCOUNT', storageaccount });
+        // Download containers
+        return request(dispatch, '/api/containers').then((containers) => {
+          dispatch({ type: 'SET_CONTAINERS', containers });
+          if (location.pathname === '/') {
+            dispatch(changeLoc({ container: 0, dir: [] }));
+          } else {
+            const loc = urlToLoc(location.pathname);
+            dispatch({ type: 'SET_LOC', loc });
+            dispatch(updateFiles(loc));
+          }
+          dispatch({ type: 'SET_LOGIN', login: true });
         });
+      })
+      .catch((err) => {
+        console.error(err.stack);
       });
-    })
-    .catch((err) => {
-      console.error(err.stack);
-    });
   };
 }
 
 export function logout() {
-  return (dispatch) => {
+  return (dispatch /* :function */) => {
     post(dispatch, '/logout')
-    .then(() => {
-      history.pushState(null, null, '/');
-      dispatch({ type: 'SET_LOGIN', login: false });
-    })
-    .catch((err) => {
-      console.error(err.stack);
+      .then((json) => {
+        if (json.success) {
+          history.pushState(null, '', '/');
+          dispatch({ type: 'SET_LOGIN', login: false });
+          dispatch({ type: 'SET_LOGIN_MESSAGE', ...json });
+        } else {
+          throw new Error(json.message);
+        }
+        return json;
+      })
+      .catch((err) => {
+        console.error(err.stack);
+      });
+  };
+}
+
+/**
+ * Download a file and return an in memory local Url
+ * @param {string} storageAccount
+ * @param {string} containerName
+ * @param {string} filename
+ * @return {Promise<string>} resolves to a local object url
+ */
+export function downloadFile(
+  storageAccount /* :string*/,
+  containerName /* :string */,
+  filename /* :string*/,
+) {
+  return (dispatch /* :function */) => {
+    const blobKey = containerName + filename;
+
+    // return cached version if previously downloaded
+    const localFile = localStorage.getItem(blobKey);
+    if (localFile) {
+      return fetch(localFile).then(res => res.blob()).then(blob => URL.createObjectURL(blob));
+    }
+
+    const getParams = Object.entries({ storageAccount, containerName, filename })
+      .map(tuple => `${encodeURIComponent(tuple[0])}=${encodeURIComponent(tuple[1])}`)
+      .join('&');
+
+    // Download and return url to localstorage file
+    const blobPromise = request(dispatch, `/api/downloadfile?${getParams}`, 'blob');
+    return blobPromise.then((blob) => {
+      if (typeof blob === 'object') {
+        // Parse blob with FileReader and save to LocalStorage
+        const filereader = new FileReader();
+        filereader.onload = (event) => {
+          const result = event.target.result;
+          try {
+            localStorage.setItem(blobKey, result);
+            console.log(`Stored: ${blobKey}`);
+            return result;
+          } catch (e) {
+            console.error(`Failed to store: ${blobKey}`);
+            return null;
+          }
+        };
+        filereader.readAsDataURL(blob);
+
+        const localUrl = URL.createObjectURL(blob);
+        return localUrl;
+      }
+      return Promise.reject("Server returned non 'object' response type");
     });
+  };
+}
+
+/**
+ * @param {string} email
+ * @param {string} password
+ */
+export function saveUser(email /* :string*/, password /* :string */) {
+  return (dispatch /* : function*/) => {
+    dispatch({ type: 'SET_LOADING' });
+    const body = {
+      email,
+      password,
+    };
+    return post(dispatch, '/register', body)
+      .then((json) => {
+        dispatch({ type: 'SET_LOGIN_MESSAGE', ...json });
+        return json;
+      })
+      .catch((err) => {
+        dispatch({ type: 'SET_LOGIN_MESSAGE', ...err });
+        dispatch({ type: 'CLEAR_LOADING' });
+        return { err };
+      });
   };
 }

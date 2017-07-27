@@ -13,11 +13,16 @@ import {
   FormControl,
   Alert,
 } from 'react-bootstrap';
+import { RegistrationForm } from './register';
 
 class Login extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
     loginMessage: React.PropTypes.string,
+  };
+
+  state = {
+    showRegister: false,
   };
 
   componentDidMount() {
@@ -29,10 +34,23 @@ class Login extends React.Component {
     window.removeEventListener('popstate', this.handlePopState);
   }
 
-  handleLogin = () => {
-    const account = ReactDOM.findDOMNode(this.refs.account).value;
-    const password = ReactDOM.findDOMNode(this.refs.password).value;
-    this.props.dispatch(actions.login(account, password));
+  handleLogin = (e /* : Event */) => {
+    e.preventDefault(); // prevent real form submission
+    const email = this.email.value;
+    const password = this.password.value;
+    this.props.dispatch(actions.login(email, password));
+  };
+
+  handleRegister = (username /* :string*/, password /* :string*/) => {
+    this.props.dispatch(actions.saveUser(username, password)).then((json) => {
+      console.log(json);
+    });
+  };
+
+  enableRegistrationFrom = () => {
+    this.setState({
+      showRegister: true,
+    });
   };
 
   renderAlert() {
@@ -41,7 +59,7 @@ class Login extends React.Component {
     }
 
     return (
-      <Alert bsStyle="danger">
+      <Alert bsStyle="info">
         {this.props.loginMessage}
       </Alert>
     );
@@ -51,24 +69,51 @@ class Login extends React.Component {
     return (
       <Grid>
         <Row>
-          <Col lg={4} md={4} sm={8} xs={12}>
+          <Col md={10} mdOffset={1} xs={12}>
             <Panel>
               {this.renderAlert()}
-              <FormGroup>
-                <ControlLabel>Account</ControlLabel>
-                <FormControl ref="account" type="text" autoFocus />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Password</ControlLabel>
-                <FormControl ref="password" type="password" />
-              </FormGroup>
-              <ControlLabel>
-              For test account, use "test/test"
-              </ControlLabel>
-              <br/>
-              <Button bsStyle="primary" onClick={this.handleLogin}>
-                Login
-              </Button>
+              {this.state.showRegister
+                ? RegistrationForm({
+                  onSubmit: this.handleRegister,
+                  onExit: () => {
+                    this.setState({
+                      ...this.state,
+                      showRegister: false,
+                    });
+                  },
+                })
+                : <form>
+                  <FormGroup>
+                    <ControlLabel>Email</ControlLabel>
+                    <FormControl
+                      inputRef={(input) => {
+                        this.email = input;
+                      }}
+                      type="text"
+                      autoFocus
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>Password</ControlLabel>
+                    <FormControl
+                      inputRef={(input) => {
+                        this.password = input;
+                      }}
+                      type="password"
+                    />
+                  </FormGroup>
+                  <br />
+                  <Button bsStyle="primary" onClick={e => this.handleLogin(e)} type="submit">
+                      Login
+                    </Button>
+                  <Button
+                    style={{ float: 'right' }}
+                    bsStyle="info"
+                    onClick={this.enableRegistrationFrom}
+                  >
+                      Register Now
+                    </Button>
+                </form>}
             </Panel>
           </Col>
         </Row>

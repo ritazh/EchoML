@@ -2,7 +2,7 @@ const initialState = {
   login: null,
   loginMessage: null,
   view: 'list',
-  loading: false,
+  loading: 0, // track loading as a stack to allow parallel load states. > 0 means loading.
 };
 
 const reducer = (state = initialState, action) => {
@@ -14,6 +14,7 @@ const reducer = (state = initialState, action) => {
       };
 
     case 'SET_LOGIN_MESSAGE':
+      console.log(action.message);
       return {
         ...state,
         loginMessage: action.message,
@@ -28,13 +29,13 @@ const reducer = (state = initialState, action) => {
     case 'SET_LOADING':
       return {
         ...state,
-        loading: true,
+        loading: state.loading + 1,
       };
 
     case 'CLEAR_LOADING':
       return {
         ...state,
-        loading: false,
+        loading: state.loading - 1,
       };
 
     default:

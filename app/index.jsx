@@ -8,7 +8,6 @@ import containersReducer from './reducers/containers';
 import filesReducer from './reducers/files';
 import locReducer from './reducers/loc';
 import previewReducer from './reducers/preview';
-import storageAccountReducer from './reducers/storageaccount';
 import uiReducer from './reducers/ui';
 
 // Uncomment to check performance
@@ -27,7 +26,6 @@ const store = createStore(
     loc: locReducer,
     files: filesReducer,
     preview: previewReducer,
-    storageaccount: storageAccountReducer,
   }),
   undefined,
   compose(applyMiddleware(thunk), window.devToolsExtension ? window.devToolsExtension() : f => f),
@@ -35,6 +33,9 @@ const store = createStore(
 
 const app = document.createElement('div');
 document.body.appendChild(app);
+
+// Wipe localstorage for a fresh session
+localStorage.clear();
 
 ReactDOM.render(
   <Provider store={store}>
