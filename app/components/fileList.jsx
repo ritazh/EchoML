@@ -15,6 +15,7 @@ class FileList extends React.Component {
     dispatch: React.PropTypes.func,
     loc: React.PropTypes.object,
     files: React.PropTypes.array,
+    containers: React.PropTypes.array,
   };
 
   constructor(props) {
@@ -61,7 +62,8 @@ class FileList extends React.Component {
 
   handlePreviewClick = (index) => {
     const name = this.props.files[index].name;
-    this.props.dispatch(actions.loadLabels(this.props.loc, index, name));
+    const container = this.props.containers[this.props.loc.container];
+    this.props.dispatch(actions.loadLabels(container.storageAccount, container.name, name));
   };
 
   handleToggle = (index) => {
