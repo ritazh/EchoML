@@ -184,16 +184,12 @@ const funcs = {
     this.body = yield getLabels(filepath);
   },
 
-  * saveLabels(param) {
-    const filepath = param;
-    if (!filepath) {
-      this.body = 'invalid location';
-      return;
-    }
-
+  * saveLabels() {
     const data = this.request.body.labels;
-    this.body = yield deleteLabels(filepath);
-    this.body = yield addLabels(filepath, data);
+    let docurl = this.request.body.docurl;
+    docurl = decodeURIComponent(docurl);
+    this.body = yield deleteLabels(docurl);
+    this.body = yield addLabels(docurl, data);
   },
 
   * storageaccount() {
@@ -352,6 +348,7 @@ function init(app) {
   app.use(function* apiHandler(next) {
     const reqPath = decodeURIComponent(this.path);
     const result = /^\/api\/(\w+)\/?(.*)/.exec(reqPath);
+    
     if (!result) {
       yield next;
       return;

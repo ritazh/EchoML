@@ -127,8 +127,9 @@ export function loadLabels(loc, index, name) {
 }
 
 export function saveLabels(src, labels) {
+  let docurl = encodeURIComponent(src);
   return (dispatch) => {
-    post(dispatch, `/api/saveLabels/${src}`, { labels })
+    post(dispatch, `/api/saveLabels`, { labels, docurl })
       .then(() => {
         dispatch({
           type: 'SHOW_ALERT',
