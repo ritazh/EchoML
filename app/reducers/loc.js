@@ -1,9 +1,6 @@
 import { locToUrl } from '../common/util';
 
-const initialState = {
-  container: 0,
-  dir: [],
-};
+const initialState = {};
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {

@@ -2,8 +2,9 @@ const reducer = (state = null, action) => {
   switch (action.type) {
     case 'START_PREVIEW':
       return {
-        index: action.index,
-        name: action.name,
+        storageAccount: action.storageAccount,
+        containerName: action.containerName,
+        filename: action.filename,
         labels: action.labels,
       };
 

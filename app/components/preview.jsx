@@ -16,12 +16,12 @@ class Preview extends React.Component {
 
   componentDidMount() {
     window.addEventListener('keyup', this.handleKeyUp);
-    window.addEventListener('wheel', this.handleWheel);
+    // window.addEventListener('wheel', this.handleWheel);
   }
 
   componentWillUnmount() {
     window.removeEventListener('keyup', this.handleKeyUp);
-    window.removeEventListener('wheel', this.handleWheel);
+    // window.removeEventListener('wheel', this.handleWheel);
   }
 
   handleClose = () => {
@@ -47,7 +47,7 @@ class Preview extends React.Component {
   };
 
   renderByExt() {
-    switch (path.extname(this.props.preview.name).toLowerCase()) {
+    switch (path.extname(this.props.preview.filename).toLowerCase()) {
       case '.jpg':
       case '.jpeg':
       case '.png':
@@ -82,7 +82,7 @@ class Preview extends React.Component {
     return (
       <div style={outerStyle}>
         <span style={innerStyle}>
-          {this.props.preview.name}: Unknown format
+          {this.props.preview.filename}: Unknown format
         </span>
       </div>
     );
@@ -97,7 +97,7 @@ class Preview extends React.Component {
       return <div className="preview" />;
     }
 
-    if (!this.props.preview.name) {
+    if (!this.props.preview.filename) {
       return <div />;
     }
 
@@ -108,7 +108,7 @@ class Preview extends React.Component {
     );
   }
 }
-// onClick={this.handleClick}
+
 const mapStateToProps = state => ({
   loc: state.loc,
   files: state.files,

@@ -4,12 +4,13 @@ const HtmlwebpackPlugin = require('html-webpack-plugin');
 const config = require('config');
 
 module.exports = {
-  entry: './app/index.jsx',
+  entry: ['babel-polyfill', './app/index.jsx'],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     publicPath: '/',
   },
+  devtool: 'inline-source-map',
   devServer: {
     hot: true,
     inline: true,
@@ -37,19 +38,24 @@ module.exports = {
         test: /\.jsx?$/,
         loader: 'babel-loader',
         exclude: /node_modules/,
-      }, {
+      },
+      {
         test: /\.css$/,
         loader: 'style-loader!css-loader',
-      }, {
+      },
+      {
         test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'url-loader?limit=10000&minetype=application/font-woff',
-      }, {
+      },
+      {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'url-loader?limit=10000&minetype=application/octet-stream',
-      }, {
+      },
+      {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'file-loader',
-      }, {
+      },
+      {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
         loader: 'url-loader?limit=10000&minetype=image/svg+xml',
       },

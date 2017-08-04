@@ -16,11 +16,10 @@ class App extends React.Component {
   static propTypes = {
     dispatch: React.PropTypes.func,
     view: React.PropTypes.string,
-    loading: React.PropTypes.bool,
+    loading: React.PropTypes.number,
     containers: React.PropTypes.array,
     preview: React.PropTypes.object,
     ui: React.PropTypes.object,
-    storageaccount: React.PropTypes.string,
   };
 
   componentDidMount() {
@@ -53,6 +52,7 @@ class App extends React.Component {
     if (this.props.ui.login === false) {
       return (
         <Grid>
+          <h1>Welcome To EchoML Ver.0.0.2</h1>
           <Login />
         </Grid>
       );
@@ -85,7 +85,6 @@ const mapStateToProps = state => ({
   containers: state.containers,
   preview: state.preview,
   ui: state.ui,
-  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(App);

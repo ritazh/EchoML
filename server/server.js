@@ -11,12 +11,11 @@ const fs = require('fs');
 const logger = require('./logger');
 const api = require('./api');
 const mongoose = require('mongoose');
+const passport = require('./passport')(require('koa-passport'));
 
 function createServer(hostname, port) {
   const app = koa();
-  /**
-   * Connect to database
-   */
+  // DB Config
   mongoose.connect(config.mongo.url);
   mongoose.connection.on('error', (err) => {
     logger.error(err);
@@ -42,26 +41,44 @@ function createServer(hostname, port) {
   if (config.has('auth')) {
     app.keys = config.auth.keys;
     app.use(session(app));
+    app.use(passport.initialize());
+    app.use(passport.session());
 
-    const whiteList = new Set(['/', '/favicon.ico']);
-    app.use(function* authHandler(next) {
-      if (this.path === '/login') {
-        if (this.request.body.account === config.auth.account
-          && this.request.body.password === config.auth.password) {
-          this.session.login = config.auth.account;
-          this.body = JSON.stringify({ result: 'success' });
-        } else {
-          this.session.login = '';
-          this.body = JSON.stringify({ result: 'fail' });
-        }
-      } else if (this.path === '/logout') {
-        this.session.login = '';
-        this.body = JSON.stringify({ result: 'success' });
-      } else if (this.session.login === config.auth.account
-        || whiteList.has(this.path)) {
+    const whiteList = new Set(['/', '/favicon.ico', '/register']);
+    app.use(function* auth(next) {
+      const ctx = this;
+      if (['/login'].includes(ctx.path)) {
+        yield passport
+          .authenticate('local-login', function* (err, user, info) {
+            if (err) throw err;
+            if (user === false) {
+              ctx.status = 401;
+              ctx.body = info;
+            } else {
+              yield ctx.login(user);
+              ctx.body = info;
+            }
+          })
+          .call(this, next);
+      } else if (['/logout'].includes(ctx.path)) {
+        ctx.logout();
+        ctx.body = { success: true, message: 'Successfully logged out' };
+      } else if (['/register'].includes(ctx.path)) {
+        yield passport
+          .authenticate('local-signup', function* (err, user, info) {
+            if (err) throw err;
+            if (user === false) {
+              ctx.status = 401;
+              ctx.body = info;
+            } else {
+              yield ctx.login(user);
+              ctx.body = info;
+            }
+          })
+          .call(this, next);
+      } else if (ctx.isAuthenticated() || whiteList.has(ctx.path)) {
+        // check if authenticated and proceed
         yield next;
-      } else {
-        this.status = 401;
       }
     });
   }
