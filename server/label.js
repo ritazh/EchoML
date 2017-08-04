@@ -13,4 +13,5 @@ const LabelSchema = new Schema({
 LabelSchema.pre('save', done => done);
 
 // Model creation
-mongoose.model('Label', LabelSchema);
+const LabelModel = mongoose.model('Label', LabelSchema);
+module.exports = LabelModel;

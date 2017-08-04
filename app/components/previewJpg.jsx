@@ -1,3 +1,4 @@
+// @flow
 import { connect } from 'react-redux';
 import React from 'react';
 import * as actions from '../actions';
@@ -9,20 +10,32 @@ class PreviewJpg extends React.Component {
     loc: React.PropTypes.object,
     preview: React.PropTypes.object,
     containers: React.PropTypes.array,
-    storageaccount: React.PropTypes.string,
+  };
+
+  state = {
+    imgSrc: '', // image src
   };
 
   componentDidMount() {
-    this.props.dispatch(
-      actions.startPreviewJpg(this.props.loc, this.props.preview.name),
-    );
+    this.props.dispatch(actions.startPreviewJpg(this.props.loc, this.props.preview.filename));
+    this.props
+      .dispatch(
+        actions.downloadFile(
+          this.props.preview.storageAccount,
+          this.props.preview.containerName,
+          this.props.preview.filename,
+        ),
+      )
+      .then((url) => {
+        this.setState({
+          imgSrc: url,
+        });
+      });
   }
 
   componentWillReceiveProps(props) {
-    if (this.props.preview.name !== props.preview.name) {
-      this.props.dispatch(
-        actions.startPreviewJpg(props.loc, props.preview.name),
-      );
+    if (this.props.preview.filename !== props.preview.name) {
+      this.props.dispatch(actions.startPreviewJpg(props.loc, `${props.preview.name}?type=max800`));
     }
   }
 
@@ -30,13 +43,7 @@ class PreviewJpg extends React.Component {
     if (!this.props.preview.orientation) {
       return <div />;
     }
-    const fullpath = locToUrl(this.props.loc);
-    const index = fullpath.indexOf('/');
-    const containerName = this.props.containers[fullpath.substring(index + 1)];
 
-    const src = `https://${this.props
-      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
-      .preview.name}?type=max800`;
     const imageStyle = {
       position: 'relative',
       display: 'block',
@@ -85,10 +92,10 @@ class PreviewJpg extends React.Component {
     captionStyle.top = `${captionY}px`;
 
     return (
-      <div>
-        <img style={imageStyle} src={src} alt={this.props.preview.name} />
+      <div className="PreviewJpg">
+        <img style={imageStyle} src={this.state.imgSrc} alt={this.props.preview.filename} />
         <div style={captionStyle}>
-          {this.props.preview.name}
+          {this.props.preview.filename}
         </div>
       </div>
     );
@@ -99,7 +106,6 @@ const mapStateToProps = state => ({
   loc: state.loc,
   preview: state.preview,
   containers: state.containers,
-  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(PreviewJpg);

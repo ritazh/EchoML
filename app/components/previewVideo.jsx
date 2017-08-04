@@ -1,3 +1,4 @@
+// @flow
 import { connect } from 'react-redux';
 import React from 'react';
 import { locToUrl, calcDisplaySize } from '../common/util';
@@ -13,43 +14,54 @@ class PreviewVideo extends React.Component {
     loc: React.PropTypes.object,
     preview: React.PropTypes.object,
     containers: React.PropTypes.array,
-    storageaccount: React.PropTypes.string,
   };
 
   saveLabels() {
     const fullpath = locToUrl(this.props.loc);
     const index = fullpath.lastIndexOf('/');
-    const containerName = this.props.containers[fullpath.substring(index + 1)];
-    const src = `https://${this.props
-      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
-      .preview.name}`;
+    const storageAccount = this.props.containers[fullpath.substring(index + 1)].storageAccount;
+    const containerName = this.props.containers[fullpath.substring(index + 1)].name;
     this.props.dispatch(
-      actions.saveLabels(src, this.playlist.annotationList.annotations),
+      actions.saveLabels(
+        storageAccount,
+        containerName,
+        this.props.preview.filename,
+        this.playlist.annotationList.annotations,
+      ),
     );
   }
 
-  handleLoadState() {
+  componentDidMount() {
     const labels = loadLabels(this.props.preview.labels);
     this.playlist = loadAnnotation(labels);
 
     loadEmitter(this.playlist);
     const fullpath = locToUrl(this.props.loc);
     const index = fullpath.lastIndexOf('/');
-    const containerName = this.props.containers[fullpath.substring(index + 1)];
+    const storageAccount = this.props.containers[fullpath.substring(index + 1)].storageAccount;
+    const containerName = this.props.containers[fullpath.substring(index + 1)].name;
 
-    const src = `https://${this.props
-      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
-      .preview.name}`;
+    const filePromise = this.props.dispatch(
+      actions.downloadFile(storageAccount, containerName, this.props.preview.filename),
+    );
+    const spectrogramPromise = this.props.dispatch(
+      actions.downloadFile(
+        storageAccount,
+        containerName,
+        this.props.preview.filename.replace('.flac', '.png'),
+      ),
+    );
 
-    const spectrogramsrc = `https://${this.props
-      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
-      .preview.name}`.replace('.flac', '.png');
-
-    playFile(this.playlist, src, spectrogramsrc);
-  }
-
-  componentDidMount() {
-    this.handleLoadState();
+    // Download files and begin playing
+    Promise.all([filePromise, spectrogramPromise])
+      .then((values) => {
+        const localFileUrl = values[0];
+        const localSpectroUrl = values[1];
+        playFile(this.playlist, localFileUrl, localSpectroUrl);
+      })
+      .catch((reason) => {
+        console.error(reason);
+      });
   }
 
   componentWillUnmount() {
@@ -73,7 +85,8 @@ class PreviewVideo extends React.Component {
       background: '#fff',
     };
     const captionStyle = {
-      position: 'relative',
+      position: 'absolute',
+      bottom: '2em',
       width: '100%',
       textAlign: 'center',
     };
@@ -86,37 +99,16 @@ class PreviewVideo extends React.Component {
 
     const outWidth = window.document.documentElement.clientWidth;
     const outHeight = window.document.documentElement.clientHeight;
-    const displaySize = calcDisplaySize(
-      outWidth,
-      outHeight,
-      outWidth,
-      outHeight,
-    );
+    const displaySize = calcDisplaySize(outWidth, outHeight, outWidth, outHeight);
     preStyle.width = `${displaySize.width}px`;
     preStyle.height = `${displaySize.height}px`;
     preStyle.left = `${(outWidth - displaySize.width) / 2}px`;
     preStyle.top = `${(outHeight - displaySize.height) / 2}px`;
 
     playlistStyle.height = `${displaySize.height / 2}px`;
-    captionStyle.bottom = `${displaySize.height / 3}px`;
 
     const preImgStyleY = (outHeight - displaySize.height) / 2;
     preImgStyle.top = `${preImgStyleY}px`;
-
-    const fullpath = locToUrl(this.props.loc);
-    const index = fullpath.lastIndexOf('/');
-    const containerName = this.props.containers[fullpath.substring(index + 1)];
-
-    const src = `https://${this.props
-      .storageaccount}.blob.core.windows.net/${containerName}/${this.props
-      .preview.name}`;
-    const imageFileName = this.props.preview.name.substring(
-      0,
-      this.props.preview.name.lastIndexOf('.'),
-    );
-
-    const imgsrc = `https://${this.props
-      .storageaccount}.blob.core.windows.net/${containerName}/${imageFileName}.png`;
 
     return (
       <div>
@@ -142,20 +134,14 @@ class PreviewVideo extends React.Component {
                 </span>
               </div>
               <div className="btn-group btn-playlist-state-group">
-                <span
-                  className="btn-cursor btn btn-default active"
-                  title="select cursor"
-                >
+                <span className="btn-cursor btn btn-default active" title="select cursor">
                   <i className="fa fa-headphones" />
                 </span>
-                <span
-                  className="btn-select btn btn-default"
-                  title="select audio region"
-                >
+                <span className="btn-select btn btn-default" title="select audio region">
                   <i className="fa fa-italic" />
                 </span>
               </div>
-              <div className="btn-group" onClick={e => this.saveLabels()}>
+              <div className="btn-group" onClick={() => this.saveLabels()}>
                 <span
                   title="Save the labels as json"
                   className="btn-annotations-download btn btn-success"
@@ -169,7 +155,7 @@ class PreviewVideo extends React.Component {
         </div>
 
         <div style={captionStyle}>
-          {this.props.preview.name}
+          {this.props.preview.filename}
         </div>
       </div>
     );
@@ -180,7 +166,6 @@ const mapStateToProps = state => ({
   loc: state.loc,
   preview: state.preview,
   containers: state.containers,
-  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(PreviewVideo);

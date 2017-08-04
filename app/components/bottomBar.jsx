@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { Navbar } from 'react-bootstrap';
 import { locToUrl } from '../common/util';
+import * as actions from '../actions';
 
 class BottomBar extends React.Component {
   static propTypes = {
@@ -9,8 +10,29 @@ class BottomBar extends React.Component {
     loc: React.PropTypes.object,
     files: React.PropTypes.array,
     containers: React.PropTypes.array,
-    storageaccount: React.PropTypes.string,
   };
+
+  state = {
+    downloadUrl: null,
+  };
+
+  componentWillReceiveProps(nextProps) {
+    const selectedFiles = nextProps.files.filter(file => file.selected);
+    if (selectedFiles.length > 0) {
+      const fullpath = locToUrl(nextProps.loc);
+      const index = fullpath.lastIndexOf('/');
+      const containerName = nextProps.containers[fullpath.substring(index + 1)].name;
+      const storageAccount = nextProps.containers[fullpath.substring(index + 1)].storageAccount;
+
+      nextProps
+        .dispatch(actions.downloadFile(storageAccount, containerName, selectedFiles[0].name))
+        .then((downloadUrl) => {
+          this.setState({
+            downloadUrl,
+          });
+        });
+    }
+  }
 
   render() {
     const selectedFiles = this.props.files.filter(file => file.selected);
@@ -18,11 +40,8 @@ class BottomBar extends React.Component {
       return <div />;
     }
 
-    const fullpath = locToUrl(this.props.loc);
     let files = '';
     let content = '';
-    const index = fullpath.lastIndexOf('/');
-    const containerName = this.props.containers[fullpath.substring(index + 1)];
 
     if (selectedFiles.length === 1 && !selectedFiles[0].isDirectory) {
       files = selectedFiles[0].name;
@@ -30,11 +49,9 @@ class BottomBar extends React.Component {
         <Navbar.Text>
           {files}{' '}
           <a
-            href={`https://${this.props
-              .storageaccount}.blob.core.windows.net/${containerName}/${selectedFiles[0]
-              .name}`}
+            href={this.state.downloadUrl}
             className="btn btn-default btn-sm"
-            download
+            download={selectedFiles[0].name}
           >
             Download
           </a>
@@ -54,7 +71,6 @@ const mapStateToProps = state => ({
   containers: state.containers,
   loc: state.loc,
   files: state.files,
-  storageaccount: state.storageaccount,
 });
 
 export default connect(mapStateToProps)(BottomBar);

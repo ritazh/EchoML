@@ -1,3 +1,4 @@
+// @flow
 import { connect } from 'react-redux';
 import React from 'react';
 import { SplitButton, MenuItem } from 'react-bootstrap';
@@ -26,16 +27,12 @@ class Container extends React.Component {
       <SplitButton
         id="location"
         bsStyle="primary"
-        title={this.props.containers[this.props.loc.container]}
+        title={this.props.containers[this.props.loc.container].name}
         onClick={this.handleRootClick}
       >
         {this.props.containers.map((container, index) =>
-          (<MenuItem
-            key={index}
-            onClick={this.handleContainerClick}
-            data-index={index}
-          >
-            {container}
+          (<MenuItem key={index} onClick={this.handleContainerClick} data-index={index}>
+            {container.name}
           </MenuItem>),
         )}
       </SplitButton>
