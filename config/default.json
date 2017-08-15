@@ -18,7 +18,7 @@
       "json": false
     }
   },
-  "mongo":{
+  "mongo": {
     "url": "mongodb://localhost:27017/echoml"
   }
 }
