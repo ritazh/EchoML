@@ -16,6 +16,14 @@ import { locToUrl } from '../common/util';
  * maintained in regionId->Object map in region map in state
  */
 class PreviewVideo extends React.Component {
+  /**
+   * Generate a random color of gradient
+   */
+  static randomColor = (gradient = 0.5) =>
+    `rgba(${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)},${Math.floor(
+      Math.random() * 256,
+    )}, ${gradient})`;
+
   constructor(props) {
     super(props);
     const regions = this.props.preview.labels.reduce((carry, label) => {
@@ -63,106 +71,29 @@ class PreviewVideo extends React.Component {
     this.destroyWavesurfer();
   }
 
-  destroyWavesurfer = () =>
-    new Promise((resolve) => {
-      this.state.wavesurfer.destroy();
-      this.setState({ wavesurfer: null }, () => {
-        resolve();
-      });
-    });
-
-  initWavesurfer = (options = {}) =>
-    new Promise((resolve) => {
-      const wavesurfer = WaveSurfer.create({
-        container: this.wavesurfer,
-        waveColor: 'violet',
-        progressColor: 'purple',
-        scrollParent: false,
-        hideScrollbar: false,
-        plugins: [
-          SpectrogramPlugin.create({
-            container: this.wavesurferSpectrogram,
-            fftSamples: this.spectrogramHeight,
-            labels: true,
-          }),
-          TimelinePlugin.create({
-            container: this.wavesurferTimeline,
-          }),
-          MinimapPlugin.create(),
-          RegionsPlugin.create(),
-        ],
-        ...options,
-      });
-      // wavesurfer.setMute(true);
-      wavesurfer.load(this.audio.src);
-      wavesurfer.on('loading', (loadingProgress) => {
-        this.setState({ loadingProgress });
-      });
-
-      /**
-       * Add/update the provided region in state
-       * @param {WavesurferRegion} region
-       */
-      const putRegion = (region) => {
-        const existingRegion = this.state.regions[region.id];
-        const stateRegion = {
-          start: region.start,
-          end: region.end,
-          label: existingRegion ? existingRegion.label : '',
+  /**
+   * merge and return wavesurfer regions and labels data from component state
+   */
+  getLabels = () => {
+    const labels = Object.values(this.state.wavesurfer.regions.list)
+      .map((region) => {
+        const start = region.start;
+        const end = region.end;
+        const otherParams = this.state.regions[region.id] || {};
+        return {
+          start,
+          end,
+          ...otherParams,
         };
-        this.setState({ regions: { ...this.state.regions, [region.id]: stateRegion } });
-      };
+      })
+      .map(region => ({
+        start: region.start,
+        end: region.end,
+        label: region.label || '',
+      }));
 
-      wavesurfer.on('region-updated', (region) => {
-        putRegion(region);
-      });
-      wavesurfer.on('region-created', (region) => {
-        putRegion(region);
-      });
-      wavesurfer.on('region-in', (region) => {
-        this.setState({
-          regionsBeingPlayed: [...this.state.regionsBeingPlayed, region],
-        });
-      });
-      wavesurfer.on('region-out', (region) => {
-        const regionsBeingPlayed = [...this.state.regionsBeingPlayed].filter(
-          filterRegion => filterRegion.id !== region.id,
-        );
-        this.setState({ regionsBeingPlayed });
-      });
-
-      // Resolve wavesurfer instance
-      wavesurfer.on('ready', () => {
-        // bind wavesurfer and add label metadata to state
-        this.setState({ wavesurfer }, () => {
-          this.syncRegions();
-          resolve(wavesurfer);
-        });
-      });
-    });
-
-  toggleScroll = async () => {
-    const wavesurferShouldScroll = !this.state.wavesurferShouldScroll;
-    await this.destroyWavesurfer();
-    const wavesurfer = await this.initWavesurfer({
-      scrollParent: wavesurferShouldScroll,
-    });
-    await new Promise(resolve =>
-      this.setState(
-        {
-          wavesurferShouldScroll,
-          wavesurfer,
-        },
-        () => resolve(),
-      ),
-    );
-    return wavesurfer;
+    return labels;
   };
-
-  randomColor = (gradient = 0.5) =>
-    `rgba(${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)},${Math.floor(
-      Math.random() * 256,
-    )}, ${gradient})`;
 
   /**
    * Sync regions from state to wavesurfer
@@ -174,7 +105,9 @@ class PreviewVideo extends React.Component {
 
     // Add/update regions in wavesurfer from state
     for (const [id, region] of Object.entries(this.state.regions)) {
-      const color = wavesurverRegions[id] ? wavesurverRegions[id].color : this.randomColor();
+      const color = wavesurverRegions[id]
+        ? wavesurverRegions[id].color
+        : PreviewVideo.randomColor();
       const wavesurferRegionOptions = {
         id,
         color,
@@ -259,38 +192,116 @@ class PreviewVideo extends React.Component {
   handleZoom = async (minPxPerSec = this.state.zoom) => {
     const pxPerSec = minPxPerSec < 0 ? 0 : minPxPerSec;
     const scrollParent = pxPerSec > 0;
+    // Calculate progress to seek to after re-render
+    const currentTime = this.state.wavesurfer.getCurrentTime();
+    const progress = currentTime / this.state.wavesurfer.getDuration();
     await this.destroyWavesurfer();
     const wavesurfer = await this.initWavesurfer({ pxPerSec, scrollParent });
     const finished = await new Promise(resolve =>
-      this.setState({ wavesurfer, zoom: pxPerSec }, () => resolve(wavesurfer)),
+      this.setState({ wavesurfer, zoom: pxPerSec }, () => {
+        wavesurfer.seekAndCenter(progress);
+        resolve(wavesurfer);
+      }),
     );
 
     return finished;
   };
 
-  /**
-   * merge and return wavesurfer regions and labels data from component state
-   */
-  getLabels = () => {
-    const labels = Object.values(this.state.wavesurfer.regions.list)
-      .map((region) => {
-        const start = region.start;
-        const end = region.end;
-        const otherParams = this.state.regions[region.id] || {};
-        return {
-          start,
-          end,
-          ...otherParams,
-        };
-      })
-      .map(region => ({
-        start: region.start,
-        end: region.end,
-        label: region.label || '',
-      }));
-
-    return labels;
+  toggleScroll = async () => {
+    const wavesurferShouldScroll = !this.state.wavesurferShouldScroll;
+    await this.destroyWavesurfer();
+    const wavesurfer = await this.initWavesurfer({
+      scrollParent: wavesurferShouldScroll,
+    });
+    await new Promise(resolve =>
+      this.setState(
+        {
+          wavesurferShouldScroll,
+          wavesurfer,
+        },
+        () => resolve(),
+      ),
+    );
+    return wavesurfer;
   };
+
+  initWavesurfer = (options = {}) =>
+    new Promise((resolve) => {
+      const wavesurfer = WaveSurfer.create({
+        container: this.wavesurfer,
+        waveColor: 'violet',
+        progressColor: 'purple',
+        scrollParent: false,
+        hideScrollbar: false,
+        plugins: [
+          SpectrogramPlugin.create({
+            container: this.wavesurferSpectrogram,
+            fftSamples: this.spectrogramHeight,
+            labels: true,
+          }),
+          TimelinePlugin.create({
+            container: this.wavesurferTimeline,
+          }),
+          MinimapPlugin.create(),
+          RegionsPlugin.create(),
+        ],
+        ...options,
+      });
+      // wavesurfer.setMute(true);
+      wavesurfer.load(this.audio.src);
+      wavesurfer.on('loading', (loadingProgress) => {
+        this.setState({ loadingProgress });
+      });
+
+      /**
+       * Add/update the provided region in state
+       * @param {WavesurferRegion} region
+       */
+      const putRegion = (region) => {
+        const existingRegion = this.state.regions[region.id];
+        const stateRegion = {
+          start: region.start,
+          end: region.end,
+          label: existingRegion ? existingRegion.label : '',
+        };
+        this.setState({ regions: { ...this.state.regions, [region.id]: stateRegion } });
+      };
+
+      wavesurfer.on('region-updated', (region) => {
+        putRegion(region);
+      });
+      wavesurfer.on('region-created', (region) => {
+        putRegion(region);
+      });
+      wavesurfer.on('region-in', (region) => {
+        this.setState({
+          regionsBeingPlayed: [...this.state.regionsBeingPlayed, region],
+        });
+      });
+      wavesurfer.on('region-out', (region) => {
+        const regionsBeingPlayed = [...this.state.regionsBeingPlayed].filter(
+          filterRegion => filterRegion.id !== region.id,
+        );
+        this.setState({ regionsBeingPlayed });
+      });
+
+      // Resolve wavesurfer instance
+      wavesurfer.on('ready', () => {
+        // bind wavesurfer and add label metadata to state
+        this.setState({ wavesurfer }, () => {
+          this.syncRegions();
+          resolve(wavesurfer);
+        });
+      });
+    });
+
+  destroyWavesurfer = async () =>
+    new Promise((resolve) => {
+      this.state.wavesurfer.destroy();
+      this.setState({ wavesurfer: null }, () => {
+        resolve();
+      });
+    });
 
   /**
    * Download regions by simulating a download event
@@ -416,7 +427,7 @@ class PreviewVideo extends React.Component {
             }}
           >
               Your browser does not support the <code>audio</code> element.
-            </audio>
+          </audio>
           : null}
 
         <div
@@ -509,7 +520,7 @@ class PreviewVideo extends React.Component {
               style={{
                 textAlign: 'start',
                 padding: '-1em 0 0 0',
-                height: `${this.spectrogramHeight / 2}px`,
+                height: `${this.spectrogramHeight / 4}px`,
                 zIndex: 0,
               }}
             />

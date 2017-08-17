@@ -8,21 +8,19 @@ const parse = require('co-busboy');
 const path = require('path');
 const Promise = require('bluebird');
 const request = require('request');
-const sendfile = require('koa-sendfile');
 const logger = require('./logger');
 const util = require('./util');
 const LabelModel = require('./label');
-const UserModel = require('./user').model;
-const UserController = require('./user').controller;
+const send = require('koa-send');
+const _ = require('koa-route');
 
 const blobService = azure.createBlobService(
   config.storage.STORAGE_ACCOUNT,
   config.storage.STORAGE_ACCESS_KEY,
 );
 
-let containers = [];
-
-function getFilePath(param) {
+async function getFilePath(param) {
+  const containers = await getContainersAsync();
   logger.info(`param: ${param}`);
 
   const result = /(\d+)(.*)/.exec(param);
@@ -117,19 +115,6 @@ function addLabels(
 ) {
   const docUrl = generateAzureBlobURL(storageAccount, containerName, filename);
 
-  // const newData = [];
-  // for (let i = data.length - 1; i >= 0; i -= 1) {
-  //   const labels = data[i].lines[0].split(';');
-  //   for (let j = labels.length - 1; j >= 0; j -= 1) {
-  //     newData.push({
-  //       docUrl,
-  //       begin: data[i].start,
-  //       end: data[i].end,
-  //       label: labels[j].trim(),
-  //     });
-  //   }
-  // }
-
   const newData = data.map(label => ({
     docUrl,
     begin: label.start,
@@ -187,7 +172,7 @@ function getImageInfo(filepath) {
  * Returns a promise resolving to an array of pkgcloud contaienrs
  * @return {Promise<array>}
  */
-function getContainersAsync() {
+async function getContainersAsync() {
   let containers = [];
 
   const aggregateContainers = (err, result, cb) => {
@@ -213,8 +198,8 @@ function getContainersAsync() {
           // Add azure storage account to containers
           const decaratedContainers = Array.isArray(containers)
             ? containers.map(container =>
-                Object.assign(container, { storageAccount: config.storage.STORAGE_ACCOUNT }),
-              )
+              Object.assign(container, { storageAccount: config.storage.STORAGE_ACCOUNT }),
+            )
             : containers;
           resolve(decaratedContainers);
         }
@@ -228,7 +213,7 @@ function getContainersAsync() {
  * @param {string} container target container name
  * @return {Promise<array>}
  */
-function getBlobsAsync(container /* :string */) {
+async function getBlobsAsync(container /* :string */) {
   let blobs = [];
   const aggregateBlobs = (containerName, err, result, cb) => {
     if (err) {
@@ -258,69 +243,15 @@ function getBlobsAsync(container /* :string */) {
 }
 
 const funcs = {
-  * users() {
-    const method = this.request.method.toLowerCase();
-    const params = method === 'get' ? this.query : this.request.body;
-    const supportedMethods = Object.keys(UserController).map(casedMethod =>
-      casedMethod.toLowerCase(),
-    );
-
-    // Try/Catch the Promise. Rejections are piped as catchable error
-    try {
-      this.body = yield supportedMethods.includes(method)
-        ? UserController[method](params)
-        : Promise.reject(new Error(`Unsupported method: ${method}`));
-    } catch (err) {
-      this.body = yield err;
-    }
-  },
-  * register(param) {
-    // Delete Users ============================================================
-    // const deleteUsers = () =>
-    //   new Promise((resolve, reject) => {
-    //     UserModel.remove({}, (err, removed) => {
-    //       if (err) reject({ err });
-    //       resolve(removed);
-    //     });
-    //   });
-    // this.body = yield deleteUsers()
-    //   .then(deleted => ({ deleted }))
-
-    // Save User ===============================================================
-    this.body = yield Promise.resolve()
-      .then(() => {
-        // Check if user email already exists
-        const email = this.request.body.email;
-        return UserModel.find({ email }).then((users) => {
-          // If exists, reject with Error
-          const exists = users.length > 0;
-          if (exists) {
-            return Promise.reject(new Error(`User with email ${email} already exists`));
-          }
-
-          // Return new user resolve
-          const user = new UserModel(this.request.body);
-          return new Promise((resolve, reject) => {
-            user.save((err) => {
-              if (err) reject({ err });
-              resolve({ user });
-            });
-          });
-        });
-      })
-      .then(user => ({ user }))
-      .catch(err => ({ err }));
-  },
-
-  * downloadfile(param) {
+  async downloadfile(ctx, param) {
     const requiredParams = ['storageAccount', 'containerName', 'filename'];
     const isValidGet = () =>
-      Object.keys(this.query).every(getParam => requiredParams.includes(getParam));
+      Object.keys(ctx.query).every(getParam => requiredParams.includes(getParam));
 
     if (isValidGet()) {
-      const storageAccount = this.query.storageAccount;
-      const containerName = this.query.containerName;
-      const filename = this.query.filename;
+      const storageAccount = ctx.query.storageAccount;
+      const containerName = ctx.query.containerName;
+      const filename = ctx.query.filename;
 
       // Concat to local file dir
       const filepath = `files/${storageAccount}/${containerName}/${filename}`;
@@ -331,87 +262,92 @@ const funcs = {
       }
 
       // download file locally; then send it
-      yield new Promise((resolve, reject) => {
-        // Prep write stream
-        const writeStream = fs.createWriteStream(filepath);
-        writeStream
-          .on('finish', () => {
-            resolve(filepath);
-          })
-          .on('error', (err /* : Error*/) => {
-            reject(err);
-          });
+      try {
+        await new Promise((resolve, reject) => {
+          // Prep write stream
+          const writeStream = fs.createWriteStream(filepath);
+          writeStream
+            .on('finish', () => {
+              resolve(filepath);
+            })
+            .on('error', (err /* : Error */) => {
+              reject(err);
+            });
 
-        // download
-        const urlSafeAccount = encodeURIComponent(storageAccount);
-        const urlSafeContainer = encodeURIComponent(containerName);
-        const urlSafeFilename = encodeURIComponent(filename);
-        const downloadUrl = `https://${urlSafeAccount}.blob.core.windows.net/${urlSafeContainer}/${urlSafeFilename}`;
-        request(downloadUrl).pipe(writeStream);
-      }).then(() => sendfile(this, `./${filepath}`));
+          // download
+          const urlSafeAccount = encodeURIComponent(storageAccount);
+          const urlSafeContainer = encodeURIComponent(containerName);
+          const urlSafeFilename = encodeURIComponent(filename);
+          const downloadUrl = `https://${urlSafeAccount}.blob.core.windows.net/${urlSafeContainer}/${urlSafeFilename}`;
+          request(downloadUrl).pipe(writeStream);
+        });
+        await send(ctx, `./${filepath}`);
+      } catch (err) {
+        logger.error(err);
+      }
     } else {
-      this.body = yield Promise.resolve({ error: 'Invalid GET request' });
+      ctx.body = { error: 'Invalid GET request' };
     }
   },
 
   /**
    * @param {string} param container-index/filename
    */
-  * labels(param) {
+  async labels(ctx) {
     // retrieve container/filename information with getFilePath
     const requiredParams = ['storageAccount', 'containerName', 'filename'];
-    const getParams = this.query;
+    const getParams = ctx.query;
     const isValidGet = () => Object.keys(getParams).every(param => requiredParams.includes(param));
 
     if (isValidGet()) {
       const storageAccount = getParams.storageAccount;
       const containerName = getParams.containerName;
       const filename = getParams.filename;
-      this.body = yield getLabels(storageAccount, containerName, filename);
+      ctx.body = await getLabels(storageAccount, containerName, filename);
     } else {
-      this.body = yield Promise.resolve({ message: 'Invalid GET request' });
+      ctx.body = { message: 'Invalid GET request' };
     }
   },
 
-  * saveLabels() {
+  async saveLabels(ctx) {
     // White list valid POST params
     const isValidPost = () =>
-      Object.keys(this.request.body).every(param =>
+      Object.keys(ctx.request.body).every(param =>
         ['storageAccount', 'labels', 'containerName', 'filename'].includes(param),
       );
 
     if (isValidPost()) {
-      const storageAccount = this.request.body.storageAccount;
-      const containerName = this.request.body.containerName;
-      const filename = this.request.body.filename;
-      const data = this.request.body.labels;
-      this.body = yield deleteLabels(storageAccount, containerName, filename);
-      this.body = yield addLabels(storageAccount, containerName, filename, data);
+      const storageAccount = ctx.request.body.storageAccount;
+      const containerName = ctx.request.body.containerName;
+      const filename = ctx.request.body.filename;
+      const data = ctx.request.body.labels;
+      ctx.body = await deleteLabels(storageAccount, containerName, filename);
+      ctx.body = await addLabels(storageAccount, containerName, filename, data);
     } else {
-      this.body = yield Promise.resolve({ message: 'Invalid POST request' });
+      ctx.body = { message: 'Invalid POST request' };
     }
   },
 
-  * bookmarks() {
+  async bookmarks(ctx) {
     const bookmarks = config.get('bookmarks');
-    this.body = yield new Promise(resolve => resolve(JSON.stringify(bookmarks.map(b => b.name))));
+    ctx.body = JSON.stringify(bookmarks.map(b => b.name));
   },
 
-  * containers() {
-    containers = yield getContainersAsync();
-    // this.body = JSON.stringify(containers.map(c => c.name));
-    this.body = containers;
+  async containers(ctx) {
+    const containers = await getContainersAsync();
+    ctx.body = containers;
   },
 
-  * dir(param) {
-    const dir = getFilePath(param);
+  async dir(ctx, param) {
+    const dir = await getFilePath(param);
     if (!dir) {
-      this.body = 'invalid directory';
+      ctx.body = 'invalid directory';
+      ctx.status = 404;
       return;
     }
     let files = [];
     logger.info(`dir: ${dir}`);
-    const containerFiles = yield getBlobsAsync(dir);
+    const containerFiles = await getBlobsAsync(dir);
     files = files.concat(containerFiles);
 
     const data = files.reduce((result, file) => {
@@ -426,54 +362,54 @@ const funcs = {
       }
       return result;
     }, []);
-    this.body = data;
+    ctx.body = data;
   },
 
-  * imageInfo(param) {
+  async imageInfo(ctx, param) {
     const filepath = getFilePath(param);
     if (!filepath) {
-      this.body = 'invalid location';
+      ctx.body = 'invalid location';
       return;
     }
 
-    this.body = yield getImageInfo(filepath);
+    ctx.body = await getImageInfo(filepath);
   },
 
-  * download(param) {
+  async download(ctx, param) {
     const filepath = getFilePath(param);
     if (!filepath) {
-      this.body = yield new Promise(resolve => resolve('invalid location'));
+      ctx.body = { success: false, message: 'invalid location' };
     }
   },
 
-  * image(param) {
+  async image(ctx, param) {
     const filepath = getFilePath(param);
     if (!filepath) {
-      this.body = 'invalid location';
+      ctx.body = 'invalid location';
       return;
     }
 
     if (!config.cacheDir) {
-      yield sendfile(this, filepath);
+      await send(ctx, filepath);
       return;
     }
 
-    const type = this.query.type;
+    const type = ctx.query.type;
     if (type !== 'sq100' && type !== 'max800') {
-      this.body = 'invalid type';
+      ctx.body = 'invalid type';
       return;
     }
 
     const cacheFilepath = util.getImageCacheFilepath(filepath, type);
-    yield util.createImageCache(type, filepath, cacheFilepath);
+    await util.createImageCache(type, filepath, cacheFilepath);
 
-    yield sendfile(this, cacheFilepath);
-    if (!this.status) {
-      this.throw(404);
+    await send(ctx, cacheFilepath);
+    if (!ctx.status) {
+      ctx.throw(404);
     }
   },
 
-  * upload(param) {
+  * upload(ctx, param) {
     const dir = getFilePath(param);
     if (!dir) {
       this.body = 'invalid location';
@@ -496,43 +432,43 @@ const funcs = {
       part = yield parts;
     }
 
-    this.status = 200;
+    ctx.status = 200;
   },
 
-  * createFolder(param) {
+  async createFolder(ctx, param) {
     const dir = getFilePath(param);
     if (!dir) {
-      this.body = 'invalid location';
+      ctx.body = 'invalid location';
       return;
     }
 
-    const folderName = this.request.body.name;
+    const folderName = ctx.request.body.name;
 
     const folderFilepath = path.resolve(dir, folderName);
-    yield fs.mkdirAsync(folderFilepath);
+    await fs.mkdirAsync(folderFilepath);
 
-    this.body = '{}';
+    ctx.body = {};
   },
 
-  * delete(param) {
+  async delete(ctx, param) {
     const dir = getFilePath(param);
     if (!dir) {
-      this.body = 'invalid location';
+      ctx.body = 'invalid location';
       return;
     }
 
-    const files = this.request.body;
+    const files = ctx.request.body;
 
     if (!config.trashDir) {
-      yield Promise.all(files.map(file => fs.unlink(path.resolve(dir, file)))).catch(err =>
+      await Promise.all(files.map(file => fs.unlink(path.resolve(dir, file)))).catch(err =>
         console.error(err),
       );
-      this.body = '{}';
+      ctx.body = {};
       return;
     }
 
-    // yield Promise.all() for parallel deletion
-    yield Promise.all(
+    // await Promise.all() for parallel deletion
+    await Promise.all(
       files.map((file) => {
         const sourceFilepath = path.resolve(dir, file);
         const trashFilename = `${Date.now()}_${file}`;
@@ -543,32 +479,30 @@ const funcs = {
       console.error(err);
     });
 
-    this.body = '{}';
+    ctx.body = {};
   },
 };
 
-function init(app /* : any */) {
-  app.use(function* apiHandler(next) {
-    const reqPath = decodeURIComponent(this.path);
+function init(app) {
+  app.use(async (ctx, next) => {
+    const reqPath = decodeURIComponent(ctx.path);
     const result = /^\/api\/(\w+)\/?(.*)/.exec(reqPath);
-    if (!result) {
-      yield next;
-      return;
-    }
 
     const apiName = result[1];
     const param = result[2];
     if (!funcs[apiName]) {
       logger.warn(`Invalid api: ${apiName}`);
-      return;
+      ctx.throw(403);
     }
 
     try {
-      yield* funcs[apiName].call(this, param);
+      await funcs[apiName](ctx, param);
     } catch (err) {
       logger.warn(`Failed to handle api: ${apiName}`, err, err.stack);
-      this.status = 500;
+      ctx.throw(500);
     }
+
+    await next();
   });
 }
 
