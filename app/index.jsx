@@ -35,7 +35,7 @@ const app = document.createElement('div');
 document.body.appendChild(app);
 
 // Wipe localstorage for a fresh session
-localStorage.clear();
+// localStorage.clear();
 
 ReactDOM.render(
   <Provider store={store}>

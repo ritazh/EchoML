@@ -69,16 +69,21 @@ function generateAzureBlobURL(
  * @param {string} containerName
  * @param {string} filename
  */
-function getLabels(
+async function getLabels(
   storageAccount /* :string */,
   containerName /* :string */,
   filename /* :string */,
 ) {
   const docUrl = generateAzureBlobURL(storageAccount, containerName, filename);
-  return new Promise((resolve) => {
-    const labels = LabelModel.find({ docUrl }).exec();
-    resolve(labels);
-  });
+  const labels = await LabelModel.find({ docUrl }).exec();
+  const modeledLabels = labels.map(label => ({
+    start: label.begin,
+    end: label.end,
+    label: label.label || '',
+  }));
+  console.log(modeledLabels);
+
+  return modeledLabels;
 }
 
 /**
@@ -113,18 +118,26 @@ function addLabels(
 ) {
   const docUrl = generateAzureBlobURL(storageAccount, containerName, filename);
 
-  const newData = [];
-  for (let i = data.length - 1; i >= 0; i -= 1) {
-    const labels = data[i].lines[0].split(';');
-    for (let j = labels.length - 1; j >= 0; j -= 1) {
-      newData.push({
-        docUrl,
-        begin: data[i].start,
-        end: data[i].end,
-        label: labels[j].trim(),
-      });
-    }
-  }
+  // const newData = [];
+  // for (let i = data.length - 1; i >= 0; i -= 1) {
+  //   const labels = data[i].lines[0].split(';');
+  //   for (let j = labels.length - 1; j >= 0; j -= 1) {
+  //     newData.push({
+  //       docUrl,
+  //       begin: data[i].start,
+  //       end: data[i].end,
+  //       label: labels[j].trim(),
+  //     });
+  //   }
+  // }
+
+  const newData = data.map(label => ({
+    docUrl,
+    begin: label.start,
+    end: label.end,
+    label: label.label,
+  }));
+
   let newLabels = [];
   return new Promise((resolve) => {
     LabelModel.insertMany(newData, (err, result) => {

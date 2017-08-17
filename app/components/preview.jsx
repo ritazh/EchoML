@@ -16,12 +16,12 @@ class Preview extends React.Component {
 
   componentDidMount() {
     window.addEventListener('keyup', this.handleKeyUp);
-    window.addEventListener('wheel', this.handleWheel);
+    // window.addEventListener('wheel', this.handleWheel);
   }
 
   componentWillUnmount() {
     window.removeEventListener('keyup', this.handleKeyUp);
-    window.removeEventListener('wheel', this.handleWheel);
+    // window.removeEventListener('wheel', this.handleWheel);
   }
 
   handleClose = () => {
@@ -108,7 +108,7 @@ class Preview extends React.Component {
     );
   }
 }
-// onClick={this.handleClick}
+
 const mapStateToProps = state => ({
   loc: state.loc,
   files: state.files,

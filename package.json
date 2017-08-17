@@ -20,6 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "azure-storage": "^2.2.1",
+    "babel-polyfill": "^6.23.0",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.5.0",
     "co": "^4.6.0",
@@ -57,6 +58,7 @@
     "request": "^2.81.0",
     "superagent": "^1.8.5",
     "waveform-playlist": "github:ritazh/waveform-playlist#feat-spectrogram",
+    "wavesurfer.js": "^2.0.0-beta01",
     "winston": "^2.3.1",
     "winston-daily-rotate-file": "^1.4.6"
   },

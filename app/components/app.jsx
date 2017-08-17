@@ -52,6 +52,7 @@ class App extends React.Component {
     if (this.props.ui.login === false) {
       return (
         <Grid>
+          <h1>Welcome To EchoML Ver.0.0.2</h1>
           <Login />
         </Grid>
       );
