@@ -81,7 +81,6 @@ async function getLabels(
     end: label.end,
     label: label.label || '',
   }));
-  console.log(modeledLabels);
 
   return modeledLabels;
 }
@@ -348,7 +347,6 @@ const funcs = {
         const urlSafeContainer = encodeURIComponent(containerName);
         const urlSafeFilename = encodeURIComponent(filename);
         const downloadUrl = `https://${urlSafeAccount}.blob.core.windows.net/${urlSafeContainer}/${urlSafeFilename}`;
-        console.log(downloadUrl);
         request(downloadUrl).pipe(writeStream);
       }).then(() => sendfile(this, `./${filepath}`));
     } else {
