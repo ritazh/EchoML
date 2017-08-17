@@ -1,178 +1,3 @@
-// // @flow
-// import { connect } from 'react-redux';
-// import React from 'react';
-// import { locToUrl, calcDisplaySize } from '../common/util';
-// import { loadAnnotation, loadLabels, playFile } from '../annotations';
-// import { loadEmitter } from '../emitter';
-// import * as actions from '../actions';
-// import Alert from './alert';
-
-// class PreviewVideo extends React.Component {
-//   playlist = null;
-//   static propTypes = {
-//     dispatch: React.PropTypes.func,
-//     loc: React.PropTypes.object,
-//     preview: React.PropTypes.object,
-//     containers: React.PropTypes.array,
-//   };
-
-//   saveLabels() {
-//     const fullpath = locToUrl(this.props.loc);
-//     const index = fullpath.lastIndexOf('/');
-//     const storageAccount = this.props.containers[fullpath.substring(index + 1)].storageAccount;
-//     const containerName = this.props.containers[fullpath.substring(index + 1)].name;
-//     console.log(this.playlist.annotationList.annotations);
-//     this.props.dispatch(
-//       actions.saveLabels(
-//         storageAccount,
-//         containerName,
-//         this.props.preview.filename,
-//         this.playlist.annotationList.annotations,
-//       ),
-//     );
-//   }
-
-//   componentDidMount() {
-//     const labels = loadLabels(this.props.preview.labels);
-//     this.playlist = loadAnnotation(labels);
-
-//     loadEmitter(this.playlist);
-//     const fullpath = locToUrl(this.props.loc);
-//     const index = fullpath.lastIndexOf('/');
-//     const storageAccount = this.props.containers[fullpath.substring(index + 1)].storageAccount;
-//     const containerName = this.props.containers[fullpath.substring(index + 1)].name;
-
-//     const filePromise = this.props.dispatch(
-//       actions.downloadFile(storageAccount, containerName, this.props.preview.filename),
-//     );
-//     const spectrogramPromise = this.props.dispatch(
-//       actions.downloadFile(
-//         storageAccount,
-//         containerName,
-//         this.props.preview.filename.replace('.flac', '.png'),
-//       ),
-//     );
-
-//     // Download files and begin playing
-//     Promise.all([filePromise, spectrogramPromise])
-//       .then((values) => {
-//         const localFileUrl = values[0];
-//         const localSpectroUrl = values[1];
-//         playFile(this.playlist, localFileUrl, localSpectroUrl);
-//       })
-//       .catch((reason) => {
-//         console.error(reason);
-//       });
-//   }
-
-//   componentWillUnmount() {
-//     // fixes issue with 'AudioContext': number of hardware contexts reached maximum
-//     this.playlist.ac.close();
-//   }
-
-//   render() {
-//     const preImgStyle = {
-//       position: 'absolute',
-//       width: '100%',
-//       textAlign: 'center',
-//       color: '#ccc',
-//     };
-//     const preStyle = {
-//       position: 'relative',
-//       display: 'block',
-//       overflow: 'hidden',
-//     };
-//     const playlistStyle = {
-//       background: '#fff',
-//     };
-//     const captionStyle = {
-//       position: 'absolute',
-//       bottom: '2em',
-//       width: '100%',
-//       textAlign: 'center',
-//     };
-//     const imageStyle = {
-//       position: 'relative',
-//       display: 'block',
-//       left: '400px',
-//       top: '40px',
-//     };
-
-//     const outWidth = window.document.documentElement.clientWidth;
-//     const outHeight = window.document.documentElement.clientHeight;
-//     const displaySize = calcDisplaySize(outWidth, outHeight, outWidth, outHeight);
-//     preStyle.width = `${displaySize.width}px`;
-//     preStyle.height = `${displaySize.height}px`;
-//     preStyle.left = `${(outWidth - displaySize.width) / 2}px`;
-//     preStyle.top = `${(outHeight - displaySize.height) / 2}px`;
-
-//     playlistStyle.height = `${displaySize.height / 2}px`;
-
-//     const preImgStyleY = (outHeight - displaySize.height) / 2;
-//     preImgStyle.top = `${preImgStyleY}px`;
-
-//     return (
-//       <div>
-//         <div style={preStyle}>
-//           <Alert />
-//           <div id="top-bar" className="playlist-top-bar">
-//             <div className="playlist-toolbar">
-//               <div className="btn-group">
-//                 <span className="btn-pause btn btn-warning">
-//                   <i className="fa fa-pause" />
-//                 </span>
-//                 <span className="btn-play btn btn-success">
-//                   <i className="fa fa-play" />
-//                 </span>
-//                 <span className="btn-stop btn btn-danger">
-//                   <i className="fa fa-stop" />
-//                 </span>
-//                 <span className="btn-rewind btn btn-success">
-//                   <i className="fa fa-fast-backward" />
-//                 </span>
-//                 <span className="btn-fast-forward btn btn-success">
-//                   <i className="fa fa-fast-forward" />
-//                 </span>
-//               </div>
-//               <div className="btn-group btn-playlist-state-group">
-//                 <span className="btn-cursor btn btn-default active" title="select cursor">
-//                   <i className="fa fa-headphones" />
-//                 </span>
-//                 <span className="btn-select btn btn-default" title="select audio region">
-//                   <i className="fa fa-italic" />
-//                 </span>
-//               </div>
-//               <div className="btn-group" onClick={() => this.saveLabels()}>
-//                 <span
-//                   title="Save the labels as json"
-//                   className="btn-annotations-download btn btn-success"
-//                 >
-//                   Save Labels
-//                 </span>
-//               </div>
-//             </div>
-//           </div>
-//           <div id="playlist" style={playlistStyle} />
-//         </div>
-
-//         <div style={captionStyle}>
-//           {this.props.preview.filename}
-//         </div>
-//       </div>
-//     );
-//   }
-// }
-
-// const mapStateToProps = state => ({
-//   loc: state.loc,
-//   preview: state.preview,
-//   containers: state.containers,
-// });
-
-// export default connect(mapStateToProps)(PreviewVideo);
-
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 import { connect } from 'react-redux';
 import React from 'react';
 import WaveSurfer from 'wavesurfer.js';
@@ -182,7 +7,7 @@ import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap';
 import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline';
 import moment from 'moment';
 import * as actions from '../actions';
-import { locToUrl, calcDisplaySize } from '../common/util';
+import { locToUrl } from '../common/util';
 
 /**
  * AudioPlayer
@@ -204,7 +29,6 @@ class PreviewVideo extends React.Component {
       wavesurfer: null,
       wavesurferReady: false,
       audioSrc: null,
-      // audioSrc: "11. Aerith's Theme.flac",
       spectrogramEnabled: false,
       zoom: 0,
       wavesurferShouldScroll: false,
@@ -295,13 +119,6 @@ class PreviewVideo extends React.Component {
       wavesurfer.on('region-created', (region) => {
         putRegion(region);
       });
-      // wavesurfer.on('region-removed', (region) => {
-      //   const regions = { ...this.state.regions };
-      //   delete regions[region.id];
-      //   this.setState({
-      //     regions,
-      //   });
-      // });
       wavesurfer.on('region-in', (region) => {
         this.setState({
           regionsBeingPlayed: [...this.state.regionsBeingPlayed, region],
@@ -318,11 +135,6 @@ class PreviewVideo extends React.Component {
       wavesurfer.on('ready', () => {
         // bind wavesurfer and add label metadata to state
         this.setState({ wavesurfer }, () => {
-          // // map existing labels to new wavesurfer regions
-          // for (const region of Object.values(this.state.regions)) {
-          //   this.addRegion({ ...region });
-          // }
-
           this.syncRegions();
           resolve(wavesurfer);
         });
@@ -359,6 +171,8 @@ class PreviewVideo extends React.Component {
    */
   syncRegions = () => {
     const wavesurverRegions = this.state.wavesurfer.regions.list;
+
+    // Add/update regions in wavesurfer from state
     for (const [id, region] of Object.entries(this.state.regions)) {
       const color = wavesurverRegions[id] ? wavesurverRegions[id].color : this.randomColor();
       const wavesurferRegionOptions = {
@@ -372,6 +186,15 @@ class PreviewVideo extends React.Component {
         wavesurverRegions[id].remove();
       }
       this.state.wavesurfer.addRegion(wavesurferRegionOptions);
+    }
+
+    // Delete regions in wavesurfer not in state
+    const regionsToRemove = Object.values(wavesurverRegions).filter(
+      region => !Object.keys(this.state.regions).includes(region.id),
+    );
+
+    for (const region of regionsToRemove) {
+      region.remove();
     }
   };
 
@@ -433,12 +256,13 @@ class PreviewVideo extends React.Component {
   /**
    * @param {number} pxPerSec
    */
-  handleZoom = async (minPxPerSec) => {
-    const scrollParent = minPxPerSec > 0;
+  handleZoom = async (minPxPerSec = this.state.zoom) => {
+    const pxPerSec = minPxPerSec < 0 ? 0 : minPxPerSec;
+    const scrollParent = pxPerSec > 0;
     await this.destroyWavesurfer();
-    const wavesurfer = await this.initWavesurfer({ minPxPerSec, scrollParent });
+    const wavesurfer = await this.initWavesurfer({ pxPerSec, scrollParent });
     const finished = await new Promise(resolve =>
-      this.setState({ wavesurfer }, () => resolve(wavesurfer)),
+      this.setState({ wavesurfer, zoom: pxPerSec }, () => resolve(wavesurfer)),
     );
 
     return finished;
@@ -523,21 +347,21 @@ class PreviewVideo extends React.Component {
         const className = this.state.regionsBeingPlayed.includes(region) ? 'info' : '';
         return (
           <tr className={className} key={region.id}>
-            <td style={{ verticalAlign: 'baseline' }}>
+            <td>
               <code>
                 {moment
                   .utc(moment.duration({ seconds: region.start }).asMilliseconds())
                   .format('HH:mm:ss.SSS')}
               </code>
             </td>
-            <td style={{ verticalAlign: 'baseline' }}>
+            <td>
               <code>
                 {moment
                   .utc(moment.duration({ seconds: region.end }).asMilliseconds())
                   .format('HH:mm:ss.SSS')}
               </code>
             </td>
-            <td style={{ verticalAlign: 'baseline' }}>
+            <td>
               <input
                 className="form-control input-sm"
                 style={{ width: '100%' }}
@@ -548,17 +372,18 @@ class PreviewVideo extends React.Component {
                 value={this.state.regions[region.id].label}
               />
             </td>
-            <td style={{ display: 'flex' }}>
-              <button
-                className="btn btn-sm btn-success"
-                onClick={() => this.playRegion(region.id)}
-                style={{ flex: 'auto' }}
-              >
-                Play
-              </button>
-              <button className="btn btn-sm btn-danger" onClick={() => this.removeRegion(region)}>
-                Delete
-              </button>
+            <td style={{ textAlign: 'center' }}>
+              <div className="btn-group">
+                <button
+                  className="btn btn-sm btn-success"
+                  onClick={() => this.playRegion(region.id)}
+                >
+                  <i className="fa fa-play" aria-hidden="true" />
+                </button>
+                <button className="btn btn-sm btn-danger" onClick={() => this.removeRegion(region)}>
+                  <i className="fa fa-trash" aria-hidden="true" />
+                </button>
+              </div>
             </td>
           </tr>
         );
@@ -570,12 +395,16 @@ class PreviewVideo extends React.Component {
         style={{
           display: 'flex',
           flexFlow: 'column',
-          height: '95vh',
           width: '95vw',
+          height: '95vh',
+          maxHeight: '95vh',
+          overflowY: 'hidden',
           margin: 'auto',
           top: '2.5vh',
           position: 'relative',
           border: '1px solid black',
+          padding: '1em',
+          background: 'grey',
         }}
       >
         {this.state.audioSrc
@@ -589,47 +418,66 @@ class PreviewVideo extends React.Component {
               Your browser does not support the <code>audio</code> element.
             </audio>
           : null}
-        <div className="player-controls" style={{ flex: '0 1 auto', zIndex: 1 }}>
-          <button id="play" className="button" onClick={() => this.togglePlay()}>
-            play/pause
-          </button>
-          <button id="segment" className="button" onClick={() => this.addRegion()}>
-            Create Label
-          </button>
-          <input
-            type="number"
-            defaultValue={0}
-            ref={(ref) => {
-              this.zoom = ref;
-            }}
-            min={0}
-            max={25}
-          />
-          <button className="button" onClick={() => this.handleZoom(this.zoom.value)}>
-            Update Zoom
-          </button>
+
+        <div
+          style={{
+            margin: '0 0 1em',
+          }}
+        >
+          <div className="btn-group">
+            <button
+              className="btn-play btn btn-success"
+              onClick={() => this.state.wavesurfer.play()}
+            >
+              <i className="fa fa-play" />
+            </button>
+            <button
+              className="btn-pause btn btn-warning"
+              onClick={() => this.state.wavesurfer.pause()}
+            >
+              <i className="fa fa-pause" />
+            </button>
+            <button
+              className="btn-stop btn btn-danger"
+              onClick={() => this.state.wavesurfer.stop()}
+            >
+              <i className="fa fa-stop" />
+            </button>
+            <button
+              className="btn-rewind btn btn-info"
+              onClick={() =>
+                this.state.wavesurfer.setPlaybackRate(this.state.wavesurfer.getPlaybackRate() / 2)}
+            >
+              <i className="fa fa-fast-backward" />
+            </button>
+            <button
+              className="btn-fast-forward btn btn-info"
+              onClick={() =>
+                this.state.wavesurfer.setPlaybackRate(this.state.wavesurfer.getPlaybackRate() * 2)}
+            >
+              <i className="fa fa-fast-forward" />
+            </button>
+          </div>
+          <div className="btn-group">
+            <button
+              className="btn-pause btn btn-primary"
+              onClick={() => this.handleZoom(this.state.zoom + 20)}
+            >
+              <i className="fa fa-search-plus" aria-hidden="true" />
+            </button>
+            <button
+              className="btn-pause btn btn-primary"
+              onClick={() => this.handleZoom(this.state.zoom - 20)}
+              disabled={this.state.zoom <= 0}
+            >
+              <i className="fa fa-search-minus" aria-hidden="true" />
+            </button>
+            <button className="btn-play btn btn-success" onClick={() => this.addRegion()}>
+              Create Label
+            </button>
+          </div>
         </div>
 
-        <div className="btn-group">
-          <button className="btn-play btn btn-success" onClick={() => this.state.wavesurfer.play()}>
-            <i className="fa fa-play" />
-          </button>
-          <button
-            className="btn-pause btn btn-warning"
-            onClick={() => this.state.wavesurfer.pause()}
-          >
-            <i className="fa fa-pause" />
-          </button>
-          <button className="btn-stop btn btn-danger" onClick={() => this.state.wavesurfer.stop()}>
-            <i className="fa fa-stop" />
-          </button>
-          <span className="btn-rewind btn btn-success">
-            <i className="fa fa-fast-backward" />
-          </span>
-          <span className="btn-fast-forward btn btn-success">
-            <i className="fa fa-fast-forward" />
-          </span>
-        </div>
         <div
           className="wavesurfer"
           style={{
@@ -637,7 +485,6 @@ class PreviewVideo extends React.Component {
             backgroundColor: 'white',
             zIndex: 0,
             border: '1px solid ghostwhite',
-            margin: '0 1em',
           }}
         >
           <div
@@ -669,15 +516,11 @@ class PreviewVideo extends React.Component {
           </div>
         </div>
 
-        <pre>
-          {/* {JSON.stringify(this.state)} */}
-        </pre>
         <div
           style={{
-            flex: '1 1 auto',
+            margin: '1em 0 0 0',
             overflowY: 'scroll',
             zIndex: 1,
-            margin: '0 1em',
             backgroundColor: 'ghostwhite',
           }}
         >
@@ -687,22 +530,24 @@ class PreviewVideo extends React.Component {
                 <th>Start Time</th>
                 <th>End Time</th>
                 <th>Label</th>
-                <th style={{ display: 'flex' }}>
-                  <button
-                    style={{ flex: 'auto' }}
-                    className="btn btn-sm btn-primary"
-                    onClick={() => this.saveLabels()}
-                  >
-                    Save Labels
-                  </button>
+                <th style={{ textAlign: 'center' }}>
+                  <div className="btn-group">
+                    <button
+                      style={{ flex: 'auto' }}
+                      className="btn btn-sm btn-primary"
+                      onClick={() => this.saveLabels()}
+                    >
+                      Save Labels
+                    </button>
 
-                  <button
-                    style={{ flex: 'auto' }}
-                    className="btn btn-sm btn-secondary"
-                    onClick={() => this.downloadLabels()}
-                  >
-                    Download Labels
-                  </button>
+                    <button
+                      style={{ flex: 'auto' }}
+                      className="btn btn-sm btn-secondary"
+                      onClick={() => this.downloadLabels()}
+                    >
+                      Download Labels
+                    </button>
+                  </div>
                 </th>
               </tr>
             </thead>
