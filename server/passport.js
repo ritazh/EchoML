@@ -2,7 +2,7 @@
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./user').model;
 
-module.exports = (passport /* :Function*/) => {
+module.exports = (passport /* :Function */) => {
   // =========================================================================
   // passport session setup ==================================================
   // =========================================================================
@@ -34,6 +34,7 @@ module.exports = (passport /* :Function*/) => {
         passReqToCallback: true, // allows us to pass back the entire request to the callback
       },
       (req, email, password, done) => {
+        console.log('awoefjoweaifj');
         // asynchronous
         // User.findOne wont fire unless data is sent back
         process.nextTick(() => {

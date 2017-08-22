@@ -14,7 +14,6 @@ const reducer = (state = initialState, action) => {
       };
 
     case 'SET_LOGIN_MESSAGE':
-      console.log(action.message);
       return {
         ...state,
         loginMessage: action.message,
@@ -35,7 +34,7 @@ const reducer = (state = initialState, action) => {
     case 'CLEAR_LOADING':
       return {
         ...state,
-        loading: state.loading - 1,
+        loading: state.loading - 1 > 0 ? state.loading - 1 : 0, // never go below 0
       };
 
     default:

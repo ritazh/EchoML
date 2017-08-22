@@ -27,6 +27,10 @@ class App extends React.Component {
     this.props.dispatch(actions.initApp());
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    // console.log(nextProps);
+  }
+
   componentWillUnmount() {
     window.removeEventListener('popstate', this.handlePopState);
   }
@@ -45,11 +49,7 @@ class App extends React.Component {
   }
 
   render() {
-    if (this.props.ui.login === null) {
-      return <Grid />;
-    }
-
-    if (this.props.ui.login === false) {
+    if (!!this.props.ui.login === false) {
       return (
         <Grid>
           <h1>Welcome To EchoML Ver.0.0.2</h1>

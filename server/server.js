@@ -1,7 +1,7 @@
 /* eslint-disable global-require */
 
-const koa = require('koa');
-const cors = require('koa-cors');
+const Koa = require('koa');
+const cors = require('kcors');
 const bodyParser = require('koa-bodyparser');
 const send = require('koa-send');
 const session = require('koa-session');
@@ -12,9 +12,10 @@ const logger = require('./logger');
 const api = require('./api');
 const mongoose = require('mongoose');
 const passport = require('./passport')(require('koa-passport'));
+const _ = require('koa-route');
 
 function createServer(hostname, port) {
-  const app = koa();
+  const app = new Koa();
   // DB Config
   mongoose.connect(config.mongo.url);
   mongoose.connection.on('error', (err) => {
@@ -26,7 +27,7 @@ function createServer(hostname, port) {
       logger.info(message.slice(0, -1));
     },
   };
-  app.use(morgan.middleware('combined', { stream }));
+  app.use(morgan('combined', { stream }));
 
   if (config.get('cors')) {
     app.use(cors({ credentials: true }));
@@ -44,50 +45,59 @@ function createServer(hostname, port) {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    const whiteList = new Set(['/', '/favicon.ico', '/register']);
-    app.use(function* auth(next) {
-      const ctx = this;
-      if (['/login'].includes(ctx.path)) {
-        yield passport
-          .authenticate('local-login', function* (err, user, info) {
-            if (err) throw err;
-            if (user === false) {
-              ctx.status = 401;
-              ctx.body = info;
-            } else {
-              yield ctx.login(user);
-              ctx.body = info;
-            }
-          })
-          .call(this, next);
-      } else if (['/logout'].includes(ctx.path)) {
+    app.use(
+      _.post('/register', async ctx =>
+        passport.authenticate('local-signup', async (err, user, info) => {
+          if (err) throw err;
+          if (user === false) {
+            ctx.status = 401;
+            ctx.body = info;
+          } else {
+            ctx.login(user);
+            ctx.body = info;
+          }
+        })(ctx),
+      ),
+    );
+    app.use(
+      _.post('/login', async ctx =>
+        passport.authenticate('local-login', async (err, user, info, status) => {
+          if (user === false) {
+            ctx.body = info;
+            ctx.status = 401;
+          } else {
+            ctx.body = { success: true };
+            return ctx.login(user);
+          }
+        })(ctx),
+      ),
+    );
+    app.use(
+      _.post('/logout', async (ctx) => {
         ctx.logout();
         ctx.body = { success: true, message: 'Successfully logged out' };
-      } else if (['/register'].includes(ctx.path)) {
-        yield passport
-          .authenticate('local-signup', function* (err, user, info) {
-            if (err) throw err;
-            if (user === false) {
-              ctx.status = 401;
-              ctx.body = info;
-            } else {
-              yield ctx.login(user);
-              ctx.body = info;
-            }
-          })
-          .call(this, next);
-      } else if (ctx.isAuthenticated() || whiteList.has(ctx.path)) {
-        // check if authenticated and proceed
-        yield next;
-      }
-    });
+      }),
+    );
+    app.use(
+      _.get(/.*/gi, async (ctx, next) => {
+        if (ctx.isAuthenticated()) {
+          await next();
+        } else {
+          // throw 401 unauthorized
+          ctx.throw(401);
+        }
+      }),
+    );
   }
 
-  api(app);
+  app.use(
+    _.get('/', async (ctx, next) => {
+      await send(ctx, 'dist/index.html');
+      await next();
+    }),
+  );
 
-  app.use(function* index() {
-    yield send(this, 'dist/index.html');
-  });
+  api(app);
 
   const envStr = process.env.NODE_ENV || 'development';
   let httpServer = null;

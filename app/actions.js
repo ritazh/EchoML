@@ -155,7 +155,7 @@ export function saveLabels(
   storageAccount /* :string */,
   containerName /* :string */,
   filename /* :string */,
-  labels /* :Object[]*/,
+  labels /* :Object[] */,
 ) {
   return (dispatch /* :function */) => {
     post(dispatch, '/api/saveLabels', {
@@ -181,9 +181,10 @@ export function saveLabels(
 
 export function initApp() {
   return (dispatch /* :function */) => {
-    if (location.pathname === '/') {
+    if (location.pathname !== '/') {
       dispatch({ type: 'SET_LOGIN', login: false });
     }
+    history.pushState(null, null, '/');
   };
 }
 
@@ -208,7 +209,7 @@ export function login(email /* :string */, password /* :string */) {
         });
       })
       .catch((err) => {
-        console.error(err.stack);
+        console.error(err);
       });
   };
 }
@@ -240,9 +241,9 @@ export function logout() {
  * @return {Promise<string>} resolves to a local object url
  */
 export function downloadFile(
-  storageAccount /* :string*/,
+  storageAccount /* :string */,
   containerName /* :string */,
-  filename /* :string*/,
+  filename /* :string */,
 ) {
   return (dispatch /* :function */) => {
     const blobKey = containerName + filename;
@@ -267,10 +268,8 @@ export function downloadFile(
           const result = event.target.result;
           try {
             localStorage.setItem(blobKey, result);
-            console.log(`Stored: ${blobKey}`);
             return result;
           } catch (e) {
-            console.error(`Failed to store: ${blobKey}`);
             return null;
           }
         };
@@ -288,8 +287,8 @@ export function downloadFile(
  * @param {string} email
  * @param {string} password
  */
-export function saveUser(email /* :string*/, password /* :string */) {
-  return (dispatch /* : function*/) => {
+export function saveUser(email /* :string */, password /* :string */) {
+  return (dispatch /* : function */) => {
     dispatch({ type: 'SET_LOADING' });
     const body = {
       email,
@@ -298,6 +297,7 @@ export function saveUser(email /* :string*/, password /* :string */) {
     return post(dispatch, '/register', body)
       .then((json) => {
         dispatch({ type: 'SET_LOGIN_MESSAGE', ...json });
+        dispatch({ type: 'CLEAR_LOADING' });
         return json;
       })
       .catch((err) => {
