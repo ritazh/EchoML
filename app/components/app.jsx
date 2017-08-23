@@ -51,10 +51,11 @@ class App extends React.Component {
   render() {
     if (!!this.props.ui.login === false) {
       return (
-        <Grid>
-          <h1>Welcome To EchoML Ver.0.0.2</h1>
+        <div className="container">
+          <h1 style={{ textAlign: 'center' }}>Welcome To EchoML Ver.0.1.0</h1>
+          <hr />
           <Login />
-        </Grid>
+        </div>
       );
     }
 
