@@ -488,18 +488,20 @@ function init(app) {
     const reqPath = decodeURIComponent(ctx.path);
     const result = /^\/api\/(\w+)\/?(.*)/.exec(reqPath);
 
-    const apiName = result[1];
-    const param = result[2];
-    if (!funcs[apiName]) {
-      logger.warn(`Invalid api: ${apiName}`);
-      ctx.throw(403);
-    }
+    if (result) {
+      const apiName = result[1];
+      const param = result[2];
+      if (!funcs[apiName]) {
+        logger.warn(`Invalid api: ${apiName}`);
+        ctx.throw(403);
+      }
 
-    try {
-      await funcs[apiName](ctx, param);
-    } catch (err) {
-      logger.warn(`Failed to handle api: ${apiName}`, err, err.stack);
-      ctx.throw(500);
+      try {
+        await funcs[apiName](ctx, param);
+      } catch (err) {
+        logger.warn(`Failed to handle api: ${apiName}`, err, err.stack);
+        ctx.throw(500);
+      }
     }
 
     await next();

@@ -79,7 +79,7 @@ function createServer(hostname, port) {
       }),
     );
     app.use(
-      _.get(/.*/gi, async (ctx, next) => {
+      _.get(/.+/gi, async (ctx, next) => {
         if (ctx.isAuthenticated()) {
           await next();
         } else {
