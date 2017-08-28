@@ -156,6 +156,7 @@ class PreviewVideo extends React.Component {
       start: currentTime - 1,
       end: currentTime + 1,
       label: '',
+      resize: false,
     };
     const regions = { ...this.state.regions, [Math.random().toString(36).substring(7)]: newRegion };
     this.setState({ regions }, () => this.syncRegions());
