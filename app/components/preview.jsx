@@ -55,6 +55,7 @@ class Preview extends React.Component {
       case '.mp4':
       case '.ogv':
       case '.webm':
+      case '.mp3':
       case '.flac':
         return <PreviewVideo />;
       case '.txt':

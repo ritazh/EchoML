@@ -352,7 +352,7 @@ const funcs = {
 
     const data = files.reduce((result, file) => {
       // const stats = fs.lstatSync(path.resolve(dir, file));
-      if (file.name.indexOf('.flac') > -1) {
+      if (file.name.includes('.flac') || file.name.includes('.mp3')) {
         result.push({
           name: file.name,
           isDirectory: false, // file.name.indexOf('/') > -1,
