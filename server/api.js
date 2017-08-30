@@ -263,24 +263,40 @@ const funcs = {
 
       // download file locally; then send it
       try {
-        await new Promise((resolve, reject) => {
-          // Prep write stream
-          const writeStream = fs.createWriteStream(filepath);
-          writeStream
-            .on('finish', () => {
-              resolve(filepath);
-            })
-            .on('error', (err /* : Error */) => {
-              reject(err);
-            });
+        // if file exists check age
+        const shouldDownload = (maxage = 3600000) => {
+          try {
+            const stats = fs.statSync(filepath);
+            const timeCreated = stats.birthtime.getTime();
+            const now = new Date().getTime();
+            const age = new Date(now - timeCreated);
+            return age.getTime() > maxage; // older than an hour
+          } catch (err) {
+            return true;
+          }
+        };
 
-          // download
-          const urlSafeAccount = encodeURIComponent(storageAccount);
-          const urlSafeContainer = encodeURIComponent(containerName);
-          const urlSafeFilename = encodeURIComponent(filename);
-          const downloadUrl = `https://${urlSafeAccount}.blob.core.windows.net/${urlSafeContainer}/${urlSafeFilename}`;
-          request(downloadUrl).pipe(writeStream);
-        });
+        // download if file doesn't exist or is too old
+        if (shouldDownload()) {
+          await new Promise((resolve, reject) => {
+            // Prep write stream
+            const writeStream = fs.createWriteStream(filepath);
+            writeStream
+              .on('finish', () => {
+                resolve(filepath);
+              })
+              .on('error', (err /* : Error */) => {
+                reject(err);
+              });
+
+            // download
+            const urlSafeAccount = encodeURIComponent(storageAccount);
+            const urlSafeContainer = encodeURIComponent(containerName);
+            const urlSafeFilename = encodeURIComponent(filename);
+            const downloadUrl = `https://${urlSafeAccount}.blob.core.windows.net/${urlSafeContainer}/${urlSafeFilename}`;
+            request(downloadUrl).pipe(writeStream);
+          });
+        }
         await send(ctx, `./${filepath}`);
       } catch (err) {
         logger.error(err);
