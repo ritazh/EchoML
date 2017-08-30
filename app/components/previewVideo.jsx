@@ -59,9 +59,7 @@ class PreviewVideo extends React.Component {
             audioSrc: localStorageUrl,
           },
           () => {
-            this.initWavesurfer().then((wavesurfer) => {
-              window.wavesurfer = wavesurfer;
-            });
+            this.initWavesurfer();
           },
         );
       });
@@ -104,7 +102,7 @@ class PreviewVideo extends React.Component {
     const wavesurverRegions = this.state.wavesurfer.regions.list;
 
     // Add/update regions in wavesurfer from state
-    for (const [id, region] of Object.entries(this.state.regions)) {
+    Object.entries(this.state.regions).forEach(([id, region]) => {
       const color = wavesurverRegions[id]
         ? wavesurverRegions[id].color
         : PreviewVideo.randomColor();
@@ -119,16 +117,16 @@ class PreviewVideo extends React.Component {
         wavesurverRegions[id].remove();
       }
       this.state.wavesurfer.addRegion(wavesurferRegionOptions);
-    }
+    });
 
     // Delete regions in wavesurfer not in state
     const regionsToRemove = Object.values(wavesurverRegions).filter(
       region => !Object.keys(this.state.regions).includes(region.id),
     );
 
-    for (const region of regionsToRemove) {
+    regionsToRemove.forEach((region) => {
       region.remove();
-    }
+    });
   };
 
   /**
@@ -239,6 +237,7 @@ class PreviewVideo extends React.Component {
             container: this.wavesurferSpectrogram,
             fftSamples: this.spectrogramHeight,
             labels: true,
+            pixelRatio: 1,
           }),
           TimelinePlugin.create({
             container: this.wavesurferTimeline,
@@ -264,6 +263,7 @@ class PreviewVideo extends React.Component {
           start: region.start,
           end: region.end,
           label: existingRegion ? existingRegion.label : '',
+          resize: false,
         };
         this.setState({ regions: { ...this.state.regions, [region.id]: stateRegion } });
       };
@@ -521,7 +521,6 @@ class PreviewVideo extends React.Component {
               style={{
                 textAlign: 'start',
                 padding: '-1em 0 0 0',
-                height: `${this.spectrogramHeight / 4}px`,
                 zIndex: 0,
               }}
             />
