@@ -18,7 +18,9 @@ export default class File extends React.Component {
 
   constructor(props) {
     super(props);
-    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(
+      this,
+    );
   }
 
   handleClick = () => {
@@ -77,9 +79,7 @@ export default class File extends React.Component {
             <span>
               {this.props.isDirectory ? 'Directory' : this.props.size}
             </span>
-            <span className="pull-right hidden-xs">
-              {this.props.mtime}
-            </span>
+            <span className="pull-right hidden-xs">{this.props.mtime}</span>
           </div>
         </div>
       </div>

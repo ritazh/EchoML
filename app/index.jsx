@@ -9,6 +9,7 @@ import filesReducer from './reducers/files';
 import locReducer from './reducers/loc';
 import previewReducer from './reducers/preview';
 import uiReducer from './reducers/ui';
+import predictionReducer from './reducers/predictions';
 
 // Uncomment to check performance
 // window.Perf = require('react-addons-perf');
@@ -26,6 +27,7 @@ const store = createStore(
     loc: locReducer,
     files: filesReducer,
     preview: previewReducer,
+    predictions: predictionReducer,
   }),
   undefined,
   compose(applyMiddleware(thunk), window.devToolsExtension ? window.devToolsExtension() : f => f),

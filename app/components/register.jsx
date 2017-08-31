@@ -35,7 +35,11 @@ export function RegistrationForm({ onSubmit, onExit, options }) {
       <form>
         <FormGroup>
           <ControlLabel>Email</ControlLabel>
-          <FormControl inputRef={input => (email = input)} type="email" autoFocus />
+          <FormControl
+            inputRef={input => (email = input)}
+            type="email"
+            autoFocus
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Password</ControlLabel>
@@ -43,7 +47,10 @@ export function RegistrationForm({ onSubmit, onExit, options }) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>Confirm Password</ControlLabel>
-          <FormControl inputRef={input => (passwordConfirmation = input)} type="password" />
+          <FormControl
+            inputRef={input => (passwordConfirmation = input)}
+            type="password"
+          />
         </FormGroup>
         <Button bsStyle="primary" onClick={e => handleSubmit(e)} type="submit">
           Register

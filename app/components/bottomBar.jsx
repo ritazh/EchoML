@@ -21,11 +21,19 @@ class BottomBar extends React.Component {
     if (selectedFiles.length > 0) {
       const fullpath = locToUrl(nextProps.loc);
       const index = fullpath.lastIndexOf('/');
-      const containerName = nextProps.containers[fullpath.substring(index + 1)].name;
-      const storageAccount = nextProps.containers[fullpath.substring(index + 1)].storageAccount;
+      const containerName =
+        nextProps.containers[fullpath.substring(index + 1)].name;
+      const storageAccount =
+        nextProps.containers[fullpath.substring(index + 1)].storageAccount;
 
       nextProps
-        .dispatch(actions.downloadFile(storageAccount, containerName, selectedFiles[0].name))
+        .dispatch(
+          actions.downloadFile(
+            storageAccount,
+            containerName,
+            selectedFiles[0].name,
+          ),
+        )
         .then((downloadUrl) => {
           this.setState({
             downloadUrl,

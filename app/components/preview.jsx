@@ -102,11 +102,7 @@ class Preview extends React.Component {
       return <div />;
     }
 
-    return (
-      <div className="preview">
-        {this.renderByExt()}
-      </div>
-    );
+    return <div className="preview">{this.renderByExt()}</div>;
   }
 }
 
