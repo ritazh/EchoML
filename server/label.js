@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
-const co = require('co');
-
-const LabelSchema = new Schema({
-  begin: { type: Number, default: 0, required: true },
+const LabelSchema = new mongoose.Schema({
+  start: { type: Number, default: 0, required: true },
   end: { type: Number, default: 0, required: true },
   label: { type: String, required: false },
   docUrl: { type: String, required: true },

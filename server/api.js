@@ -75,7 +75,7 @@ async function getLabels(
   const docUrl = generateAzureBlobURL(storageAccount, containerName, filename);
   const labels = await LabelModel.find({ docUrl }).exec();
   const modeledLabels = labels.map(label => ({
-    start: label.begin,
+    start: label.start,
     end: label.end,
     label: label.label || '',
   }));
@@ -117,7 +117,7 @@ function addLabels(
 
   const newData = data.map(label => ({
     docUrl,
-    begin: label.start,
+    start: label.start,
     end: label.end,
     label: label.label,
   }));
@@ -242,8 +242,105 @@ async function getBlobsAsync(container /* :string */) {
   });
 }
 
+/**
+ * Downloads the file to ${projectRoot}/files
+ * @param {string} storageAccount 
+ * @param {string} containerName 
+ * @param {string} filename 
+ * @throws {Error}
+ * @return {string}
+ */
+async function downloadFile(storageAccount, containerName, filename) {
+  // Concat to local file dir
+  const filepath = `files/${storageAccount}/${containerName}/${filename}`;
+  const dirname = path.dirname(filepath);
+
+  if (!fs.existsSync(dirname)) {
+    mkdirp.sync(dirname);
+  }
+
+  // download file locally; then send it
+  try {
+    // if file exists check age
+    const shouldDownload = (maxage = 3600000) => {
+      try {
+        const stats = fs.statSync(filepath);
+        const timeCreated = stats.birthtime.getTime();
+        const now = new Date().getTime();
+        const age = new Date(now - timeCreated);
+        return age.getTime() > maxage; // older than an hour
+      } catch (err) {
+        return true;
+      }
+    };
+
+    // download if file doesn't exist or is too old
+    if (shouldDownload()) {
+      await new Promise((resolve, reject) => {
+        // Prep write stream
+        const writeStream = fs.createWriteStream(filepath);
+        writeStream
+          .on('finish', () => {
+            resolve(filepath);
+          })
+          .on('error', (err /* : Error */) => {
+            reject(err);
+          });
+
+        // download
+        const urlSafeAccount = encodeURIComponent(storageAccount);
+        const urlSafeContainer = encodeURIComponent(containerName);
+        const urlSafeFilename = encodeURIComponent(filename);
+        const downloadUrl = `https://${urlSafeAccount}.blob.core.windows.net/${urlSafeContainer}/${urlSafeFilename}`;
+        request(downloadUrl).pipe(writeStream);
+      });
+    }
+
+    return filepath;
+  } catch (err) {
+    logger.error(err);
+    throw err;
+  }
+}
+
+/**
+ * @param {string} storageAccount 
+ * @param {string} containerName 
+ * @param {string} filename 
+ * @param {number} start 
+ * @param {number} end 
+ * @throws {Error}
+ * @return {object} json object
+ */
+async function downloadPredictions(storageAccount, containerName, filename, start, end) {
+  try {
+    const filepath = await downloadFile(storageAccount, containerName, filename);
+    const formData = {
+      t1: start,
+      t2: end,
+      file: fs.createReadStream(filepath),
+    };
+    const predicitons = await new Promise((resolve, reject) => {
+      request.post({ url: 'http://localhost:80/predict', formData }, (err, httpResponse, body) => {
+        if (err) reject(err);
+        const result = JSON.parse(body);
+        const cleanPredictions = result.result.map(prediction => ({
+          start: prediction.t_s,
+          end: prediction.t_e,
+          label: prediction.label,
+        }));
+        resolve(cleanPredictions);
+      });
+    });
+    return predicitons;
+  } catch (err) {
+    logger.error(err);
+    throw err;
+  }
+}
+
 const funcs = {
-  async downloadfile(ctx, param) {
+  async downloadfile(ctx) {
     const requiredParams = ['storageAccount', 'containerName', 'filename'];
     const isValidGet = () =>
       Object.keys(ctx.query).every(getParam => requiredParams.includes(getParam));
@@ -253,53 +350,42 @@ const funcs = {
       const containerName = ctx.query.containerName;
       const filename = ctx.query.filename;
 
-      // Concat to local file dir
-      const filepath = `files/${storageAccount}/${containerName}/${filename}`;
-      const dirname = path.dirname(filepath);
-
-      if (!fs.existsSync(dirname)) {
-        mkdirp.sync(dirname);
-      }
-
-      // download file locally; then send it
       try {
-        // if file exists check age
-        const shouldDownload = (maxage = 3600000) => {
-          try {
-            const stats = fs.statSync(filepath);
-            const timeCreated = stats.birthtime.getTime();
-            const now = new Date().getTime();
-            const age = new Date(now - timeCreated);
-            return age.getTime() > maxage; // older than an hour
-          } catch (err) {
-            return true;
-          }
-        };
-
-        // download if file doesn't exist or is too old
-        if (shouldDownload()) {
-          await new Promise((resolve, reject) => {
-            // Prep write stream
-            const writeStream = fs.createWriteStream(filepath);
-            writeStream
-              .on('finish', () => {
-                resolve(filepath);
-              })
-              .on('error', (err /* : Error */) => {
-                reject(err);
-              });
-
-            // download
-            const urlSafeAccount = encodeURIComponent(storageAccount);
-            const urlSafeContainer = encodeURIComponent(containerName);
-            const urlSafeFilename = encodeURIComponent(filename);
-            const downloadUrl = `https://${urlSafeAccount}.blob.core.windows.net/${urlSafeContainer}/${urlSafeFilename}`;
-            request(downloadUrl).pipe(writeStream);
-          });
-        }
+        const filepath = await downloadFile(storageAccount, containerName, filename);
         await send(ctx, `./${filepath}`);
-      } catch (err) {
-        logger.error(err);
+      } catch (error) {
+        logger.error(error);
+        ctx.body = { error };
+      }
+    } else {
+      ctx.body = { error: 'Invalid GET request' };
+    }
+  },
+
+  async predictions(ctx) {
+    const requiredParams = ['storageAccount', 'containerName', 'filename', 'start', 'end'];
+    const isValidGet = () =>
+      Object.keys(ctx.query).every(getParam => requiredParams.includes(getParam));
+
+    if (isValidGet()) {
+      const storageAccount = ctx.query.storageAccount;
+      const containerName = ctx.query.containerName;
+      const filename = ctx.query.filename;
+      const start = Math.round(Number.parseFloat(ctx.query.start));
+      const end = Math.ceil(Number.parseFloat(ctx.query.end));
+
+      try {
+        const predictions = await downloadPredictions(
+          storageAccount,
+          containerName,
+          filename,
+          start,
+          end,
+        );
+        ctx.body = predictions;
+      } catch (error) {
+        logger.error(error);
+        ctx.body = { error };
       }
     } else {
       ctx.body = { error: 'Invalid GET request' };

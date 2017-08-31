@@ -28,7 +28,7 @@ class PreviewVideo extends React.Component {
     super(props);
     const regions = this.props.preview.labels.reduce((carry, label) => {
       // give random id
-      carry[Math.random().toString(36).substring(7)] = label;
+      carry[Math.random().toString(36).substring(10)] = label;
       return carry;
     }, {});
     // const regions = this.props.preview.labels;
@@ -93,14 +93,50 @@ class PreviewVideo extends React.Component {
     return labels;
   };
 
+  loadPredictions = async () => {
+    const fullpath = locToUrl(this.props.loc);
+    const index = fullpath.lastIndexOf('/');
+    const storageAccount = this.props.containers[fullpath.substring(index + 1)].storageAccount;
+    const containerName = this.props.containers[fullpath.substring(index + 1)].name;
+    await this.props.dispatch(
+      actions.getPredictions(
+        storageAccount,
+        containerName,
+        this.props.preview.filename,
+        0,
+        this.audio.duration,
+      ),
+    );
+    const predictionLabels = this.props.predictions
+      .map(prediction => ({
+        ...prediction,
+        resize: false,
+      }))
+      .reduce((carry, label) => {
+        // give random id
+        carry[Math.random().toString(36).substring(10)] = label;
+        return carry;
+      }, {});
+
+    this.setState(
+      {
+        regions: { ...this.state.regions, ...predictionLabels },
+      },
+      () => {
+        this.syncRegions();
+      },
+    );
+  };
+
   /**
-   * Sync regions from state to wavesurfer
+   * Sync regions from state and predictions from props to wavesurfer
    * call this whenever a wavesurfer region is modified
    * @return {Promise}
    */
   syncRegions = () => {
     const wavesurverRegions = this.state.wavesurfer.regions.list;
 
+    console.log(this.state.regions);
     // Add/update regions in wavesurfer from state
     Object.entries(this.state.regions).forEach(([id, region]) => {
       const color = wavesurverRegions[id]
@@ -109,6 +145,7 @@ class PreviewVideo extends React.Component {
       const wavesurferRegionOptions = {
         id,
         color,
+        resize: false,
         ...region,
       };
 
@@ -488,6 +525,9 @@ class PreviewVideo extends React.Component {
               Create Label
             </button>
           </div>
+          <button className="btn-play btn btn-primary" onClick={() => this.loadPredictions()}>
+            Load Predictions
+          </button>
         </div>
 
         <div
@@ -576,6 +616,7 @@ const mapStateToProps = state => ({
   loc: state.loc,
   preview: state.preview,
   containers: state.containers,
+  predictions: state.predictions.predictions,
 });
 
 export default connect(mapStateToProps)(PreviewVideo);
