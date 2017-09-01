@@ -17,7 +17,9 @@ class PreviewJpg extends React.Component {
   };
 
   componentDidMount() {
-    this.props.dispatch(actions.startPreviewJpg(this.props.loc, this.props.preview.filename));
+    this.props.dispatch(
+      actions.startPreviewJpg(this.props.loc, this.props.preview.filename),
+    );
     this.props
       .dispatch(
         actions.downloadFile(
@@ -35,7 +37,9 @@ class PreviewJpg extends React.Component {
 
   componentWillReceiveProps(props) {
     if (this.props.preview.filename !== props.preview.name) {
-      this.props.dispatch(actions.startPreviewJpg(props.loc, `${props.preview.name}?type=max800`));
+      this.props.dispatch(
+        actions.startPreviewJpg(props.loc, `${props.preview.name}?type=max800`),
+      );
     }
   }
 
@@ -93,10 +97,12 @@ class PreviewJpg extends React.Component {
 
     return (
       <div className="PreviewJpg">
-        <img style={imageStyle} src={this.state.imgSrc} alt={this.props.preview.filename} />
-        <div style={captionStyle}>
-          {this.props.preview.filename}
-        </div>
+        <img
+          style={imageStyle}
+          src={this.state.imgSrc}
+          alt={this.props.preview.filename}
+        />
+        <div style={captionStyle}>{this.props.preview.filename}</div>
       </div>
     );
   }

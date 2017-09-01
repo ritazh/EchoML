@@ -70,11 +70,13 @@ class App extends React.Component {
         {this.renderList()}
         <BottomBar />
         {this.props.preview ? <Preview /> : ''}
-        {this.props.loading
-          ? <div className="loading">
+        {this.props.loading ? (
+          <div className="loading">
             <Spinner />
           </div>
-          : ''}
+        ) : (
+          ''
+        )}
       </Grid>
     );
   }

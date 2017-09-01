@@ -97,9 +97,7 @@ class Upload extends React.Component {
 
     return (
       <div style={uploadStyle}>
-        <div>
-          Uploading {this.state.upload.length} files...
-        </div>
+        <div>Uploading {this.state.upload.length} files...</div>
         <ProgressBar
           style={progressStyle}
           active

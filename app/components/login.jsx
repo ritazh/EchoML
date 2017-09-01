@@ -41,7 +41,7 @@ class Login extends React.Component {
     this.props.dispatch(actions.login(email, password));
   };
 
-  handleRegister = (username /* :string*/, password /* :string*/) => {
+  handleRegister = (username /* :string */, password /* :string */) => {
     this.props.dispatch(actions.saveUser(username, password)).then((json) => {
       console.log(json);
     });
@@ -58,11 +58,7 @@ class Login extends React.Component {
       return '';
     }
 
-    return (
-      <Alert bsStyle="info">
-        {this.props.loginMessage}
-      </Alert>
-    );
+    return <Alert bsStyle="info">{this.props.loginMessage}</Alert>;
   }
 
   render() {
@@ -72,8 +68,8 @@ class Login extends React.Component {
           <Col md={10} mdOffset={1} xs={12}>
             <Panel>
               {this.renderAlert()}
-              {this.state.showRegister
-                ? RegistrationForm({
+              {this.state.showRegister ? (
+                RegistrationForm({
                   onSubmit: this.handleRegister,
                   onExit: () => {
                     this.setState({
@@ -82,7 +78,8 @@ class Login extends React.Component {
                     });
                   },
                 })
-                : <form>
+              ) : (
+                <form>
                   <FormGroup>
                     <ControlLabel>Email</ControlLabel>
                     <FormControl
@@ -103,17 +100,22 @@ class Login extends React.Component {
                     />
                   </FormGroup>
                   <br />
-                  <Button bsStyle="primary" onClick={e => this.handleLogin(e)} type="submit">
-                      Login
-                    </Button>
+                  <Button
+                    bsStyle="primary"
+                    onClick={e => this.handleLogin(e)}
+                    type="submit"
+                  >
+                    Login
+                  </Button>
                   <Button
                     style={{ float: 'right' }}
                     bsStyle="info"
                     onClick={this.enableRegistrationFrom}
                   >
-                      Register Now
-                    </Button>
-                </form>}
+                    Register Now
+                  </Button>
+                </form>
+              )}
             </Panel>
           </Col>
         </Row>
