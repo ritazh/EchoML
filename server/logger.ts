@@ -4,7 +4,7 @@ import { mkdirp } from "fs-extra";
 import * as config from "config";
 
 const DailyRotateFile = require("winston-daily-rotate-file");
-const transports: any[] = [];
+const transports: winston.TransportInstance[] = [];
 
 if (config.has("log")) {
   if (config.has("log.console")) {

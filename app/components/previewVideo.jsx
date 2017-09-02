@@ -154,7 +154,6 @@ class PreviewVideo extends React.Component {
   syncRegions = () => {
     const wavesurverRegions = this.state.wavesurfer.regions.list;
 
-    console.log(this.state.regions);
     // Add/update regions in wavesurfer from state
     Object.entries(this.state.regions).forEach(([id, region]) => {
       const color = wavesurverRegions[id]
