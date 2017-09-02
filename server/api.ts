@@ -175,12 +175,12 @@ async function getContainersAsync(): Promise<IEchoContainer[]> {
   }
 
   const containers: IEchoContainer[] = [];
-  let continuationToken = null;
+  let continuationToken: azure.common.ContinuationToken | null = null;
   try {
     do {
       const result: azure.BlobService.ListContainerResult = await getListContainerResult(continuationToken);
+      const storageAccount: string = config.get("storage.STORAGE_ACCOUNT");
       for (const container of result.entries) {
-        const storageAccount: string = config.get("storage.STORAGE_ACCOUNT");
         const echoContainer: IEchoContainer = {
           ...container,
           storageAccount
@@ -214,13 +214,15 @@ async function getBlobsAsync(container: string): Promise<azure.BlobService.BlobR
   }
 
   const blobs: azure.BlobService.BlobResult[] = [];
-  let continuationToken = null;
+  let continuationToken: azure.common.ContinuationToken | null = null;
   try {
-    const result = await getListBlobResult(continuationToken);
-    for (const blob of result.entries) {
-      blobs.push(blob);
-    }
-    continuationToken = result.continuationToken;
+    do {
+      const result = await getListBlobResult(continuationToken);
+      for (const blob of result.entries) {
+        blobs.push(blob);
+      }
+      continuationToken = result.continuationToken;
+    } while (continuationToken);
   } catch (err) {
     logger.error(err);
   }
