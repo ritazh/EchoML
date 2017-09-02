@@ -28,7 +28,6 @@
     "font-awesome": "^4.7.0",
     "fs-extra": "^4.0.1",
     "gm": "^1.23.0",
-    "https": "^1.0.0",
     "kcors": "^2.2.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",

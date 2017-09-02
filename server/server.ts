@@ -10,6 +10,7 @@ import logger from "./logger";
 import api from "./api";
 import * as mongoose from "mongoose";
 import * as _ from "koa-route";
+import * as https from "https";
 
 const passport = require("./passport")(require("koa-passport"));
 
@@ -107,9 +108,7 @@ export function createServer(hostname: string, port: number) {
       key: fs.readFileSync("cert/server.key"),
       cert: fs.readFileSync("cert/server.crt")
     };
-    httpServer = require("https")
-      .createServer(options, app.callback())
-      .listen(port);
+    https.createServer(options, app.callback()).listen(port);
     logger.info(`server is started on ${hostname}:${port}(https) in ${envStr} mode`);
   } else {
     httpServer = app.listen(port, hostname);
