@@ -52,7 +52,7 @@ class App extends React.Component {
     if (!!this.props.ui.login === false) {
       return (
         <div className="container">
-          <h1 style={{ textAlign: 'center' }}>Welcome To EchoML Ver.0.1.0</h1>
+          <h1 style={{ textAlign: 'center' }}>Welcome To EchoML Ver.0.2.0</h1>
           <hr />
           <Login />
         </div>
@@ -70,11 +70,13 @@ class App extends React.Component {
         {this.renderList()}
         <BottomBar />
         {this.props.preview ? <Preview /> : ''}
-        {this.props.loading
-          ? <div className="loading">
+        {this.props.loading ? (
+          <div className="loading">
             <Spinner />
           </div>
-          : ''}
+        ) : (
+          ''
+        )}
       </Grid>
     );
   }

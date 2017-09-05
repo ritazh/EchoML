@@ -30,16 +30,16 @@ class ThumbnailList extends React.Component {
   render() {
     return (
       <div>
-        {this.props.files.map((file, index) =>
-          (<Thumbnail
+        {this.props.files.map((file, index) => (
+          <Thumbnail
             key={index}
             fullpath={locToUrl(this.props.loc)}
             fileIndex={index}
             {...file}
             onDirClick={this.handleDirClick}
             onPreviewClick={this.handlePreviewClick}
-          />),
-        )}
+          />
+        ))}
       </div>
     );
   }

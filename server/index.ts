@@ -1,10 +1,11 @@
-const cluster = require('cluster');
-const numCPUs = require('os').cpus().length;
-const config = require('config');
-const createServer = require('./server');
+import * as cluster from "cluster";
+import * as config from "config";
+import * as os from "os";
+import { createServer } from "./server";
 
-const hostname = config.get('hostname');
-const port = config.get('port');
+const numCPUs: number = os.cpus().length;
+const hostname: string = config.get("hostname");
+const port: number = config.get("port");
 
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);
@@ -14,7 +15,7 @@ if (cluster.isMaster) {
     cluster.fork();
   }
 
-  cluster.on('exit', (worker, code, signal) => {
+  cluster.on("exit", worker => {
     console.log(`worker ${worker.process.pid} died`);
   });
 } else {

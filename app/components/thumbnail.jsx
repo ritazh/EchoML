@@ -52,9 +52,7 @@ export default class Thumbnail extends React.Component {
 
     return (
       <div style={divStyle} onClick={this.handleClick}>
-        <div style={innerStyle}>
-          {this.props.name}
-        </div>
+        <div style={innerStyle}>{this.props.name}</div>
       </div>
     );
   }

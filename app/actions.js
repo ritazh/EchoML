@@ -278,7 +278,7 @@ export function downloadFile(
         const localUrl = URL.createObjectURL(blob);
         return localUrl;
       }
-      return Promise.reject("Server returned non 'object' response type");
+      return Promise.reject(new Error("Server returned non 'object' response type"));
     });
   };
 }
@@ -305,5 +305,24 @@ export function saveUser(email /* :string */, password /* :string */) {
         dispatch({ type: 'CLEAR_LOADING' });
         return { err };
       });
+  };
+}
+
+/**
+ * @param {string} storageAccount 
+ * @param {string} containerName 
+ * @param {string} filename 
+ * @param {number} start 
+ * @param {number} end 
+ * @return {Promise<array>}
+ */
+export function getPredictions(storageAccount, containerName, filename, start, end) {
+  return (dispatch) => {
+    const getParams = Object.entries({ storageAccount, containerName, filename, start, end })
+      .map(tuple => `${encodeURIComponent(tuple[0])}=${encodeURIComponent(tuple[1])}`)
+      .join('&');
+    return request(dispatch, `/api/predictions?${getParams}`).then((predictions) => {
+      dispatch({ type: 'SET_PREDICTIONS', predictions });
+    });
   };
 }

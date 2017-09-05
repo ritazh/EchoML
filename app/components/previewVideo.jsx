@@ -20,15 +20,19 @@ class PreviewVideo extends React.Component {
    * Generate a random color of gradient
    */
   static randomColor = (gradient = 0.5) =>
-    `rgba(${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)},${Math.floor(
+    `rgba(${Math.floor(Math.random() * 256)},${Math.floor(
       Math.random() * 256,
-    )}, ${gradient})`;
+    )},${Math.floor(Math.random() * 256)}, ${gradient})`;
 
   constructor(props) {
     super(props);
     const regions = this.props.preview.labels.reduce((carry, label) => {
       // give random id
-      carry[Math.random().toString(36).substring(7)] = label;
+      carry[
+        Math.random()
+          .toString(36)
+          .substring(10)
+      ] = label;
       return carry;
     }, {});
     // const regions = this.props.preview.labels;
@@ -49,10 +53,18 @@ class PreviewVideo extends React.Component {
   componentDidMount() {
     const fullpath = locToUrl(this.props.loc);
     const index = fullpath.lastIndexOf('/');
-    const storageAccount = this.props.containers[fullpath.substring(index + 1)].storageAccount;
-    const containerName = this.props.containers[fullpath.substring(index + 1)].name;
+    const storageAccount = this.props.containers[fullpath.substring(index + 1)]
+      .storageAccount;
+    const containerName = this.props.containers[fullpath.substring(index + 1)]
+      .name;
     const filePromise = this.props
-      .dispatch(actions.downloadFile(storageAccount, containerName, this.props.preview.filename))
+      .dispatch(
+        actions.downloadFile(
+          storageAccount,
+          containerName,
+          this.props.preview.filename,
+        ),
+      )
       .then((localStorageUrl) => {
         this.setState(
           {
@@ -93,8 +105,49 @@ class PreviewVideo extends React.Component {
     return labels;
   };
 
+  loadPredictions = async () => {
+    const fullpath = locToUrl(this.props.loc);
+    const index = fullpath.lastIndexOf('/');
+    const storageAccount = this.props.containers[fullpath.substring(index + 1)]
+      .storageAccount;
+    const containerName = this.props.containers[fullpath.substring(index + 1)]
+      .name;
+    await this.props.dispatch(
+      actions.getPredictions(
+        storageAccount,
+        containerName,
+        this.props.preview.filename,
+        0,
+        this.audio.duration,
+      ),
+    );
+    const predictionLabels = this.props.predictions
+      .map(prediction => ({
+        ...prediction,
+        resize: false,
+      }))
+      .reduce((carry, label) => {
+        // give random id
+        carry[
+          Math.random()
+            .toString(36)
+            .substring(10)
+        ] = label;
+        return carry;
+      }, {});
+
+    this.setState(
+      {
+        regions: { ...this.state.regions, ...predictionLabels },
+      },
+      () => {
+        this.syncRegions();
+      },
+    );
+  };
+
   /**
-   * Sync regions from state to wavesurfer
+   * Sync regions from state and predictions from props to wavesurfer
    * call this whenever a wavesurfer region is modified
    * @return {Promise}
    */
@@ -109,6 +162,7 @@ class PreviewVideo extends React.Component {
       const wavesurferRegionOptions = {
         id,
         color,
+        resize: false,
         ...region,
       };
 
@@ -156,7 +210,12 @@ class PreviewVideo extends React.Component {
       label: '',
       resize: false,
     };
-    const regions = { ...this.state.regions, [Math.random().toString(36).substring(7)]: newRegion };
+    const regions = {
+      ...this.state.regions,
+      [Math.random()
+        .toString(36)
+        .substring(7)]: newRegion,
+    };
     this.setState({ regions }, () => this.syncRegions());
   };
 
@@ -265,7 +324,9 @@ class PreviewVideo extends React.Component {
           label: existingRegion ? existingRegion.label : '',
           resize: false,
         };
-        this.setState({ regions: { ...this.state.regions, [region.id]: stateRegion } });
+        this.setState({
+          regions: { ...this.state.regions, [region.id]: stateRegion },
+        });
       };
 
       wavesurfer.on('region-updated', (region) => {
@@ -311,7 +372,9 @@ class PreviewVideo extends React.Component {
     const labels = this.getLabels();
 
     // Blob string to download
-    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(labels))}`;
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
+      JSON.stringify(labels),
+    )}`;
 
     // Create fake download element and click
     const dlAnchorElem = document.createElement('a');
@@ -324,8 +387,10 @@ class PreviewVideo extends React.Component {
   saveLabels() {
     const fullpath = locToUrl(this.props.loc);
     const index = fullpath.lastIndexOf('/');
-    const storageAccount = this.props.containers[fullpath.substring(index + 1)].storageAccount;
-    const containerName = this.props.containers[fullpath.substring(index + 1)].name;
+    const storageAccount = this.props.containers[fullpath.substring(index + 1)]
+      .storageAccount;
+    const containerName = this.props.containers[fullpath.substring(index + 1)]
+      .name;
     this.props.dispatch(
       actions.saveLabels(
         storageAccount,
@@ -356,20 +421,26 @@ class PreviewVideo extends React.Component {
       }, [])
       .sort((a, b) => a.start - b.start)
       .map((region) => {
-        const className = this.state.regionsBeingPlayed.includes(region) ? 'info' : '';
+        const className = this.state.regionsBeingPlayed.includes(region)
+          ? 'info'
+          : '';
         return (
           <tr className={className} key={region.id}>
             <td>
               <code>
                 {moment
-                  .utc(moment.duration({ seconds: region.start }).asMilliseconds())
+                  .utc(
+                    moment.duration({ seconds: region.start }).asMilliseconds(),
+                  )
                   .format('HH:mm:ss.SSS')}
               </code>
             </td>
             <td>
               <code>
                 {moment
-                  .utc(moment.duration({ seconds: region.end }).asMilliseconds())
+                  .utc(
+                    moment.duration({ seconds: region.end }).asMilliseconds(),
+                  )
                   .format('HH:mm:ss.SSS')}
               </code>
             </td>
@@ -392,7 +463,10 @@ class PreviewVideo extends React.Component {
                 >
                   <i className="fa fa-play" aria-hidden="true" />
                 </button>
-                <button className="btn btn-sm btn-danger" onClick={() => this.removeRegion(region)}>
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => this.removeRegion(region)}
+                >
                   <i className="fa fa-trash" aria-hidden="true" />
                 </button>
               </div>
@@ -419,17 +493,17 @@ class PreviewVideo extends React.Component {
           background: 'grey',
         }}
       >
-        {this.state.audioSrc
-          ? <audio
+        {this.state.audioSrc ? (
+          <audio
             controls={false}
             src={this.state.audioSrc}
             ref={(ref) => {
               this.audio = ref;
             }}
           >
-              Your browser does not support the <code>audio</code> element.
+            Your browser does not support the <code>audio</code> element.
           </audio>
-          : null}
+        ) : null}
 
         <div
           style={{
@@ -458,14 +532,18 @@ class PreviewVideo extends React.Component {
             <button
               className="btn-rewind btn btn-info"
               onClick={() =>
-                this.state.wavesurfer.setPlaybackRate(this.state.wavesurfer.getPlaybackRate() / 2)}
+                this.state.wavesurfer.setPlaybackRate(
+                  this.state.wavesurfer.getPlaybackRate() / 2,
+                )}
             >
               <i className="fa fa-fast-backward" />
             </button>
             <button
               className="btn-fast-forward btn btn-info"
               onClick={() =>
-                this.state.wavesurfer.setPlaybackRate(this.state.wavesurfer.getPlaybackRate() * 2)}
+                this.state.wavesurfer.setPlaybackRate(
+                  this.state.wavesurfer.getPlaybackRate() * 2,
+                )}
             >
               <i className="fa fa-fast-forward" />
             </button>
@@ -484,10 +562,19 @@ class PreviewVideo extends React.Component {
             >
               <i className="fa fa-search-minus" aria-hidden="true" />
             </button>
-            <button className="btn-play btn btn-success" onClick={() => this.addRegion()}>
+            <button
+              className="btn-play btn btn-success"
+              onClick={() => this.addRegion()}
+            >
               Create Label
             </button>
           </div>
+          <button
+            className="btn-play btn btn-primary"
+            onClick={() => this.loadPredictions()}
+          >
+            Load Predictions
+          </button>
         </div>
 
         <div
@@ -535,7 +622,10 @@ class PreviewVideo extends React.Component {
             backgroundColor: 'ghostwhite',
           }}
         >
-          <table className="table LabelList" style={{ width: '100%', height: '100%' }}>
+          <table
+            className="table LabelList"
+            style={{ width: '100%', height: '100%' }}
+          >
             <thead>
               <tr>
                 <th>Start Time</th>
@@ -562,9 +652,7 @@ class PreviewVideo extends React.Component {
                 </th>
               </tr>
             </thead>
-            <tbody style={{ background: 'ghostwhite' }}>
-              {regions}
-            </tbody>
+            <tbody style={{ background: 'ghostwhite' }}>{regions}</tbody>
           </table>
         </div>
       </div>
@@ -576,6 +664,7 @@ const mapStateToProps = state => ({
   loc: state.loc,
   preview: state.preview,
   containers: state.containers,
+  predictions: state.predictions.predictions,
 });
 
 export default connect(mapStateToProps)(PreviewVideo);
