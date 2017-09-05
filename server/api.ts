@@ -126,17 +126,11 @@ function getImageInfo(filepath: string) {
       if (!error) {
         const img = gm("output.jpeg");
         img.size((err, value) => {
-          if (err) {
-            reject(err);
-            return;
-          }
+          if (err) reject(err);
 
           info.size = value;
           img.orientation((err2, value2) => {
-            if (err2) {
-              reject(err2);
-              return;
-            }
+            if (err2) reject(err2);
 
             info.orientation = value2;
             resolve(info);
