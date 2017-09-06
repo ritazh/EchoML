@@ -28,6 +28,7 @@ dist
 .eslintcache
 
 # IDE
+.vscode
 *.iml
 .idea
 
