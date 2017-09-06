@@ -251,7 +251,9 @@ export function downloadFile(
     // return cached version if previously downloaded
     const localFile = localStorage.getItem(blobKey);
     if (localFile) {
-      return fetch(localFile).then(res => res.blob()).then(blob => URL.createObjectURL(blob));
+      return fetch(localFile)
+        .then(res => res.blob())
+        .then(blob => URL.createObjectURL(blob));
     }
 
     const getParams = Object.entries({ storageAccount, containerName, filename })
@@ -321,8 +323,19 @@ export function getPredictions(storageAccount, containerName, filename, start, e
     const getParams = Object.entries({ storageAccount, containerName, filename, start, end })
       .map(tuple => `${encodeURIComponent(tuple[0])}=${encodeURIComponent(tuple[1])}`)
       .join('&');
-    return request(dispatch, `/api/predictions?${getParams}`).then((predictions) => {
-      dispatch({ type: 'SET_PREDICTIONS', predictions });
-    });
+    return request(dispatch, `/api/predictions?${getParams}`)
+      .then((predictions) => {
+        if (Array.isArray(predictions)) {
+          dispatch({ type: 'SET_PREDICTIONS', predictions });
+        } else {
+          dispatch({
+            type: 'SET_FLASH',
+            message: 'Invalid response from server; non array returned',
+          });
+        }
+      })
+      .catch(() => {
+        dispatch({ type: 'SET_FLASH', message: 'Error fetching predictions from server' });
+      });
   };
 }

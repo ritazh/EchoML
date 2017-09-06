@@ -3,6 +3,7 @@ const initialState = {
   loginMessage: null,
   view: 'list',
   loading: 0, // track loading as a stack to allow parallel load states. > 0 means loading.
+  flash: '', // flash message for user
 };
 
 const reducer = (state = initialState, action) => {
@@ -30,13 +31,22 @@ const reducer = (state = initialState, action) => {
         ...state,
         loading: state.loading + 1,
       };
-
     case 'CLEAR_LOADING':
       return {
         ...state,
         loading: state.loading - 1 > 0 ? state.loading - 1 : 0, // never go below 0
       };
 
+    case 'SET_FLASH':
+      return {
+        ...state,
+        message: action.message,
+      };
+    case 'CLEAR_FLASH':
+      return {
+        ...state,
+        message: '',
+      };
     default:
       return state;
   }

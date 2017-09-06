@@ -102,8 +102,8 @@ function addLabels(storageAccount: string, containerName: string, filename: stri
 
   return new Promise((resolve, reject) => {
     LabelModel.insertMany(newData, (err: Error, result) => {
-      if (err) reject(err);
-      resolve(result);
+      if (err) return reject(err);
+      return resolve(result);
     });
   });
 }
@@ -126,14 +126,14 @@ function getImageInfo(filepath: string) {
       if (!error) {
         const img = gm("output.jpeg");
         img.size((err, value) => {
-          if (err) reject(err);
+          if (err) return reject(err);
 
           info.size = value;
           img.orientation((err2, value2) => {
-            if (err2) reject(err2);
+            if (err2) return reject(err2);
 
             info.orientation = value2;
-            resolve(info);
+            return resolve(info);
           });
         });
       }
@@ -162,8 +162,8 @@ async function getContainersAsync(): Promise<IEchoContainer[]> {
   ): Promise<azure.BlobService.ListContainerResult> {
     return new Promise<azure.BlobService.ListContainerResult>((resolve, reject) => {
       blobService.listContainersSegmented(continuationToken, (err, result) => {
-        if (err) reject(err);
-        resolve(result);
+        if (err) return reject(err);
+        return resolve(result);
       });
     });
   }
@@ -201,8 +201,8 @@ async function getBlobsAsync(container: string): Promise<azure.BlobService.BlobR
   ): Promise<azure.BlobService.ListBlobsResult> {
     return new Promise<azure.BlobService.ListBlobsResult>((resolve, reject) => {
       blobService.listBlobsSegmented(container, continuationToken, (err, result) => {
-        if (err) reject(err);
-        resolve(result);
+        if (err) return reject(err);
+        return resolve(result);
       });
     });
   }
@@ -323,7 +323,7 @@ async function downloadPredictions(
     };
     const predicitons = await new Promise<ILabel[]>((resolve, reject) => {
       request.post({ url: endpoint, formData }, (err, _, body) => {
-        if (err) reject(err);
+        if (err) return reject(err);
         const result: IPredictionResponse = JSON.parse(body);
         const cleanPredictions: ILabel[] = result.result.map(prediction => ({
           start: prediction.t_s,
@@ -365,7 +365,7 @@ async function downloadPredictions(
           });
         }
 
-        resolve(cleandAndJoinedLabels);
+        return resolve(cleandAndJoinedLabels);
       });
     });
     return predicitons;
@@ -418,7 +418,7 @@ const api: {
         ctx.body = predictions;
       } catch (error) {
         logger.error(error);
-        ctx.body = { error };
+        ctx.body = { error: JSON.stringify(error), results: [] };
       }
     } else {
       ctx.body = { error: "Invalid GET request" };
