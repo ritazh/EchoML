@@ -16,7 +16,10 @@ if (cluster.isMaster) {
   }
 
   cluster.on("exit", worker => {
+    // Restart the worker
+    const newWorker = cluster.fork();
     console.log(`worker ${worker.process.pid} died`);
+    console.log(`worker ${newWorker.process.pid} born`);
   });
 } else {
   // Workers can share any TCP connection

@@ -6,8 +6,7 @@
   "scripts": {
     "flow": "flow",
     "start": "env NODE_ENV=production node dist/server/index.js",
-    "build":
-      "rimraf dist && tsc || true && env NODE_ENV=production webpack -p --progress --config ./webpack.production.config.js",
+    "build": "rimraf dist && tsc || true && env NODE_ENV=production webpack -p --progress --config ./webpack.production.config.js",
     "eslint": "eslint --ext .js --ext. jsx app server; exit 0;",
     "eslint-fix": "prettier app/**/*.js app/**/*.jsx --write && eslint --ext .js --ext. jsx app server --fix; exit 0;",
     "dev-back": "nodemon -w server -w config -e js,ts,json --exec 'tsc || true && node dist/server/index.js'",
@@ -41,7 +40,7 @@
     "koa-static": "^4.0.1",
     "mkdirp": "^0.5.1",
     "moment": "^2.18.1",
-    "mongoose": "^4.11.7",
+    "mongoose": "^4.10.8",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "react": "^15.6.1",
