@@ -331,7 +331,41 @@ async function downloadPredictions(
           label: prediction.label,
           docUrl: generateAzureBlobURL(storageAccount, containerName, filename)
         }));
-        resolve(cleanPredictions);
+
+        interface IPredictionGroup {
+          [label: string]: ILabel[];
+        }
+        // Group by label
+        const groupedPredictions: IPredictionGroup = cleanPredictions.reduce((groups: IPredictionGroup, label) => {
+          groups[label.label] = groups[label.label] || [];
+          groups[label.label].push(label);
+          return groups;
+        }, {});
+
+        // Join labels in the same group if they make a continuous time-frame
+        for (const [labelText, labels] of Object.entries(groupedPredictions)) {
+          const group = groupedPredictions[labelText];
+          for (const label of labels) {
+            let continuation;
+            do {
+              continuation = labels.find(continuing => continuing.start === label.end);
+              if (continuation) {
+                label.end = continuation.end;
+                group.splice(group.indexOf(continuation), 1);
+              }
+            } while (continuation);
+          }
+        }
+
+        // Merge the prediction groups
+        const cleandAndJoinedLabels: ILabel[] = [];
+        for (const labels of Object.values(groupedPredictions)) {
+          [...labels].forEach(label => {
+            cleandAndJoinedLabels.push(label);
+          });
+        }
+
+        resolve(cleandAndJoinedLabels);
       });
     });
     return predicitons;
