@@ -1,16 +1,16 @@
-import * as mongoose from "mongoose";
+import * as mongoose from 'mongoose';
 
 const LabelSchema = new mongoose.Schema({
-  start: { type: Number, default: 0, required: true },
+  docUrl: { type: String, required: true },
   end: { type: Number, default: 0, required: true },
   label: { type: String, required: false },
-  docUrl: { type: String, required: true }
+  start: { type: Number, default: 0, required: true },
 });
 
-LabelSchema.pre("save", done => done);
+LabelSchema.pre('save', done => done);
 
 // Model creation
-export const LabelModel = mongoose.model("Label", LabelSchema);
+export const LabelModel = mongoose.model('Label', LabelSchema);
 
 export interface ILabel {
   start: number;

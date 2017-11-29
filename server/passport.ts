@@ -1,8 +1,9 @@
-import { Strategy as LocalStrategy } from "passport-local";
-import { UserModel as User, generateHash, validPassword } from "./user";
-import * as Passport from "passport";
+import * as Passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import { generateHash, UserModel as User, validPassword } from './user';
 
-module.exports = (passport: Passport.Passport) => {
+// module.exports = (passport: Passport.Passport) => {
+export default (passport: Passport.Passport) => {
   // =========================================================================
   // passport session setup ==================================================
   // =========================================================================
@@ -25,13 +26,13 @@ module.exports = (passport: Passport.Passport) => {
   // LOCAL SIGNUP ============================================================
   // =========================================================================
   passport.use(
-    "local-signup",
+    'local-signup',
     new LocalStrategy(
       {
         // by default, local strategy uses username and password, we will override with email
-        usernameField: "email",
-        passwordField: "password",
-        passReqToCallback: true // allows us to pass back the entire request to the callback
+        passReqToCallback: true, // allows us to pass back the entire request to the callback
+        passwordField: 'password',
+        usernameField: 'email',
       },
       (_, email, password, done) => {
         // asynchronous
@@ -41,45 +42,49 @@ module.exports = (passport: Passport.Passport) => {
           // we are checking to see if the user trying to login already exists
           User.findOne({ email }, (err, user) => {
             // if there are any errors, return the error
-            if (err) return done(err);
+            if (err) {
+              return done(err);
+            }
 
             // check to see if theres already a user with that email
             if (user) {
-              return done(null, false, { message: "That email is already taken." });
+              return done(null, false, { message: 'That email is already taken.' });
             }
             // if there is no user with that email
             // create the user
             const newUser = new User();
 
             // set the user's local credentials
-            newUser.set("email", email);
-            newUser.set("password", generateHash(password));
+            newUser.set('email', email);
+            newUser.set('password', generateHash(password));
 
             // save the user
             return newUser.save(userSaveErr => {
               // if (err) throw err;
-              if (userSaveErr) return done(userSaveErr);
+              if (userSaveErr) {
+                return done(userSaveErr);
+              }
               return done(null, newUser, {
-                message: "Successfully registered new user"
+                message: 'Successfully registered new user',
               });
             });
           });
         });
-      }
-    )
+      },
+    ),
   );
 
   // =========================================================================
   // LOCAL LOGIN =============================================================
   // =========================================================================
   passport.use(
-    "local-login",
+    'local-login',
     new LocalStrategy(
       {
         // by default, local strategy uses username and password, we will override with email
-        usernameField: "email",
-        passwordField: "password",
-        passReqToCallback: true // allows us to pass back the entire request to the callback
+        passReqToCallback: true, // allows us to pass back the entire request to the callback
+        passwordField: 'password',
+        usernameField: 'email',
       },
       (_, email, password, done) => {
         // callback with email and password from our form
@@ -88,23 +93,25 @@ module.exports = (passport: Passport.Passport) => {
         // we are checking to see if the user trying to login already exists
         User.findOne({ email }, (err, user) => {
           // if there are any errors, return the error before anything else
-          if (err) return done(err);
+          if (err) {
+            return done(err);
+          }
 
           // if no user is found, return the message
           if (!user) {
-            return done(null, false, { message: "Email not found" });
+            return done(null, false, { message: 'Email not found' });
           }
 
           // if the user is found but the password is wrong
           if (!validPassword(user, password)) {
-            return done(null, false, { message: "Incorrect password" });
+            return done(null, false, { message: 'Incorrect password' });
           } // create the loginMessage and save it to session as flashdata
 
           // all is well, return successful user
-          return done(null, user, { message: "Successfully logged in" });
+          return done(null, user, { message: 'Successfully logged in' });
         });
-      }
-    )
+      },
+    ),
   );
 
   return passport;
