@@ -1,22 +1,22 @@
-import * as winston from "winston";
-import * as path from "path";
-import { mkdirp } from "fs-extra";
-import * as config from "config";
+import * as config from 'config';
+import { mkdirp } from 'fs-extra';
+import * as path from 'path';
+import * as winston from 'winston';
 
-const DailyRotateFile = require("winston-daily-rotate-file");
+const DailyRotateFile = require('winston-daily-rotate-file');
 const transports: winston.TransportInstance[] = [];
 
-if (config.has("log")) {
-  if (config.has("log.console")) {
-    const console = config.get("log.console");
+if (config.has('log')) {
+  if (config.has('log.console')) {
+    const console = config.get('log.console');
     transports.push(new winston.transports.Console(console));
   }
 
-  if (config.has("log.file.filename")) {
-    const filename: string = config.get("log.file.filename");
+  if (config.has('log.file.filename')) {
+    const filename: string = config.get('log.file.filename');
     const logdir = path.dirname(filename);
     mkdirp(logdir).then(() => {
-      transports.push(new DailyRotateFile(config.get("log.file")));
+      transports.push(new DailyRotateFile(config.get('log.file')));
     });
   }
 }

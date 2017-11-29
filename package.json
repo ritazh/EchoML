@@ -9,8 +9,9 @@
     "build": "rimraf dist && tsc || true && env NODE_ENV=production webpack -p --progress --config ./webpack.production.config.js",
     "eslint": "eslint --ext .js --ext. jsx app server; exit 0;",
     "eslint-fix": "prettier app/**/*.js app/**/*.jsx --write && eslint --ext .js --ext. jsx app server --fix; exit 0;",
-    "dev-back": "nodemon -w server -w config -e js,ts,json --exec 'tsc || true && node dist/server/index.js'",
-    "dev-front": "webpack-dev-server"
+    "dev-back": "concurrently \"tsc --watch\" \"nodemon dist/server/index.js\"",
+    "dev-front": "webpack-dev-server",
+    "dev": "concurrently \"npm run dev-back\" \"npm run dev-front\""
   },
   "author": {
     "name": "Rita Zhang",
@@ -38,6 +39,8 @@
     "koa-send": "^4.1.0",
     "koa-session": "^5.5.0",
     "koa-static": "^4.0.1",
+    "material-ui": "^1.0.0-beta.17",
+    "material-ui-icons": "^1.0.0-beta.17",
     "mkdirp": "^0.5.1",
     "moment": "^2.18.1",
     "mongoose": "^4.10.8",
@@ -111,6 +114,7 @@
     "babel-preset-react-hmre": "^1.1.1",
     "babel-preset-stage-0": "^6.24.1",
     "bootstrap": "^3.3.7",
+    "concurrently": "^3.5.0",
     "css-loader": "^0.28.5",
     "enhanced-resolve": "^3.4.1",
     "eslint": "^4.4.1",
@@ -126,6 +130,7 @@
     "react-addons-perf": "^15.4.2",
     "rimraf": "^2.6.1",
     "style-loader": "^0.18.2",
+    "tslint-config-prettier": "^1.5.0",
     "typescript": "^2.5.2",
     "url-loader": "^0.5.9",
     "webpack": "^3.5.5",
