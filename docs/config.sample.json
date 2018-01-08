@@ -1,0 +1,31 @@
+{
+  "hostname": "0.0.0.0",
+  "port": 80,
+  "cors": true,
+  "log": {
+    "console": {
+      "level": "debug",
+      "handleExceptions": true,
+      "colorize": true
+    },
+    "file": {
+      "level": "info",
+      "filename": "logs/winston.log",
+      "prepend": true,
+      "handleExceptions": true,
+      "colorize": false,
+      "json": false
+    }
+  },
+  "auth": {
+    "keys": ["some secret"]
+  },
+  "storage": {
+    "STORAGE_TYPE": "azureblob",
+    "STORAGE_ACCOUNT": "<Your Azure Blob Store account",
+    "STORAGE_ACCESS_KEY": "<Your Azure Blob Store access key>"
+  },
+  "mongo": {
+    "url": "mongodb://<Address>/<Database>"
+  }
+}

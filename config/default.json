@@ -1,8 +1,7 @@
 {
   "hostname": "0.0.0.0",
   "port": 80,
-  "serveStatic": false,
-  "cors": true,
+  "cors": false,
   "log": {
     "console": {
       "level": "debug",
@@ -18,7 +17,14 @@
       "json": false
     }
   },
+  "auth": {
+    "keys": ""
+  },
   "mongo": {
-    "url": "mongodb://localhost:27017/echoml"
+    "url": ""
+  },
+  "storage": {
+    "STORAGE_ACCOUNT": "",
+    "STORAGE_ACCESS_KEY": ""
   }
 }

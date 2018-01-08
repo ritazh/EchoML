@@ -1,35 +1,30 @@
-# Dependency directories
-node_modules
+# See https://help.github.com/ignore-files/ for more about ignoring files.
 
-# Logs
-logs
-*.log
-npm-debug.log*
+# dependencies
+/node_modules
 
-# Configuration
-config/development.json
-config/production.json
-cert
-nodemon.json
+# testing
+/coverage
 
-# Assets
-files
-*.flac
-output.jpeg
-*.png
+# production
+/build
 
-# Builds/Articats
-dist
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# IDE
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .vscode
-*.iml
 .idea
 
-**/.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# echo-ml
+/logs
+/files
+/data
+/config/development.json
+/config/production.json

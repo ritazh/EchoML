@@ -5,124 +5,129 @@ import * as cors from 'kcors';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
 import * as morgan from 'koa-morgan';
-import * as KoaPassport from 'koa-passport';
 import * as _ from 'koa-route';
-import * as send from 'koa-send';
 import * as session from 'koa-session';
 import * as serve from 'koa-static';
-import * as mongoose from 'mongoose';
-import api from './api';
-import logger from './logger';
-import Passport from './passport';
+import { Connection } from 'mongoose';
+import { API } from './API';
+import { Database } from './lib/Database';
+import { PassportLocal } from './lib/PassportLocal';
+import { Logger } from './Logger';
 
-const passport = Passport(KoaPassport);
+export class Server {
+  public app: Koa = new Koa();
+  public db: Connection = Database.getConnection();
 
-export function createServer(hostname: string, port: number) {
-  const app = new Koa();
-  // DB Config
-  mongoose.connect(config.get('mongo.url'));
-  mongoose.connection.on('error', err => {
-    logger.error(err);
-  });
-
-  const stream = {
-    write(message: string) {
-      logger.info(message.slice(0, -1));
-    },
-  };
-  app.use(morgan('combined', { stream }));
-
-  if (config.get('cors')) {
-    app.use(cors({ credentials: true }));
-  }
-
-  if (config.get('serveStatic')) {
-    app.use(require('koa-static')('dist'));
-  }
-
-  app.use(bodyParser());
-
-  if (config.has('auth')) {
-    app.keys = config.get('auth.keys');
-    app.use(session(app));
-    app.use(passport.initialize());
-    app.use(passport.session());
-
-    app.use(
-      _.post('/register', async ctx =>
-        passport.authenticate(
-          'local-signup',
-          async (err: Error, user: object | boolean, info: string) => {
-            if (err) {
-              throw err;
-            }
-            if (user === false) {
-              ctx.status = 401;
-              ctx.body = info;
-            } else {
-              ctx.login(user);
-              ctx.body = info;
-            }
-          },
-        )(ctx),
-      ),
-    );
-    app.use(
-      _.post('/login', async ctx =>
-        passport.authenticate(
-          'local-login',
-          async (err: Error, user: object | boolean, info: string) => {
-            if (err) {
-              throw err;
-            }
-            if (user === false) {
-              ctx.body = info;
-              ctx.status = 401;
-            } else {
-              ctx.body = { success: true };
-              return ctx.login(user);
-            }
-          },
-        )(ctx),
-      ),
-    );
-    app.use(
-      _.post('/logout', async ctx => {
-        ctx.logout();
-        ctx.body = { success: true, message: 'Successfully logged out' };
-      }),
-    );
-    app.use(
-      _.get(/.+/gi, async (ctx, next) => {
-        if (ctx.isAuthenticated()) {
-          await next();
-        } else {
-          // throw 401 unauthorized
-          ctx.throw(401);
-        }
-      }),
-    );
-  }
-
-  // Serve build folder containing static assets
-  app.use(serve('dist'));
-
-  api(app);
-
-  const envStr = process.env.NODE_ENV || 'development';
-  let httpServer = null;
-
-  if (fs.existsSync('cert')) {
-    const options = {
-      cert: fs.readFileSync('cert/server.crt'),
-      key: fs.readFileSync('cert/server.key'),
+  constructor() {
+    const stream = {
+      write(message: string) {
+        Logger.getLogger().info(message.slice(0, -1));
+      },
     };
-    https.createServer(options, app.callback()).listen(port);
-    logger.info(`server is started on ${hostname}:${port}(https) in ${envStr} mode`);
-  } else {
-    httpServer = app.listen(port, hostname);
-    logger.info(`server is started on ${hostname}:${port} in ${envStr} mode`);
+    this.app.use(morgan('combined', { stream }));
+
+    if (config.get('cors')) {
+      this.app.use(cors({ credentials: true }));
+    }
+
+    this.app.use(bodyParser());
+
+    if (config.has('auth')) {
+      const passport = PassportLocal.getPassport();
+      this.app.keys = config.get('auth.keys');
+      this.app.use(session(this.app));
+      this.app.use(passport.initialize());
+      this.app.use(passport.session());
+
+      this.app.use(
+        _.post('/register', async ctx =>
+          passport
+            .authenticate(
+              'local-signup',
+              async (err: Error, user: object | boolean, info: string) => {
+                if (err) {
+                  throw err;
+                }
+                if (user === false) {
+                  ctx.status = 409;
+                  ctx.body = info;
+                } else {
+                  ctx.login(user);
+                  ctx.body = info;
+                }
+              },
+            )
+            .call(null, ctx),
+        ),
+      );
+      this.app.use(
+        _.post('/login', async ctx =>
+          passport
+            .authenticate(
+              'local-login',
+              async (err: Error, user: object | boolean, info: string) => {
+                if (err) {
+                  throw err;
+                }
+                if (user === false) {
+                  ctx.body = info;
+                  ctx.status = 401;
+                } else {
+                  ctx.body = { success: true };
+                  return ctx.login(user);
+                }
+              },
+            )
+            .call(null, ctx),
+        ),
+      );
+      this.app.use(
+        _.post('/logout', async ctx => {
+          ctx.logout();
+          ctx.body = { success: true, message: 'Successfully logged out' };
+        }),
+      );
+      this.app.use(
+        _.post('/is-logged-in', async ctx => {
+          ctx.body = ctx.isAuthenticated();
+        }),
+      );
+      this.app.use(
+        _.get(/api+/gi, async (ctx, next) => {
+          if (ctx.isAuthenticated()) {
+            await next();
+          } else {
+            // throw 401 unauthorized
+            ctx.throw(401);
+          }
+        }),
+      );
+    }
+
+    // Serve build folder containing static assets
+    this.app.use(serve('build'));
+    // Audio files
+    this.app.use(serve('files'));
+
+    // Router routes middleware
+    for (const route of API.routes) {
+      this.app.use(route);
+    }
   }
 
-  return httpServer;
+  public listen(hostname: string, port: number) {
+    if (fs.existsSync('cert')) {
+      const options = {
+        cert: fs.readFileSync('cert/this.crt'),
+        key: fs.readFileSync('cert/this.key'),
+      };
+      https.createServer(options, this.app.callback()).listen(port);
+      Logger.getLogger().info(
+        `Server started on ${hostname}:${port}(https) in ${this.app.env} mode`,
+      );
+    } else {
+      this.app.listen(port, hostname);
+      Logger.getLogger().info(`Server started on ${hostname}:${port} in ${this.app.env} mode`);
+    }
+  }
 }

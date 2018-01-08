@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "esnext",
     "module": "commonjs",
     "allowJs": true,
     "checkJs": true,
     "jsx": "preserve",
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "./build",
     "rootDir": "./",
     "strict": true,
     "noImplicitAny": true,
@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node"
   },
-  "include": ["server/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "server/**/*"
+  ]
 }
