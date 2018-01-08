@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "EchoML",
+  "name": "EchoML - A web app to play, visualize, and annotate your audio files for machine learning",
   "icons": [
     {
       "src": "favicon.ico",
