@@ -1,8 +1,8 @@
-import * as Koa from 'koa';
-import * as send from 'koa-send';
-import { AzureBlobFile } from '../lib/AzureBlobFile';
-import { AzureBlobService } from '../lib/AzureBlobService';
-import { User } from '../lib/User';
+import * as Koa from "koa";
+import * as send from "koa-send";
+import { AzureBlobFile } from "../lib/AzureBlobFile";
+import { AzureBlobService } from "../lib/AzureBlobService";
+import { User } from "../lib/User";
 
 export class BlobsController {
   public static async index(ctx: Koa.Context) {

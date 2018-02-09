@@ -1,11 +1,11 @@
+import axios from "axios";
+
 const logger = console;
 
 export async function getContainers() {
   try {
-    const containers = await fetch('/api/containers', {
-      credentials: 'include',
-    }).then(resp => resp.json());
-    return containers;
+    const { data } = await axios.get("/api/containers", { withCredentials: true });
+    return data;
   } catch (err) {
     logger.error(err);
     return [];
@@ -14,10 +14,10 @@ export async function getContainers() {
 
 export async function getBlobs(container) {
   try {
-    const blobs = await fetch(`/api/containers/${container}/blobs`, {
-      credentials: 'include',
-    }).then(resp => resp.json());
-    return blobs;
+    const { data } = await axios.get(`/api/containers/${container}/blobs`, {
+      withCredentials: true,
+    });
+    return data;
   } catch (err) {
     logger.error(err);
     return [];
@@ -26,9 +26,8 @@ export async function getBlobs(container) {
 
 export async function getStorageAccount() {
   try {
-    const { storageAccount } = await fetch('/api/storage_account', {
-      credentials: 'include',
-    }).then(resp => resp.json());
+    const { data } = await axios.get("/api/storage_account", { withCredentials: true });
+    const { storageAccount } = data;
     return storageAccount;
   } catch (err) {
     logger.error(err);
@@ -40,12 +39,12 @@ export async function downloadFile(storageAccount, containerName, filename) {
   // Download and return url to localstorage file
   const downloadUrl = `/api/blobs/download/${storageAccount}/${containerName}/${filename}`;
   const blobPromise = fetch(downloadUrl, {
-    method: 'get',
-    credentials: 'include',
+    method: "get",
+    credentials: "include",
   }).then(resp => resp.blob());
 
-  return blobPromise.then((blob) => {
-    if (typeof blob === 'object') {
+  return blobPromise.then(blob => {
+    if (typeof blob === "object") {
       const localUrl = URL.createObjectURL(blob);
       return localUrl;
     }
@@ -55,31 +54,29 @@ export async function downloadFile(storageAccount, containerName, filename) {
 
 export async function addStorageAccount(name, accessKey) {
   try {
-    const response = await fetch('/api/storage_accounts', {
-      method: 'post',
-      credentials: 'include',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      body: JSON.stringify({
+    const { data } = await axios.post("/api/storate_accounts", {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
         name,
         accessKey,
-      }),
+      },
     });
-    const json = await response.json();
-    logger.log(json);
+    logger.log(data);
   } catch (err) {
     logger.error(err);
   }
 }
 
 export async function getStorageAccountNames() {
-  return fetch('/api/accounts', {
-    method: 'get',
-    credentials: 'include',
+  return fetch("/api/accounts", {
+    method: "get",
+    credentials: "include",
   })
     .then(r => r.json())
-    .catch((err) => {
+    .catch(err => {
       logger.error(err);
       return [];
     });

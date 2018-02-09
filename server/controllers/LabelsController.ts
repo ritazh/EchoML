@@ -1,6 +1,6 @@
-import * as Koa from 'koa';
-import { AzureBlobFile } from '../lib/AzureBlobFile';
-import { Label } from '../lib/Label';
+import * as Koa from "koa";
+import { AzureBlobFile } from "../lib/AzureBlobFile";
+import { Label } from "../lib/Label";
 
 export class LabelsController {
   public static async index(ctx: Koa.Context) {
@@ -30,7 +30,7 @@ export class LabelsController {
         ctx.body = await Label.deleteLabels(storageAccount, containerName, filename);
         ctx.body = await Label.addLabels(storageAccount, containerName, filename, labels);
       } else {
-        throw new Error('Invalid POST request');
+        throw new Error("Invalid POST request");
       }
     } catch (err) {
       ctx.throw(err);

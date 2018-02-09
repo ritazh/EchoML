@@ -1,7 +1,7 @@
-import * as bcrypt from 'bcrypt';
-import * as mongoose from 'mongoose';
-import { promisify } from 'util';
-import { Logger } from '../Logger';
+import * as bcrypt from "bcrypt";
+import * as mongoose from "mongoose";
+import { promisify } from "util";
+import { Logger } from "../Logger";
 
 export interface IUser extends mongoose.Document {
   email: string;
@@ -43,7 +43,7 @@ export class User {
 
   public static getModel(): mongoose.Model<IUser> {
     if (!User.model) {
-      User.model = mongoose.model('User', User.getSchema());
+      User.model = mongoose.model("User", User.getSchema());
     }
 
     return User.model;

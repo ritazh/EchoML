@@ -1,5 +1,5 @@
-import * as mongoose from 'mongoose';
-import { AzureBlobFile } from './AzureBlobFile';
+import * as mongoose from "mongoose";
+import { AzureBlobFile } from "./AzureBlobFile";
 
 export interface ILabel extends mongoose.Document {
   start: number;
@@ -51,7 +51,7 @@ export class Label {
 
   public static getModel(): mongoose.Model<ILabel> {
     if (!Label.model) {
-      Label.model = mongoose.model('Label', Label.getSchema());
+      Label.model = mongoose.model("Label", Label.getSchema());
     }
 
     return Label.model;
@@ -62,7 +62,7 @@ export class Label {
       Label.schema = new mongoose.Schema({
         docUrl: { type: String, required: true },
         end: { type: Number, required: true },
-        label: { type: String, required: false, default: '' },
+        label: { type: String, required: false, default: "" },
         start: { type: Number, required: true },
       });
     }

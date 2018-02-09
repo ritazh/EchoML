@@ -1,12 +1,14 @@
 FROM node:8
 
+# Install
 WORKDIR /app/
 COPY ./package.json .
-COPY ./package-lock.json .
-RUN npm install
+COPY ./yarn.lock .
+RUN npm install -g yarn
+RUN yarn
 ADD . .
 
-RUN npm run build
+RUN yarn run build
 
 EXPOSE 80
-CMD npm run prod
+CMD yarn run prod

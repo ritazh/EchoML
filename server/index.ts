@@ -1,14 +1,14 @@
-import * as cluster from 'cluster';
-import * as config from 'config';
-import * as os from 'os';
-import { Logger } from './Logger';
-import { Server } from './Server';
+import * as cluster from "cluster";
+import * as config from "config";
+import * as os from "os";
+import { Logger } from "./Logger";
+import { Server } from "./Server";
 
-const hostname: string = config.get('hostname');
-const port: number = config.get('port');
+const hostname: string = config.get("hostname");
+const port: number = config.get("port");
 
-const isProduction = !!(process.env.NODE_ENV || '').match(/prod/i);
-Logger.getLogger().info(`Server starting in ${process.env.NODE_ENV || 'dev'} mode on port ${port}`);
+const isProduction = !!(process.env.NODE_ENV || "").match(/prod/i);
+Logger.getLogger().info(`Server starting in ${process.env.NODE_ENV || "dev"} mode on port ${port}`);
 
 // Cluster if production
 if (isProduction) {
@@ -21,7 +21,7 @@ if (isProduction) {
       cluster.fork();
     }
 
-    cluster.on('exit', worker => {
+    cluster.on("exit", worker => {
       // Restart the worker
       const newWorker = cluster.fork();
       Logger.getLogger().info(`worker ${worker.process.pid} died`);

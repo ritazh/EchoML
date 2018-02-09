@@ -1,7 +1,8 @@
-import * as azure from 'azure-storage';
-import { Logger } from '../Logger';
-import { AzureBlobFile } from './AzureBlobFile';
-import { AzureBlobService } from './AzureBlobService';
+import * as azure from "azure-storage";
+import { Logger } from "../Logger";
+import { AzureBlobFile } from "./AzureBlobFile";
+import { AzureBlobService } from "./AzureBlobService";
+import { Label } from "./Label";
 
 export interface IAzureBlobContainer {
   account: string;
@@ -45,6 +46,16 @@ export class AzureBlobContainer implements IAzureBlobContainer {
     }
 
     return blobs;
+  }
+
+  public async getLabels(): Promise<Label[]> {
+    const blobs = await this.getBlobs();
+    const labels = await Promise.all(blobs.map(blob => blob.getLabels()));
+    let flattend: Label[] = [];
+    for (const labelList of labels) {
+      flattend = flattend.concat(labelList);
+    }
+    return flattend;
   }
 
   private async getListBlobResult(

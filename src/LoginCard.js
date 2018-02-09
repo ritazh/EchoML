@@ -1,20 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Card, { CardActions, CardContent } from 'material-ui/Card';
-import Button from 'material-ui/Button';
-import Typography from 'material-ui/Typography';
-import TextField from 'material-ui/TextField';
-import { login, register } from './lib/auth';
-import { CircularProgress } from 'material-ui/Progress';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import Card, { CardActions, CardContent } from "material-ui/Card";
+import Button from "material-ui/Button";
+import Typography from "material-ui/Typography";
+import TextField from "material-ui/TextField";
+import { login, register } from "./lib/auth";
+import { CircularProgress } from "material-ui/Progress";
 
 class LoginCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      errorMessage: '',
+      email: "",
+      password: "",
+      passwordConfirm: "",
+      errorMessage: "",
       showRegistration: false,
       isLoading: false,
       ...props,
@@ -46,7 +46,7 @@ class LoginCard extends Component {
     try {
       const { email, password, passwordConfirm } = this.state;
       if (password !== passwordConfirm) {
-        throw new Error('Passwords do not match');
+        throw new Error("Passwords do not match");
       }
 
       const message = await register(email, password);
@@ -61,7 +61,7 @@ class LoginCard extends Component {
     this.setState({ isLoading: false });
   };
 
-  handleChange = name => (event) => {
+  handleChange = name => event => {
     this.setState({
       [name]: event.target.value,
     });
@@ -81,7 +81,7 @@ class LoginCard extends Component {
             </Typography>
             <TextField
               defaultValue={this.props.email}
-              onChange={(e) => {
+              onChange={e => {
                 this.setState({ email: e.target.value });
               }}
               type="email"
@@ -94,7 +94,7 @@ class LoginCard extends Component {
             />
             <TextField
               defaultValue={this.props.password}
-              onChange={(e) => {
+              onChange={e => {
                 this.setState({ password: e.target.value });
               }}
               type="password"
@@ -107,7 +107,7 @@ class LoginCard extends Component {
             />
             {this.state.showRegistration && (
               <TextField
-                onChange={(e) => {
+                onChange={e => {
                   this.setState({ passwordConfirm: e.target.value });
                 }}
                 type="password"
@@ -138,7 +138,7 @@ class LoginCard extends Component {
                   dense
                   color="primary"
                   onClick={() => {
-                    this.setState({ showRegistration: false, errorMessage: '' });
+                    this.setState({ showRegistration: false, errorMessage: "" });
                   }}
                 >
                   Back to Login
@@ -160,7 +160,7 @@ class LoginCard extends Component {
                   dense
                   color="primary"
                   onClick={() => {
-                    this.setState({ showRegistration: true, errorMessage: '' });
+                    this.setState({ showRegistration: true, errorMessage: "" });
                   }}
                 >
                   Register
@@ -181,8 +181,8 @@ LoginCard.propTypes = {
 };
 
 LoginCard.defaultProps = {
-  email: '',
-  password: '',
+  email: "",
+  password: "",
 };
 
 export default LoginCard;

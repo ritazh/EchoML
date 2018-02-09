@@ -3,11 +3,11 @@
  * @param {string} password
  */
 export function login(email, password) {
-  return fetch('/login', {
-    credentials: 'include',
-    method: 'post',
+  return fetch("/login", {
+    credentials: "include",
+    method: "post",
     headers: new Headers({
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     }),
     body: JSON.stringify({ email, password }),
   });
@@ -20,11 +20,11 @@ export function login(email, password) {
  */
 export async function register(email, password) {
   try {
-    const response = await fetch('/register', {
-      credentials: 'include',
-      method: 'post',
+    const response = await fetch("/register", {
+      credentials: "include",
+      method: "post",
       headers: new Headers({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
       body: JSON.stringify({ email, password }),
     });
@@ -39,13 +39,13 @@ export async function register(email, password) {
 export async function isLoggedIn() {
   try {
     const fetchOptions = {
-      credentials: 'include',
-      method: 'post',
+      credentials: "include",
+      method: "post",
       headers: new Headers({
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       }),
     };
-    const response = await fetch('/is-logged-in', fetchOptions);
+    const response = await fetch("/is-logged-in", fetchOptions);
     const bool = await response.json();
     return bool;
   } catch (err) {

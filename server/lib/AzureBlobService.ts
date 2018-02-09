@@ -1,17 +1,17 @@
-import * as azure from 'azure-storage';
-import * as config from 'config';
-import { Logger } from '../Logger';
-import { AzureBlobContainer } from './AzureBlobContainer';
+import * as azure from "azure-storage";
+import * as config from "config";
+import { Logger } from "../Logger";
+import { AzureBlobContainer } from "./AzureBlobContainer";
 
 export class AzureBlobService {
   public static getConfigService(): AzureBlobService | null {
     const [configAccount = null, configAccessKey = null] = [
-      config.get('storage.STORAGE_ACCOUNT'),
-      config.get('storage.STORAGE_ACCESS_KEY'),
+      config.get("storage.STORAGE_ACCOUNT"),
+      config.get("storage.STORAGE_ACCESS_KEY"),
     ];
 
     try {
-      if (typeof configAccount === 'string' && typeof configAccessKey === 'string') {
+      if (typeof configAccount === "string" && typeof configAccessKey === "string") {
         const service = new AzureBlobService(configAccount, configAccessKey);
         return service;
       }
