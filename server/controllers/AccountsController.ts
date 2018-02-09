@@ -1,6 +1,6 @@
-import * as Koa from 'koa';
-import { AzureBlobService } from '../lib/AzureBlobService';
-import { User } from '../lib/User';
+import * as Koa from "koa";
+import { AzureBlobService } from "../lib/AzureBlobService";
+import { User } from "../lib/User";
 
 export class AccountsController {
   public static async index(ctx: Koa.Context) {

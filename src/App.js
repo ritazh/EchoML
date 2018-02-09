@@ -1,27 +1,26 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import './App.css';
-import LoginCard from './LoginCard';
-import Drawer from './Drawer';
-import { getBlobs, getContainers } from './lib/azure';
-import { isLoggedIn } from './lib/auth';
+import React, { Component } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import "./App.css";
+import LoginCard from "./LoginCard";
+import Drawer from "./Drawer";
+import { getBlobs, getContainers } from "./lib/azure";
+import { isLoggedIn } from "./lib/auth";
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      storageAccount: '',
+      storageAccount: "",
       containers: [],
       blobs: {},
     };
   }
 
-  componentDidMount() {
-    isLoggedIn().then((loginStatus) => {
-      if (loginStatus) {
-        this.onLogin();
-      }
-    });
+  async componentDidMount() {
+    const loginStatus = await isLoggedIn();
+    if (loginStatus) {
+      this.onLogin();
+    }
   }
 
   onLogin = async () => {
@@ -35,8 +34,8 @@ class App extends Component {
     this.setState({ containers });
 
     const mappedBlobs = {};
-    containers.forEach((container) => {
-      getBlobs(container.name).then((blobs) => {
+    containers.forEach(container => {
+      getBlobs(container.name).then(blobs => {
         const containerName = container.name;
         if (!mappedBlobs[containerName]) {
           mappedBlobs[containerName] = [];
@@ -61,11 +60,11 @@ class App extends Component {
         ) : (
           <div
             style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <LoginCard onLogin={this.onLogin} />

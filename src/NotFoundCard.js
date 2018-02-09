@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Card, { CardContent } from 'material-ui/Card';
-import Typography from 'material-ui/Typography';
-import './NotFoundCard.css';
+import React from "react";
+import PropTypes from "prop-types";
+import Card, { CardContent } from "material-ui/Card";
+import Typography from "material-ui/Typography";
+import "./NotFoundCard.css";
 
 function NotFoundCard(props) {
   return (
@@ -18,7 +18,7 @@ function NotFoundCard(props) {
           <Typography type="body1" className="pos">
             {props.subheading}
           </Typography>
-          <Typography component="pre" style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+          <Typography component="pre" style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
             {props.description}
           </Typography>
         </CardContent>
@@ -35,8 +35,8 @@ NotFoundCard.propTypes = {
 };
 
 NotFoundCard.defaultProps = {
-  title: '404 Not Found',
-  heading: 'Hmm. We’re having trouble finding this link.',
+  title: "404 Not Found",
+  heading: "Hmm. We’re having trouble finding this link.",
   subheading: `We can’t connect to the page ${window.location}`,
   description: `If that address is correct, here are three other things you can try:
   

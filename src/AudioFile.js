@@ -1,44 +1,47 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import WaveSurfer from 'wavesurfer.js';
-import SpectrogramPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.spectrogram';
-import RegionsPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.regions';
-import MinimapPlugin from 'wavesurfer.js/dist/plugin/wavesurfer.minimap';
-import TimelinePlugin from 'wavesurfer.js/dist/plugin/wavesurfer.timeline';
-import moment from 'moment';
-import Paper from 'material-ui/Paper';
-import IconButton from 'material-ui/IconButton';
-import Typography from 'material-ui/Typography';
-import PlayArrowIcon from 'material-ui-icons/PlayArrow';
-import FastForward from 'material-ui-icons/FastForward';
-import FastRewind from 'material-ui-icons/FastRewind';
-import PauseIcon from 'material-ui-icons/Pause';
-import NoteAddIcon from 'material-ui-icons/NoteAdd';
-import SaveIcon from 'material-ui-icons/Save';
-import DownloadIcon from 'material-ui-icons/FileDownload';
-import DeleteIcon from 'material-ui-icons/Delete';
-import ZoomInIcon from 'material-ui-icons/ZoomIn';
-import ZoomOutIcon from 'material-ui-icons/ZoomOut';
-import { LinearProgress } from 'material-ui/Progress';
-import Tooltip from 'material-ui/Tooltip';
-import Snackbar from 'material-ui/Snackbar';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import { downloadFile } from './lib/azure';
-import { loadLabels, saveLabels } from './lib/labels';
+import React from "react";
+import PropTypes from "prop-types";
+import WaveSurfer from "wavesurfer.js";
+import SpectrogramPlugin from "wavesurfer.js/dist/plugin/wavesurfer.spectrogram";
+import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions";
+import MinimapPlugin from "wavesurfer.js/dist/plugin/wavesurfer.minimap";
+import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline";
+import moment from "moment";
+import Paper from "material-ui/Paper";
+import IconButton from "material-ui/IconButton";
+import Typography from "material-ui/Typography";
+import PlayArrowIcon from "material-ui-icons/PlayArrow";
+import FastForward from "material-ui-icons/FastForward";
+import FastRewind from "material-ui-icons/FastRewind";
+import PauseIcon from "material-ui-icons/Pause";
+import NoteAddIcon from "material-ui-icons/NoteAdd";
+import SaveIcon from "material-ui-icons/Save";
+import DownloadIcon from "material-ui-icons/FileDownload";
+import DeleteIcon from "material-ui-icons/Delete";
+import ZoomInIcon from "material-ui-icons/ZoomIn";
+import ZoomOutIcon from "material-ui-icons/ZoomOut";
+import { LinearProgress } from "material-ui/Progress";
+import Tooltip from "material-ui/Tooltip";
+import Snackbar from "material-ui/Snackbar";
+import Table, { TableBody, TableCell, TableHead, TableRow } from "material-ui/Table";
+import { downloadFile } from "./lib/azure";
+import { loadLabels, saveLabels } from "./lib/labels";
 
 class AudioFile extends React.Component {
   /**
    * Generate a random color of gradient
    */
   static randomColor = (gradient = 0.5) =>
-    `rgba(${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)}, ${gradient})`;
+    `rgba(${Math.floor(Math.random() * 256)},${Math.floor(Math.random() * 256)},${Math.floor(
+      Math.random() * 256,
+    )}, ${gradient})`;
 
   constructor(props) {
     super(props);
     this.activeLabelRows = [];
     this.state = {
       ...props,
-      audioUrl: '',
+      audioUrl: "",
+      defaultLabel: localStorage.getItem("defaultLabel") || "",
       // Wavesurver stuff
       regions: [],
       wavesurfer: null,
@@ -54,33 +57,35 @@ class AudioFile extends React.Component {
   componentDidMount() {
     // const downloadUrl = generateAzureBlobURL(this.props.container, this.props.filename);
     downloadFile(this.props.storageAccount, this.props.container, this.props.filename)
-      .then((url) => {
+      .then(url => {
         this.setState({ audioUrl: url });
       })
       .then(() => {
         this.initWavesurfer().then(() => {
-          loadLabels(this.props.storageAccount, this.props.container, this.props.filename).then((labels) => {
-            const regions = [];
-            labels.forEach((label) => {
-              regions[
-                Math.random()
-                  .toString(36)
-                  .substring(10)
-              ] = label;
-            });
-            this.setState(
-              {
-                regions,
-              },
-              () => {
-                this.syncRegions();
-              },
-            );
-          });
+          loadLabels(this.props.storageAccount, this.props.container, this.props.filename).then(
+            labels => {
+              const regions = [];
+              labels.forEach(label => {
+                regions[
+                  Math.random()
+                    .toString(36)
+                    .substring(10)
+                ] = label;
+              });
+              this.setState(
+                {
+                  regions,
+                },
+                () => {
+                  this.syncRegions();
+                },
+              );
+            },
+          );
         });
       })
       .catch(() => {
-        this.showMessage('Error downloading audio file');
+        this.showMessage("Error downloading audio file");
       });
   }
 
@@ -88,7 +93,7 @@ class AudioFile extends React.Component {
     // Scroll label table to show currently playing
     const currentlyPlaying = this.activeLabelRows.filter(e => e).pop();
     if (currentlyPlaying) {
-      currentlyPlaying.scrollIntoView({ block: 'end', behavior: 'smooth' });
+      currentlyPlaying.scrollIntoView({ block: "end", behavior: "smooth" });
     }
   }
 
@@ -103,7 +108,7 @@ class AudioFile extends React.Component {
    */
   getLabels = () => {
     const labels = Object.values(this.state.wavesurfer.regions.list)
-      .map((region) => {
+      .map(region => {
         const { start, end } = region;
         const otherParams = this.state.regions[region.id] || {};
         return {
@@ -115,7 +120,7 @@ class AudioFile extends React.Component {
       .map(region => ({
         start: region.start,
         end: region.end,
-        label: region.label || '',
+        label: region.label || "",
       }));
 
     return labels;
@@ -146,9 +151,11 @@ class AudioFile extends React.Component {
     });
 
     // Delete regions in wavesurfer not in state
-    const regionsToRemove = Object.values(wavesurverRegions).filter(region => !Object.keys(this.state.regions).includes(region.id));
+    const regionsToRemove = Object.values(wavesurverRegions).filter(
+      region => !Object.keys(this.state.regions).includes(region.id),
+    );
 
-    regionsToRemove.forEach((region) => {
+    regionsToRemove.forEach(region => {
       region.remove();
     });
   };
@@ -161,7 +168,7 @@ class AudioFile extends React.Component {
     const newRegion = {
       start: currentTime - 1,
       end: currentTime + 1,
-      label: '',
+      label: this.state.defaultLabel,
       resize: false,
     };
     const regions = {
@@ -192,7 +199,7 @@ class AudioFile extends React.Component {
   /**
    * Remove segment at index and refresh local player
    */
-  removeRegion = (region) => {
+  removeRegion = region => {
     // region.remove();
     const regions = { ...this.state.regions };
     delete regions[region.id];
@@ -202,8 +209,10 @@ class AudioFile extends React.Component {
   /**
    * Play the segement referred to by segmentId
    */
-  playRegion = (segmentId) => {
-    const segment = Object.values(this.state.wavesurfer.regions.list).find(potentialMatch => potentialMatch.id === segmentId);
+  playRegion = segmentId => {
+    const segment = Object.values(this.state.wavesurfer.regions.list).find(
+      potentialMatch => potentialMatch.id === segmentId,
+    );
     if (segment) {
       // this.state.wavesurfer.playRegion(segment);
       segment.play();
@@ -227,7 +236,8 @@ class AudioFile extends React.Component {
       this.setState({ wavesurfer, zoom: pxPerSec }, () => {
         wavesurfer.seekAndCenter(progress);
         resolve(wavesurfer);
-      }));
+      }),
+    );
 
     return finished;
   };
@@ -245,16 +255,17 @@ class AudioFile extends React.Component {
           wavesurfer,
         },
         () => resolve(),
-      ));
+      ),
+    );
     return wavesurfer;
   };
 
   initWavesurfer = async (options = {}) =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       const wavesurfer = WaveSurfer.create({
         container: this.wavesurfer,
-        waveColor: 'violet',
-        progressColor: 'purple',
+        waveColor: "violet",
+        progressColor: "purple",
         scrollParent: false,
         hideScrollbar: false,
         plugins: [
@@ -274,7 +285,7 @@ class AudioFile extends React.Component {
       });
       // wavesurfer.setMute(true);
       wavesurfer.load(this.audio.src);
-      wavesurfer.on('loading', (loadingProgress) => {
+      wavesurfer.on("loading", loadingProgress => {
         this.setState({ loadingProgress });
       });
 
@@ -282,12 +293,12 @@ class AudioFile extends React.Component {
        * Add/update the provided region in state
        * @param {WavesurferRegion} region
        */
-      const putRegion = (region) => {
+      const putRegion = region => {
         const existingRegion = this.state.regions[region.id];
         const stateRegion = {
           start: region.start,
           end: region.end,
-          label: existingRegion ? existingRegion.label : '',
+          label: existingRegion ? existingRegion.label : "",
           resize: false,
         };
         this.setState({
@@ -295,36 +306,38 @@ class AudioFile extends React.Component {
         });
       };
 
-      wavesurfer.on('region-updated', (region) => {
+      wavesurfer.on("region-updated", region => {
         putRegion(region);
       });
-      wavesurfer.on('region-created', (region) => {
+      wavesurfer.on("region-created", region => {
         putRegion(region);
       });
-      wavesurfer.on('region-in', (region) => {
+      wavesurfer.on("region-in", region => {
         this.setState({
           regionsBeingPlayed: [...this.state.regionsBeingPlayed, region],
         });
       });
-      wavesurfer.on('region-out', (region) => {
-        const regionsBeingPlayed = [...this.state.regionsBeingPlayed].filter(filterRegion => filterRegion.id !== region.id);
+      wavesurfer.on("region-out", region => {
+        const regionsBeingPlayed = [...this.state.regionsBeingPlayed].filter(
+          filterRegion => filterRegion.id !== region.id,
+        );
         this.setState({ regionsBeingPlayed });
       });
 
       // Resolve wavesurfer instance
-      wavesurfer.on('ready', () => {
+      wavesurfer.on("ready", () => {
         // bind wavesurfer and add label metadata to state
         this.setState({ wavesurfer, wavesurferReady: true }, () => {
           this.syncRegions();
           resolve(wavesurfer);
         });
       });
-    }).catch((err) => {
+    }).catch(err => {
       console.error(err);
     });
 
   destroyWavesurfer = async () =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       this.state.wavesurfer.destroy();
       this.setState({ wavesurfer: null, wavesurferReady: false }, () => {
         resolve();
@@ -355,14 +368,14 @@ class AudioFile extends React.Component {
     const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(labels))}`;
 
     // Create fake download element and click
-    const dlAnchorElem = document.createElement('a');
-    dlAnchorElem.setAttribute('href', dataStr);
-    dlAnchorElem.setAttribute('download', 'labels.json');
+    const dlAnchorElem = document.createElement("a");
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "labels.json");
     dlAnchorElem.click();
     dlAnchorElem.remove();
   };
 
-  showMessage = (message = '') => {
+  showMessage = (message = "") => {
     this.setState({
       snackbarOpen: true,
       snackbarMessage: message,
@@ -385,51 +398,51 @@ class AudioFile extends React.Component {
         return carry;
       }, [])
       .sort((a, b) => a.start - b.start)
-      .map((region) => {
+      .map(region => {
         const style = {
-          ...(this.state.regionsBeingPlayed.includes(region) ? { color: 'red' } : {}),
-          height: '1em',
+          ...(this.state.regionsBeingPlayed.includes(region) ? { color: "red" } : {}),
+          height: "1em",
         };
         const refLamda = this.state.regionsBeingPlayed.includes(region)
-          ? (ref) => {
-            this.activeLabelRows.push(ref);
-          }
+          ? ref => {
+              this.activeLabelRows.push(ref);
+            }
           : () => {};
         return (
           <TableRow style={style} key={region.id}>
-            <TableCell style={{ padding: '0 1em' }}>
+            <TableCell style={{ padding: "0 1em" }}>
               <code ref={refLamda}>
                 {moment
                   .utc(moment.duration({ seconds: region.start }).asMilliseconds())
-                  .format('HH:mm:ss.SSS')}
+                  .format("HH:mm:ss.SSS")}
               </code>
             </TableCell>
-            <TableCell style={{ padding: '0 1em' }}>
+            <TableCell style={{ padding: "0 1em" }}>
               <code>
                 {moment
                   .utc(moment.duration({ seconds: region.end }).asMilliseconds())
-                  .format('HH:mm:ss.SSS')}
+                  .format("HH:mm:ss.SSS")}
               </code>
             </TableCell>
-            <TableCell style={{ padding: '0 1em' }}>
+            <TableCell style={{ padding: "0 1em" }}>
               <input
-                style={{ width: '100%' }}
+                style={{ width: "100%" }}
                 contentEditable
-                onChange={(e) => {
+                onChange={e => {
                   this.updateRegion(region, { label: e.target.value });
                 }}
                 value={this.state.regions[region.id].label}
               />
             </TableCell>
-            <TableCell style={{ padding: '0 1em', display: 'flex' }}>
+            <TableCell style={{ padding: "0 1em", display: "flex" }}>
               <PlayArrowIcon
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 onClick={() => {
                   this.playRegion(region.id);
                 }}
               />
               <DeleteIcon
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 onClick={() => {
                   this.removeRegion(region);
                 }}
@@ -441,7 +454,7 @@ class AudioFile extends React.Component {
 
     return (
       <div className="AudioFile">
-        <Paper style={{ padding: '1em' }}>
+        <Paper style={{ padding: "1em" }}>
           <Typography type="headline">{this.props.filename}</Typography>
 
           {/* Audio Download Progress */}
@@ -479,7 +492,9 @@ class AudioFile extends React.Component {
                 <IconButton
                   aria-label="Fast Rewind"
                   onClick={() =>
-                    this.state.wavesurfer.setPlaybackRate(this.state.wavesurfer.getPlaybackRate() / 2)
+                    this.state.wavesurfer.setPlaybackRate(
+                      this.state.wavesurfer.getPlaybackRate() / 2,
+                    )
                   }
                 >
                   <FastRewind />
@@ -489,7 +504,9 @@ class AudioFile extends React.Component {
                 <IconButton
                   aria-label="Fast Forward"
                   onClick={() =>
-                    this.state.wavesurfer.setPlaybackRate(this.state.wavesurfer.getPlaybackRate() * 2)
+                    this.state.wavesurfer.setPlaybackRate(
+                      this.state.wavesurfer.getPlaybackRate() * 2,
+                    )
                   }
                 >
                   <FastForward />
@@ -534,12 +551,12 @@ class AudioFile extends React.Component {
                 </IconButton>
               </Tooltip>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row' }}>
-              <Paper className="waveform" style={{ flex: 'auto', minWidth: '30vw' }}>
+            <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row" }}>
+              <Paper className="waveform" style={{ flex: "auto", minWidth: "30vw" }}>
                 <audio
                   controls={false}
                   src={this.state.audioUrl}
-                  ref={(ref) => {
+                  ref={ref => {
                     this.audio = ref;
                   }}
                 >
@@ -548,41 +565,41 @@ class AudioFile extends React.Component {
                 <div
                   className="wavesurfer"
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: "white",
                     zIndex: 0,
-                    border: '1px solid ghostwhite',
+                    border: "1px solid ghostwhite",
                   }}
                 >
                   <div
                     style={{
-                      display: this.state.loadingProgress === 100 ? 'initial' : 'none',
+                      display: this.state.loadingProgress === 100 ? "initial" : "none",
                     }}
                   >
                     <div
-                      ref={(ref) => {
+                      ref={ref => {
                         this.wavesurfer = ref;
                       }}
                     />
                     <div
-                      ref={(ref) => {
+                      ref={ref => {
                         this.wavesurferTimeline = ref;
                       }}
                     />
                     <div
-                      ref={(ref) => {
+                      ref={ref => {
                         this.wavesurferSpectrogram = ref;
                       }}
                       style={{
-                        textAlign: 'start',
-                        padding: '-1em 0 0 0',
+                        textAlign: "start",
+                        padding: "-1em 0 0 0",
                         zIndex: 0,
                       }}
                     />
                   </div>
                 </div>
               </Paper>
-              <Paper className="controls" style={{ flex: '1' }}>
-                <Table style={{ height: '438px', display: 'block', overflow: 'scroll' }}>
+              <Paper className="controls" style={{ flex: "1" }}>
+                <Table style={{ height: "438px", display: "block", overflow: "scroll" }}>
                   <TableHead>
                     <TableRow>
                       <TableCell numeric>Start</TableCell>
@@ -608,11 +625,11 @@ class AudioFile extends React.Component {
           </div>
         </Paper>
         <Snackbar
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           open={this.state.snackbarOpen}
-          onRequestClose={this.handleSnackbarRequestClose}
+          onClose={this.handleSnackbarRequestClose}
           SnackbarContentProps={{
-            'aria-describedby': 'message-id',
+            "aria-describedby": "message-id",
           }}
           message={<span id="message-id">{this.state.snackbarMessage}</span>}
         />

@@ -1,12 +1,12 @@
-import * as azure from 'azure-storage';
-import * as fs from 'fs';
-import * as mkdirp from 'mkdirp';
-import * as path from 'path';
-import * as request from 'request';
-import { promisify } from 'util';
-import { Logger } from '../Logger';
-import { AzureBlobContainer } from './AzureBlobContainer';
-import { ILabel, Label } from './Label';
+import axios from "axios";
+import * as azure from "azure-storage";
+import * as fs from "fs";
+import * as mkdirp from "mkdirp";
+import * as path from "path";
+import { promisify } from "util";
+import { Logger } from "../Logger";
+import { AzureBlobContainer } from "./AzureBlobContainer";
+import { ILabel, Label } from "./Label";
 
 export interface IAzureBlobFile {
   name: string;
@@ -29,29 +29,11 @@ export class AzureBlobFile implements IAzureBlobFile {
       await promisify(mkdirp)(dirname);
     }
 
-    // Attempt to download and return the path. Throw an error on error
-    try {
-      await new Promise<string>((resolve, reject) => {
-        // Prep write stream
-        const writeStream = fs.createWriteStream(filepath);
-        writeStream
-          .on('finish', () => {
-            resolve(filepath);
-          })
-          .on('error', err => {
-            reject(err);
-          });
-
-        // download
-        const downloadUrl = AzureBlobFile.getDownloadURL(account, container, filename);
-        request(downloadUrl).pipe(writeStream);
-      });
-
-      return filepath;
-    } catch (err) {
-      Logger.getLogger().error(err);
-      throw err;
-    }
+    const downloadUrl = AzureBlobFile.getDownloadURL(account, container, filename);
+    const { data } = await axios.get<ArrayBuffer>(downloadUrl, { responseType: "arraybuffer" });
+    const writeFile = promisify(fs.writeFile);
+    await writeFile(filepath, data);
+    return filepath;
   }
 
   public static getDownloadURL(account: string, container: string, filename: string): string {
@@ -72,7 +54,7 @@ export class AzureBlobFile implements IAzureBlobFile {
   constructor(container: AzureBlobContainer, blob: azure.BlobService.BlobResult) {
     this.container = () => container;
     this.name = blob.name;
-    this.contentType = (blob.contentSettings || {}).contentType || '';
+    this.contentType = (blob.contentSettings || {}).contentType || "";
     this.contentLength = blob.contentLength;
     this.blob = () => blob;
   }

@@ -1,6 +1,6 @@
-import * as KoaPassport from 'koa-passport';
-import { Strategy as LocalStrategy } from 'passport-local';
-import { User } from './User';
+import * as KoaPassport from "koa-passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { User } from "./User";
 
 export class PassportLocal {
   public static getPassport() {
@@ -27,13 +27,13 @@ export class PassportLocal {
     // LOCAL SIGNUP ============================================================
     // =========================================================================
     passport.use(
-      'local-signup',
+      "local-signup",
       new LocalStrategy(
         {
           // by default, local strategy uses username and password, we will override with email
           passReqToCallback: true, // allows us to pass back the entire request to the callback
-          passwordField: 'password',
-          usernameField: 'email',
+          passwordField: "password",
+          usernameField: "email",
         },
         (_, email, password, done) => {
           // asynchronous
@@ -49,16 +49,16 @@ export class PassportLocal {
 
               // check to see if theres already a user with that email
               if (user) {
-                return done(null, false, { message: 'That email is already taken.' });
+                return done(null, false, { message: "That email is already taken." });
               }
               // if there is no user with that email
               // create the user
               const newUser = new (User.getModel())();
 
               // set the user's local credentials
-              newUser.set('email', email);
+              newUser.set("email", email);
               User.generateHash(password).then(hashed => {
-                newUser.set('password', hashed);
+                newUser.set("password", hashed);
                 // save the user
                 return newUser.save(userSaveErr => {
                   // if (err) throw err;
@@ -66,7 +66,7 @@ export class PassportLocal {
                     return done(userSaveErr);
                   }
                   return done(null, newUser, {
-                    message: 'Successfully registered new user',
+                    message: "Successfully registered new user",
                   });
                 });
               });
@@ -80,13 +80,13 @@ export class PassportLocal {
     // LOCAL LOGIN =============================================================
     // =========================================================================
     passport.use(
-      'local-login',
+      "local-login",
       new LocalStrategy(
         {
           // by default, local strategy uses username and password, we will override with email
           passReqToCallback: true, // allows us to pass back the entire request to the callback
-          passwordField: 'password',
-          usernameField: 'email',
+          passwordField: "password",
+          usernameField: "email",
         },
         (_, email, password, done) => {
           // callback with email and password from our form
@@ -101,16 +101,16 @@ export class PassportLocal {
 
             // if no user is found, return the message
             if (!user) {
-              return done(null, false, { message: 'Email not found' });
+              return done(null, false, { message: "Email not found" });
             }
 
             // if the user is found but the password is wrong
             User.checkPassword(password, user.password).then(isValid => {
               if (!isValid) {
-                return done(null, false, { message: 'Incorrect password' });
+                return done(null, false, { message: "Incorrect password" });
               }
               // all is well, return successful user
-              return done(null, user, { message: 'Successfully logged in' });
+              return done(null, user, { message: "Successfully logged in" });
             });
           });
         },

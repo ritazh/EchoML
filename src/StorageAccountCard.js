@@ -1,24 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Card, { CardActions, CardContent } from 'material-ui/Card';
-import Button from 'material-ui/Button';
-import Typography from 'material-ui/Typography';
-import TextField from 'material-ui/TextField';
-import { addStorageAccount } from './lib/azure';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import Card, { CardActions, CardContent } from "material-ui/Card";
+import Button from "material-ui/Button";
+import Typography from "material-ui/Typography";
+import TextField from "material-ui/TextField";
+import { addStorageAccount } from "./lib/azure";
 
 class StorageAccountCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
-      accessKey: '',
-      errorMessage: '',
+      name: "",
+      accessKey: "",
+      errorMessage: "",
       isLoading: false,
       ...props,
     };
   }
 
-  handleChange = name => (event) => {
+  handleChange = name => event => {
     this.setState({
       [name]: event.target.value,
     });
@@ -44,7 +44,7 @@ class StorageAccountCard extends Component {
             </Typography>
             <TextField
               defaultValue={this.props.name}
-              onChange={(e) => {
+              onChange={e => {
                 this.setState({ name: e.target.value });
               }}
               type="string"
@@ -57,7 +57,7 @@ class StorageAccountCard extends Component {
             />
             <TextField
               defaultValue={this.props.accessKey}
-              onChange={(e) => {
+              onChange={e => {
                 this.setState({ accessKey: e.target.value });
               }}
               type="password"
@@ -68,7 +68,7 @@ class StorageAccountCard extends Component {
               fullWidth
               margin="normal"
             />
-            {this.state.errorMessage && <pre style={{ margin: 0 }}>{this.state.errorMessage}</pre>}{' '}
+            {this.state.errorMessage && <pre style={{ margin: 0 }}>{this.state.errorMessage}</pre>}{" "}
           </CardContent>
           <CardActions>
             <div>
@@ -98,8 +98,8 @@ StorageAccountCard.propTypes = {
 
 StorageAccountCard.defaultProps = {
   onLogin: () => {},
-  name: '',
-  accessKey: '',
+  name: "",
+  accessKey: "",
 };
 
 export default StorageAccountCard;

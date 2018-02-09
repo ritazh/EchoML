@@ -1,18 +1,18 @@
-import * as config from 'config';
-import * as fs from 'fs';
-import * as https from 'https';
-import * as cors from 'kcors';
-import * as Koa from 'koa';
-import * as bodyParser from 'koa-bodyparser';
-import * as morgan from 'koa-morgan';
-import * as _ from 'koa-route';
-import * as session from 'koa-session';
-import * as serve from 'koa-static';
-import { Connection } from 'mongoose';
-import { API } from './API';
-import { Database } from './lib/Database';
-import { PassportLocal } from './lib/PassportLocal';
-import { Logger } from './Logger';
+import * as config from "config";
+import * as fs from "fs";
+import * as https from "https";
+import * as cors from "kcors";
+import * as Koa from "koa";
+import * as bodyParser from "koa-bodyparser";
+import * as morgan from "koa-morgan";
+import * as _ from "koa-route";
+import * as session from "koa-session";
+import * as serve from "koa-static";
+import { Connection } from "mongoose";
+import { API } from "./API";
+import { Database } from "./lib/Database";
+import { PassportLocal } from "./lib/PassportLocal";
+import { Logger } from "./Logger";
 
 export class Server {
   public app: Koa = new Koa();
@@ -24,26 +24,26 @@ export class Server {
         Logger.getLogger().info(message.slice(0, -1));
       },
     };
-    this.app.use(morgan('combined', { stream }));
+    this.app.use(morgan("combined", { stream }));
 
-    if (config.get('cors')) {
+    if (config.get("cors")) {
       this.app.use(cors({ credentials: true }));
     }
 
     this.app.use(bodyParser());
 
-    if (config.has('auth')) {
+    if (config.has("auth")) {
       const passport = PassportLocal.getPassport();
-      this.app.keys = config.get('auth.keys');
+      this.app.keys = config.get("auth.keys");
       this.app.use(session(this.app));
       this.app.use(passport.initialize());
       this.app.use(passport.session());
 
       this.app.use(
-        _.post('/register', async ctx =>
+        _.post("/register", async ctx =>
           passport
             .authenticate(
-              'local-signup',
+              "local-signup",
               async (err: Error, user: object | boolean, info: string) => {
                 if (err) {
                   throw err;
@@ -61,10 +61,10 @@ export class Server {
         ),
       );
       this.app.use(
-        _.post('/login', async ctx =>
+        _.post("/login", async ctx =>
           passport
             .authenticate(
-              'local-login',
+              "local-login",
               async (err: Error, user: object | boolean, info: string) => {
                 if (err) {
                   throw err;
@@ -82,13 +82,13 @@ export class Server {
         ),
       );
       this.app.use(
-        _.post('/logout', async ctx => {
+        _.post("/logout", async ctx => {
           ctx.logout();
-          ctx.body = { success: true, message: 'Successfully logged out' };
+          ctx.body = { success: true, message: "Successfully logged out" };
         }),
       );
       this.app.use(
-        _.post('/is-logged-in', async ctx => {
+        _.post("/is-logged-in", async ctx => {
           ctx.body = ctx.isAuthenticated();
         }),
       );
@@ -105,9 +105,9 @@ export class Server {
     }
 
     // Serve build folder containing static assets
-    this.app.use(serve('build'));
+    this.app.use(serve("build"));
     // Audio files
-    this.app.use(serve('files'));
+    this.app.use(serve("files"));
 
     // Router routes middleware
     for (const route of API.routes) {
@@ -116,10 +116,10 @@ export class Server {
   }
 
   public listen(hostname: string, port: number) {
-    if (fs.existsSync('cert')) {
+    if (fs.existsSync("cert")) {
       const options = {
-        cert: fs.readFileSync('cert/this.crt'),
-        key: fs.readFileSync('cert/this.key'),
+        cert: fs.readFileSync("cert/this.crt"),
+        key: fs.readFileSync("cert/this.key"),
       };
       https.createServer(options, this.app.callback()).listen(port);
       Logger.getLogger().info(
