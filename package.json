@@ -49,7 +49,12 @@
     "prod": "NODE_ENV=production node build/server",
     "prettier": "prettier --write '{src,server}/**/*.{js,jsx,ts,tsx,css}'",
     "lint": "eslint 'src/**/*.{js,jsx}' || tslint 'server/**/*.{ts,tsx}'",
-    "lint-fix": "eslint --fix 'src/**/*.{js,jsx}' || tslint --fix 'server/**/*.{ts,tsx}'"
+    "lint-fix": "eslint --fix 'src/**/*.{js,jsx}' || tslint --fix 'server/**/*.{ts,tsx}'",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": ["tslint --fix", "prettier --write", "git add"],
+    "*.{js,jsx,json,css,scss,md}": ["prettier --write", "git add"]
   },
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",
@@ -78,6 +83,8 @@
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.7.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.0.4",
     "nodemon": "^1.17.3",
     "ts-node": "^6.0.0",
     "tslint": "^5.9.1",
