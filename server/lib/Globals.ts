@@ -6,6 +6,10 @@ export class Globals {
       return process.env[name] as string;
     } else if (config.has(name)) {
       const val = config.get<any>(name);
+      if (val === null) {
+        throw new Error(`null provided for ${name}`);
+      }
+
       if (typeof val === "string") {
         return val;
       } else {
