@@ -12,14 +12,16 @@ export class PassportLocal {
     // passport needs ability to serialize and unserialize users out of session
 
     // used to serialize the user for the session
-    passport.serializeUser((user, done) => {
+    passport.serializeUser<User & { id: number }, number>((user, done) => {
       done(null, user.id);
     });
 
     // used to deserialize the user
-    passport.deserializeUser((id, done) => {
+    passport.deserializeUser<User, number>((id, done) => {
       User.getModel().findById(id, (err, user) => {
-        done(err, user);
+        if (user) {
+          done(err, user);
+        }
       });
     });
 

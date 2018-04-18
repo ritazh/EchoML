@@ -1,16 +1,18 @@
-import * as config from "config";
 import * as mongoose from "mongoose";
 import { Logger } from "../Logger";
+import { Globals } from "./Globals";
 
 export class Database {
-  public static url: string = config.get("mongo.url");
   public static getConnection(): mongoose.Connection {
+    const host = Globals.getEnvVar("MONGO_HOST");
+    const user = Globals.getEnvVar("MONGO_USERNAME");
+    const pass = Globals.getEnvVar("MONGO_PASSWORD");
     if (!Database.connection) {
       (mongoose as any).Promise = global.Promise;
-      mongoose.connect(Database.url, { promiseLibrary: global.Promise });
+      mongoose.connect(host, { promiseLibrary: global.Promise, user, pass });
       Database.connection = mongoose.connection;
       Database.connection.on("error", err => {
-        Logger.getLogger().error(err);
+        Logger.logger.error(err);
       });
     }
     return Database.connection;

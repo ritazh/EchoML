@@ -4,18 +4,17 @@ import * as fs from "fs";
 import * as mkdirp from "mkdirp";
 import * as path from "path";
 import { promisify } from "util";
-import { Logger } from "../Logger";
 import { AzureBlobContainer } from "./AzureBlobContainer";
 import { ILabel, Label } from "./Label";
 
 export interface IAzureBlobFile {
   name: string;
-  isDirectory: boolean;
-  size: string;
-  mtime: string;
+  // isDirectory: boolean;
+  // size: string;
+  // mtime: string;
   contentType: string;
   contentLength: string;
-  path: string;
+  // path: string;
 }
 
 export class AzureBlobFile implements IAzureBlobFile {
@@ -42,12 +41,12 @@ export class AzureBlobFile implements IAzureBlobFile {
   }
 
   public name: string;
-  public isDirectory: boolean;
-  public size: string;
-  public mtime: string;
+  // public isDirectory: boolean;
+  // public size: string;
+  // public mtime: string;
   public contentType: string;
   public contentLength: string;
-  public path: string;
+  // public path: string;
   public container: () => AzureBlobContainer;
   public blob: () => azure.BlobService.BlobResult;
 

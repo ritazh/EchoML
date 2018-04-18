@@ -1,13 +1,13 @@
 import * as azure from "azure-storage";
-import * as config from "config";
 import { Logger } from "../Logger";
 import { AzureBlobContainer } from "./AzureBlobContainer";
+import { Globals } from "./Globals";
 
 export class AzureBlobService {
   public static getConfigService(): AzureBlobService | null {
     const [configAccount = null, configAccessKey = null] = [
-      config.get("storage.STORAGE_ACCOUNT"),
-      config.get("storage.STORAGE_ACCESS_KEY"),
+      Globals.getEnvVar("STORAGE_ACCOUNT"),
+      Globals.getEnvVar("STORAGE_ACCESS_KEY"),
     ];
 
     try {
@@ -16,7 +16,7 @@ export class AzureBlobService {
         return service;
       }
     } catch (err) {
-      Logger.getLogger().error(err);
+      Logger.logger.error(err);
     }
 
     return null;
@@ -30,7 +30,7 @@ export class AzureBlobService {
         containers.push(...(await service.getContainers()));
       }
     } catch (err) {
-      Logger.getLogger().error(err);
+      Logger.logger.error(err);
     }
 
     return containers;
@@ -60,7 +60,7 @@ export class AzureBlobService {
         continuationToken = result.continuationToken;
       } while (continuationToken);
     } catch (err) {
-      Logger.getLogger().error(err);
+      Logger.logger.error(err);
       return [];
     }
 

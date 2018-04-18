@@ -58,7 +58,7 @@ export class ContainersController {
         }
       }
     } catch (err) {
-      Logger.getLogger().error(err);
+      Logger.logger.error(err);
     }
     return containers;
   }

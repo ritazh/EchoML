@@ -25,7 +25,7 @@ export class User {
       const hashed = await hash(password, saltRounds);
       return hashed;
     } catch (err) {
-      Logger.getLogger().error(err);
+      Logger.logger.error(err);
       return null;
     }
   }
@@ -36,7 +36,7 @@ export class User {
       const isValid = await compare(password, hashed);
       return isValid;
     } catch (err) {
-      Logger.getLogger().error(err);
+      Logger.logger.error(err);
       return false;
     }
   }
