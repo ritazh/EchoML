@@ -4,8 +4,8 @@ import * as path from "path";
 import * as winston from "winston";
 
 export class Logger {
-  public static getLogger(): winston.LoggerInstance {
-    if (!Logger.logger) {
+  public static get logger(): winston.LoggerInstance {
+    if (!Logger._logger) {
       if (config.has("log")) {
         if (config.has("log.console")) {
           const console = config.get("log.console");
@@ -23,12 +23,12 @@ export class Logger {
           });
         }
       }
-      Logger.logger = new winston.Logger({ transports: Logger.transports });
+      Logger._logger = new winston.Logger({ transports: Logger.transports });
     }
 
-    return Logger.logger;
+    return Logger._logger;
   }
 
   private static transports: winston.TransportInstance[] = [];
-  private static logger: winston.LoggerInstance | null = null;
+  private static _logger: winston.LoggerInstance | null = null;
 }

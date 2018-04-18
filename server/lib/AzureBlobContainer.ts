@@ -8,14 +8,14 @@ export interface IAzureBlobContainer {
   account: string;
   name: string;
   lastModified: string;
-  storageAccount: string;
+  // storageAccount: string;
 }
 
 export class AzureBlobContainer implements IAzureBlobContainer {
   public account: string;
   public name: string;
   public lastModified: string;
-  public storageAccount: string;
+  // public storageAccount: string;
   public container: () => azure.BlobService.ContainerResult;
   public service: () => AzureBlobService;
 
@@ -41,7 +41,7 @@ export class AzureBlobContainer implements IAzureBlobContainer {
         continuationToken = result.continuationToken as azure.common.ContinuationToken;
       } while (continuationToken);
     } catch (err) {
-      Logger.getLogger().error(err);
+      Logger.logger.error(err);
       return [];
     }
 

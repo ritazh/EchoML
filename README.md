@@ -20,28 +20,29 @@ Play, visualize, and annotate your audio files
 
 ### Set variables
 
-* Provide credential for your Azure Storage account
-* Provide a MongoDB connection URL
-* Provide a key to cycle and sign the cookies used for session data
+#### Required Environment Variables
 
-#### Sample config file
+The following variables are REQURED and can be either set in one of the config json files or in your environment
 
-config/development.json or config/production.json
+| Variable            | Type   | Description                                                                                                                             |
+| ------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| HOSTNAME            | string | The hostname for `http.createServer` to listen on                                                                                       |
+| PORT                | string | The port for `http.createServer` to listen on; must be 4000 when in dev so local port forwarding works                                  |
+| AUTH_KEY            | string | Random string which will be used to hash your user sessions                                                                             |
+| MONGO_HOST          | string | Host of your MongoDB database; usually in `mongodb://your.host.name:port/collection` format; note username and password not passed here |
+| MONGO_USERNAME      | string | MongoDB Username                                                                                                                        |
+| MONGO_PASSWORD      | string | MongoDB Password                                                                                                                        |
+| STORAGE_ACCOUNT     | string | Azure storage account name                                                                                                              |
+| STORAGTE_ACCESS_KEY | string | Azure storage access key                                                                                                                |
 
-```json
-{
-  "auth": {
-    "keys": ["some secret"]
-  },
-  "storage": {
-    "STORAGE_ACCOUNT": "<YOUR AZURE STORAGE ACCOUNT>",
-    "STORAGE_ACCESS_KEY": "<YOUR AZURE STORAGE ACCOUNT ACCESS KEY>"
-  },
-  "mongo": {
-    "url": "mongodb://0.0.0.0:27017/echoml"
-  }
-}
-```
+#### Optional Configs
+
+These variables are optional and can be set in one of the config json files
+
+| Variable | type    | Description                                                        |
+| -------- | ------- | ------------------------------------------------------------------ |
+| cors     | boolean | If true, cors is enabled to allow different clients to ping server |
+| log      | object  | Settings for the logger; refer to the default setup for example    |
 
 ### Development
 

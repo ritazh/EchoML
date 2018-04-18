@@ -11,6 +11,7 @@ import * as serve from "koa-static";
 import { Connection } from "mongoose";
 import { API } from "./API";
 import { Database } from "./lib/Database";
+import { Globals } from "./lib/Globals";
 import { PassportLocal } from "./lib/PassportLocal";
 import { Logger } from "./Logger";
 
@@ -21,88 +22,86 @@ export class Server {
   constructor() {
     const stream = {
       write(message: string) {
-        Logger.getLogger().info(message.slice(0, -1));
+        Logger.logger.info(message.slice(0, -1));
       },
     };
     this.app.use(morgan("combined", { stream }));
 
-    if (config.get("cors")) {
-      this.app.use(cors({ credentials: true }));
+    if (config.has("cors")) {
+      if (config.get<boolean>("cors")) {
+        this.app.use(cors({ credentials: true }));
+      }
     }
 
     this.app.use(bodyParser());
 
-    if (config.has("auth")) {
-      const passport = PassportLocal.getPassport();
-      this.app.keys = config.get("auth.keys");
-      this.app.use(session(this.app));
-      this.app.use(passport.initialize());
-      this.app.use(passport.session());
+    const passport = PassportLocal.getPassport();
 
-      this.app.use(
-        _.post("/register", async ctx =>
-          passport
-            .authenticate(
-              "local-signup",
-              async (err: Error, user: object | boolean, info: string) => {
-                if (err) {
-                  throw err;
-                }
-                if (user === false) {
-                  ctx.status = 409;
-                  ctx.body = info;
-                } else {
-                  ctx.login(user);
-                  ctx.body = info;
-                }
-              },
-            )
-            .call(null, ctx),
-        ),
-      );
-      this.app.use(
-        _.post("/login", async ctx =>
-          passport
-            .authenticate(
-              "local-login",
-              async (err: Error, user: object | boolean, info: string) => {
-                if (err) {
-                  throw err;
-                }
-                if (user === false) {
-                  ctx.body = info;
-                  ctx.status = 401;
-                } else {
-                  ctx.body = { success: true };
-                  return ctx.login(user);
-                }
-              },
-            )
-            .call(null, ctx),
-        ),
-      );
-      this.app.use(
-        _.post("/logout", async ctx => {
-          ctx.logout();
-          ctx.body = { success: true, message: "Successfully logged out" };
-        }),
-      );
-      this.app.use(
-        _.post("/is-logged-in", async ctx => {
-          ctx.body = ctx.isAuthenticated();
-        }),
-      );
-      this.app.use(
-        _.get(/api+/gi, async (ctx, next) => {
-          if (ctx.isAuthenticated()) {
-            await next();
-          } else {
-            // throw 401 unauthorized
-            ctx.throw(401);
-          }
-        }),
-      );
-    }
+    this.app.keys = [Globals.getEnvVar("AUTH_KEY")];
+    this.app.use(session(this.app));
+    this.app.use(passport.initialize());
+    this.app.use(passport.session());
+
+    this.app.use(
+      _.post("/register", async ctx =>
+        passport
+          .authenticate(
+            "local-signup",
+            async (err: Error, user: object | boolean, info: string) => {
+              if (err) {
+                throw err;
+              }
+              if (user === false) {
+                ctx.status = 409;
+                ctx.body = info;
+              } else {
+                ctx.login(user);
+                ctx.body = info;
+              }
+            },
+          )
+          .call(null, ctx),
+      ),
+    );
+    this.app.use(
+      _.post("/login", async ctx =>
+        passport
+          .authenticate("local-login", async (err: Error, user: object | boolean, info: string) => {
+            if (err) {
+              throw err;
+            }
+            if (user === false) {
+              ctx.body = info;
+              ctx.status = 401;
+            } else {
+              ctx.body = { success: true };
+              return ctx.login(user);
+            }
+          })
+          .call(null, ctx),
+      ),
+    );
+    this.app.use(
+      _.post("/logout", async ctx => {
+        ctx.logout();
+        ctx.body = { success: true, message: "Successfully logged out" };
+      }),
+    );
+    this.app.use(
+      _.post("/is-logged-in", async ctx => {
+        ctx.body = ctx.isAuthenticated();
+      }),
+    );
+    this.app.use(
+      _.get(/api+/gi, async (ctx, next) => {
+        if (ctx.isAuthenticated()) {
+          await next();
+        } else {
+          // throw 401 unauthorized
+          ctx.throw(401);
+        }
+      }),
+    );
 
     // Serve build folder containing static assets
     this.app.use(serve("build"));
@@ -122,12 +121,10 @@ export class Server {
         key: fs.readFileSync("cert/this.key"),
       };
       https.createServer(options, this.app.callback()).listen(port);
-      Logger.getLogger().info(
-        `Server started on ${hostname}:${port}(https) in ${this.app.env} mode`,
-      );
+      Logger.logger.info(`Server started on ${hostname}:${port}(https) in ${this.app.env} mode`);
     } else {
       this.app.listen(port, hostname);
-      Logger.getLogger().info(`Server started on ${hostname}:${port} in ${this.app.env} mode`);
+      Logger.logger.info(`Server started on ${hostname}:${port} in ${this.app.env} mode`);
     }
   }
 }

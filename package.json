@@ -79,10 +79,10 @@
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.6.1",
     "nodemon": "^1.12.1",
-    "ts-node": "^4.1.0",
-    "tslint": "^5.8.0",
+    "ts-node": "^6.0.0",
+    "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.6.0",
-    "typescript": "^2.6.2"
+    "typescript": "^2.8.1"
   },
   "proxy": "http://localhost:4000"
 }

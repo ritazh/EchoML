@@ -1,6 +1,4 @@
 {
-  "hostname": "0.0.0.0",
-  "port": 80,
   "cors": false,
   "log": {
     "console": {
@@ -17,14 +15,14 @@
       "json": false
     }
   },
-  "auth": {
-    "keys": ""
-  },
-  "mongo": {
-    "url": ""
-  },
-  "storage": {
-    "STORAGE_ACCOUNT": "",
-    "STORAGE_ACCESS_KEY": ""
-  }
+  "HOSTNAME": "0.0.0.0",
+  "PORT": 4000,
+  "AUTH_KEY": "MY SECURE KEY",
+  "MONGO_HOST": "YOUR MONGO DB HOST URL",
+  "MONGO_USERNAME": "YOUR MONGO DB USERNAME",
+  "MONGO_PASSWORD":
+    "YOUR MONGO DB PASSWORD",
+  "STORAGE_ACCOUNT": "YOUR AZURE STORAGE ACCOUNT NAME",
+  "STORAGE_ACCESS_KEY":
+    "YOUR AZURE STORAGE ACCESS KEY"
 }
