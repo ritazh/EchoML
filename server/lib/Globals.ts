@@ -2,8 +2,8 @@ import * as config from "config";
 
 export class Globals {
   public static getEnvVar = (name: string): string => {
-    if (Object.keys(process.env).includes(name)) {
-      return process.env.name as string;
+    if (process.env[name]) {
+      return process.env[name] as string;
     } else if (config.has(name)) {
       const val = config.get<any>(name);
       if (typeof val === "string") {
