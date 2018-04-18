@@ -20,6 +20,8 @@ Play, visualize, and annotate your audio files
 
 ### Set variables
 
+Variables can either be set in environment (appropriate for production docker deployments) or in one of the appropriate [environment].json file in `/config` (ie; `development.json` or `production.json`)
+
 #### Required Environment Variables
 
 The following variables are REQURED and can be either set in one of the config json files or in your environment
@@ -49,7 +51,7 @@ These variables are optional and can be set in one of the config json files
 To start both back and front ends in one command:
 
 ```bash
-npm run dev
+yarn run dev
 ```
 
 Or you can start both indvidually if you want some quieter logs
@@ -57,29 +59,29 @@ Or you can start both indvidually if you want some quieter logs
 Start back-end node server.
 
 ```bash
-npm run server
+yarn run server
 ```
 
 Start the frontend dev server with
 
 ```bash
-npm run start
+yarn run start
 ```
 
 Open your browser and connect to http://localhost:3000.
 
-### Production
+### Production Build
 
 Build bundle.
 
 ```bash
-npm run build
+yarn run build
 ```
 
 Start server.
 
 ```bash
-npm run prod
+yarn run prod
 ```
 
 Open your browser and connect to http://localhost.
@@ -99,12 +101,12 @@ To run the image, either pull my image from docker hub or use your own.
 Run the docker image
 
 ```bash
-docker run -p 80:80 -it ritazh/echoml:latest
+docker run -p 80:80 -it --rm -e PORT='80' -e MONGO_HOST='<your mongo host>' -e MONGO_USERNAME='<your mongo username>' -e MONGO_PASSWORD='your mongo password' -e STORAGE_ACCOUNT='your azure storage name' -e STORAGE_ACCESS_KEY='your azure storage access key' ritazh/echoml:latest
 ```
 
 ## Acknowledgement
 
-Leverage the awesome [waveform.js](https://github.com/katspaugh/wavesurfer.js)
+Leverages the awesome [waveform.js](https://github.com/katspaugh/wavesurfer.js)
 
 ## License
 
