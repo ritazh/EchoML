@@ -2,10 +2,6 @@
 
 Play, visualize, and annotate your audio files
 
-## Demo
-
-[Demo Site](http://echoml.azurewebsites.net/)
-
 ## Screenshot
 
 ![List of containers and files](public/images/files.png)
@@ -26,16 +22,16 @@ Variables can either be set in environment (appropriate for production docker de
 
 The following variables are REQURED and can be either set in one of the config json files or in your environment
 
-| Variable            | Type   | Description                                                                                                                             |
-| ------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| HOSTNAME            | string | The hostname for `http.createServer` to listen on                                                                                       |
-| PORT                | string | The port for `http.createServer` to listen on; must be 4000 when in dev so local port forwarding works                                  |
-| AUTH_KEY            | string | Random string which will be used to hash your user sessions                                                                             |
-| MONGO_HOST          | string | Host of your MongoDB database; usually in `mongodb://your.host.name:port/collection` format; note username and password not passed here |
-| MONGO_USERNAME      | string | MongoDB Username                                                                                                                        |
-| MONGO_PASSWORD      | string | MongoDB Password                                                                                                                        |
-| STORAGE_ACCOUNT     | string | Azure storage account name                                                                                                              |
-| STORAGTE_ACCESS_KEY | string | Azure storage access key                                                                                                                |
+| Variable           | Type   | Description                                                                                                                             |
+| ------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| HOSTNAME           | string | The hostname for `http.createServer` to listen on                                                                                       |
+| PORT               | string | The port for `http.createServer` to listen on; must be 4000 when in dev so local port forwarding works                                  |
+| AUTH_KEY           | string | Random string which will be used to hash your user sessions                                                                             |
+| MONGO_HOST         | string | Host of your MongoDB database; usually in `mongodb://your.host.name:port/collection` format; note username and password not passed here |
+| MONGO_USERNAME     | string | MongoDB Username                                                                                                                        |
+| MONGO_PASSWORD     | string | MongoDB Password                                                                                                                        |
+| STORAGE_ACCOUNT    | string | Azure storage account name                                                                                                              |
+| STORAGE_ACCESS_KEY | string | Azure storage access key                                                                                                                |
 
 #### Optional Configs
 

@@ -1,6 +1,13 @@
 import * as Koa from "koa";
 import { AzureBlobFile } from "../lib/AzureBlobFile";
-import { Label } from "../lib/Label";
+import { ILabel, Label } from "../lib/Label";
+
+interface IStoreRequest {
+  storageAccount: string;
+  containerName: string;
+  filename: string;
+  labels: ILabel[];
+}
 
 export class LabelsController {
   public static async index(ctx: Koa.Context) {
@@ -25,7 +32,7 @@ export class LabelsController {
   public static async store(ctx: Koa.Context) {
     try {
       // White list valid POST params
-      const { storageAccount, containerName, filename, labels } = ctx.request.body;
+      const { storageAccount, containerName, filename, labels } = ctx.request.body as IStoreRequest;
       if (storageAccount && containerName && filename && labels) {
         ctx.body = await Label.deleteLabels(storageAccount, containerName, filename);
         ctx.body = await Label.addLabels(storageAccount, containerName, filename, labels);
