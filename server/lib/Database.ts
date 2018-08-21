@@ -9,7 +9,7 @@ export class Database {
     const pass = Globals.getEnvVar("MONGO_PASSWORD");
     if (!Database.connection) {
       (mongoose as any).Promise = global.Promise;
-      mongoose.connect(host, { promiseLibrary: global.Promise, user, pass });
+      mongoose.connect(host, { useNewUrlParser: true, promiseLibrary: global.Promise, user, pass });
       Database.connection = mongoose.connection;
       Database.connection.on("error", err => {
         Logger.logger.error(err);
@@ -17,5 +17,6 @@ export class Database {
     }
     return Database.connection;
   }
+
   private static connection: mongoose.Connection | null = null;
 }

@@ -2,9 +2,10 @@ import * as config from "config";
 import { mkdirp } from "fs-extra";
 import * as path from "path";
 import * as winston from "winston";
+import * as Transport from "winston-transport";
 
 export class Logger {
-  public static get logger(): winston.LoggerInstance {
+  public static get logger(): winston.Logger {
     if (!Logger._logger) {
       if (config.has("log")) {
         if (config.has("log.console")) {
@@ -23,12 +24,13 @@ export class Logger {
           });
         }
       }
-      Logger._logger = new winston.Logger({ transports: Logger.transports });
+      Logger._logger = winston.createLogger({ transports: this.transports });
     }
 
     return Logger._logger;
   }
 
-  private static transports: winston.TransportInstance[] = [];
-  private static _logger: winston.LoggerInstance | null = null;
+  private static transports: Transport[] = [];
+
+  private static _logger: winston.Logger | null = null;
 }
