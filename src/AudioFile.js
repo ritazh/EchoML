@@ -84,7 +84,8 @@ class AudioFile extends React.Component {
           );
         });
       })
-      .catch(() => {
+      .catch((e) => {
+        console.error(e);
         this.showMessage("Error downloading audio file");
       });
   }
