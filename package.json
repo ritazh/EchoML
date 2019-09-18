@@ -11,6 +11,8 @@
     "bcrypt": "^3.0.0",
     "bcrypt-nodejs": "0.0.3",
     "config": "^2.0.1",
+    "date-fns": "2.2.1",
+    "date-fns-tz": "1.0.7",
     "fs-extra": "^7.0.0",
     "gm": "^1.23.0",
     "kcors": "^2.2.1",
@@ -32,6 +34,7 @@
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
+    "react-hotkeys": "2.0.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "^1.1.4",
     "request": "^2.85.0",
@@ -53,8 +56,15 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["tslint --fix", "prettier --write", "git add"],
-    "*.{js,jsx,json,css,scss,md}": ["prettier --write", "git add"]
+    "*.{ts,tsx}": [
+      "tslint --fix",
+      "prettier --write",
+      "git add"
+    ],
+    "*.{js,jsx,json,css,scss,md}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "devDependencies": {
     "@types/bcrypt": "^2.0.0",

@@ -10,6 +10,7 @@ import MovieIcon from "material-ui-icons/Movie";
 import TextIcon from "material-ui-icons/TextFormat";
 import FolderIcon from "material-ui-icons/Folder";
 import ErrorIcon from "material-ui-icons/Error";
+import { utcToZonedTime, format } from "date-fns-tz";
 
 import Input, { InputLabel } from "material-ui/Input";
 import { FormControl } from "material-ui/Form";
@@ -84,6 +85,15 @@ class Container extends React.PureComponent {
       const { contentType = "" } = blob;
       const icon = getIcon(contentType);
       const filepath = blob.name.split("/");
+
+      const blobDate = blob.name
+        .replace(".wav.mp3", "")
+        .split(" ")
+        .join("T")
+        .concat("Z");
+      const zonedDate = utcToZonedTime(blobDate, "America/Los_Angeles");
+      const localTime = format(zonedDate, "eee yyyy-MM-dd h:mma (z)");
+
       filepath.forEach((node, index) => {
         const path = [...filepath].splice(0, filepath.length - 1);
         const pathString = JSON.stringify(path);
@@ -112,7 +122,7 @@ class Container extends React.PureComponent {
                 <ListItemIcon>{icon}</ListItemIcon>
                 <ListItemText
                   primary={node}
-                  secondary={`${(blob.contentLength * 0.000001).toFixed(2)} MB`}
+                  secondary={`${(blob.contentLength * 0.000001).toFixed(2)} MB | ${localTime}`}
                 />
               </ListItem>
             </Link>
