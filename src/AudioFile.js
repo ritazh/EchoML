@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import WaveSurfer from "wavesurfer.js";
 import SpectrogramPlugin from "wavesurfer.js/dist/plugin/wavesurfer.spectrogram";
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions";
@@ -24,9 +24,10 @@ import { LinearProgress } from "material-ui/Progress";
 import Tooltip from "material-ui/Tooltip";
 import Snackbar from "material-ui/Snackbar";
 import Table, { TableBody, TableCell, TableHead, TableRow } from "material-ui/Table";
+import { utcToZonedTime, format } from "date-fns-tz";
+import { GlobalHotKeys } from "react-hotkeys";
 import { downloadFile } from "./lib/azure";
 import { loadLabels, saveLabels } from "./lib/labels";
-import { utcToZonedTime, format } from "date-fns-tz";
 
 class AudioFile extends React.Component {
   /**
@@ -333,6 +334,16 @@ class AudioFile extends React.Component {
     }
   };
 
+  goToNextFile = () => {
+    const { storageAccount, container, nextFilename } = this.props;
+    return <Redirect to={`/${storageAccount}/${container}/${nextFilename}`} />;
+  };
+
+  goToPreviousFile = () => {
+    const { storageAccount, container, previousFilename } = this.props;
+    return <Redirect to={`/${storageAccount}/${container}/${previousFilename}`} />;
+  };
+
   /**
    * Download regions by simulating a download event
    */
@@ -471,204 +482,223 @@ class AudioFile extends React.Component {
       .concat("Z");
     const zonedDate = utcToZonedTime(blobDate, "America/Los_Angeles");
     const localTime = format(zonedDate, "eee yyyy-MM-dd h:mma (z)");
+
+    const keyMap = {
+      SAVE_LABEL: "ctrl+s",
+      ADD_LABEL: "ctrl+n",
+      PLAY: "space",
+      NEXT_AUDIO_FILE: "ctrl+j",
+      PREVIOUS_AUDIO_FILE: "ctrl+k",
+    };
+
+    const hotkeysHandlers = {
+      SAVE_LABEL: this.saveLabels,
+      ADD_LABEL: this.addRegion,
+      PLAY: () => this.state.wavesurfer.playPause(),
+      NEXT_AUDIO_FILE: this.goToNextFile,
+      PREVIOUS_AUDIO_FILE: this.goToPreviousFile,
+    };
+
     return (
-      <div className="AudioFile">
-        <Paper style={{ padding: "1em" }}>
-          <Typography type="headline">{filename}</Typography>
-          <Typography type="subheading">{localTime}</Typography>
-          <Link
-            to={`/${storageAccount}/${container}/${previousFilename}`}
-            href={`/${storageAccount}/${container}/${previousFilename}`}
-            key={`/${storageAccount}/${container}/${previousFilename}`}
-            style={{ textDecoration: "none", color: "black" }}
-          >
-            Previous
-          </Link>
-          &nbsp;-&nbsp;
-          <Link
-            to={`/${storageAccount}/${container}/${nextFilename}`}
-            href={`/${storageAccount}/${container}/${nextFilename}`}
-            key={`/${storageAccount}/${container}/${nextFilename}`}
-            style={{ textDecoration: "none", color: "black" }}
-          >
-            Next
-          </Link>
-          &nbsp;-&nbsp;
-          <Link to={`/${storageAccount}/${container}`}>Back to container</Link>
-          {/* Audio Download Progress */}
-          {this.state.loadingProgress < 100 && (
-            <div>
-              <p>Downloading Audio File...</p>
-              {/* <LinearProgress mode="determinate" value={this.state.loadingProgress} /> */}
-              <LinearProgress />
-            </div>
-          )}
-          {/* Audio downloade, WaveSurfer decoding and drawing */}
-          {this.state.loadingProgress >= 100 && !this.state.wavesurferReady && (
-            <div>
-              <p>Analysing Audio Data...</p>
-              <LinearProgress />
-            </div>
-          )}
-          {/* Wavesurfer ready; render labels and player */}
-          <div className="editor">
-            <div>
-              <Tooltip title="Play">
-                <IconButton aria-label="Play" onClick={() => this.state.wavesurfer.play()}>
-                  <PlayArrowIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Pause">
-                <IconButton aria-label="Pause" onClick={() => this.state.wavesurfer.pause()}>
-                  <PauseIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Decrease Playback Rate">
-                <IconButton
-                  aria-label="Fast Rewind"
-                  onClick={() =>
-                    this.state.wavesurfer.setPlaybackRate(
-                      this.state.wavesurfer.getPlaybackRate() / 2,
-                    )
-                  }
-                >
-                  <FastRewind />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Increase Playback Rate">
-                <IconButton
-                  aria-label="Fast Forward"
-                  onClick={() =>
-                    this.state.wavesurfer.setPlaybackRate(
-                      this.state.wavesurfer.getPlaybackRate() * 2,
-                    )
-                  }
-                >
-                  <FastForward />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Zoom In">
-                <IconButton
-                  aria-label="Zoom In"
-                  onClick={() => this.handleZoom(this.state.zoom + 20)}
-                >
-                  <ZoomInIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Zoom Out">
-                <IconButton
-                  aria-label="Zoom Out"
-                  onClick={() => this.handleZoom(this.state.zoom - 20)}
-                >
-                  <ZoomOutIcon />
-                </IconButton>
-              </Tooltip>
+      <GlobalHotKeys keyMap={keyMap} handlers={hotkeysHandlers}>
+        <div className="AudioFile">
+          <Paper style={{ padding: "1em" }}>
+            <Typography type="headline">{filename}</Typography>
+            <Typography type="subheading">{localTime}</Typography>
+            <Link
+              to={`/${storageAccount}/${container}/${previousFilename}`}
+              href={`/${storageAccount}/${container}/${previousFilename}`}
+              key={`/${storageAccount}/${container}/${previousFilename}`}
+              style={{ textDecoration: "none", color: "black" }}
+            >
+              Previous
+            </Link>
+            &nbsp;-&nbsp;
+            <Link
+              to={`/${storageAccount}/${container}/${nextFilename}`}
+              href={`/${storageAccount}/${container}/${nextFilename}`}
+              key={`/${storageAccount}/${container}/${nextFilename}`}
+              style={{ textDecoration: "none", color: "black" }}
+            >
+              Next
+            </Link>
+            &nbsp;-&nbsp;
+            <Link to={`/${storageAccount}/${container}`}>Back to container</Link>
+            {/* Audio Download Progress */}
+            {this.state.loadingProgress < 100 && (
+              <div>
+                <p>Downloading Audio File...</p>
+                {/* <LinearProgress mode="determinate" value={this.state.loadingProgress} /> */}
+                <LinearProgress />
+              </div>
+            )}
+            {/* Audio downloade, WaveSurfer decoding and drawing */}
+            {this.state.loadingProgress >= 100 && !this.state.wavesurferReady && (
+              <div>
+                <p>Analysing Audio Data...</p>
+                <LinearProgress />
+              </div>
+            )}
+            {/* Wavesurfer ready; render labels and player */}
+            <div className="editor">
+              <div>
+                <Tooltip title="Play">
+                  <IconButton aria-label="Play" onClick={() => this.state.wavesurfer.play()}>
+                    <PlayArrowIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Pause">
+                  <IconButton aria-label="Pause" onClick={() => this.state.wavesurfer.pause()}>
+                    <PauseIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Decrease Playback Rate">
+                  <IconButton
+                    aria-label="Fast Rewind"
+                    onClick={() =>
+                      this.state.wavesurfer.setPlaybackRate(
+                        this.state.wavesurfer.getPlaybackRate() / 2,
+                      )
+                    }
+                  >
+                    <FastRewind />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Increase Playback Rate">
+                  <IconButton
+                    aria-label="Fast Forward"
+                    onClick={() =>
+                      this.state.wavesurfer.setPlaybackRate(
+                        this.state.wavesurfer.getPlaybackRate() * 2,
+                      )
+                    }
+                  >
+                    <FastForward />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Zoom In">
+                  <IconButton
+                    aria-label="Zoom In"
+                    onClick={() => this.handleZoom(this.state.zoom + 20)}
+                  >
+                    <ZoomInIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Zoom Out">
+                  <IconButton
+                    aria-label="Zoom Out"
+                    onClick={() => this.handleZoom(this.state.zoom - 20)}
+                  >
+                    <ZoomOutIcon />
+                  </IconButton>
+                </Tooltip>
 
-              <Tooltip title="Add Label">
-                <IconButton
-                  aria-label="Add Label"
-                  onClick={() => {
-                    this.addRegion();
-                  }}
-                >
-                  <NoteAddIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Save Labels">
-                <IconButton aria-label="Save Labels" onClick={() => this.saveLabels()}>
-                  <SaveIcon />
-                </IconButton>
-              </Tooltip>
+                <Tooltip title="Add Label">
+                  <IconButton
+                    aria-label="Add Label"
+                    onClick={() => {
+                      this.addRegion();
+                    }}
+                  >
+                    <NoteAddIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Save Labels">
+                  <IconButton aria-label="Save Labels" onClick={() => this.saveLabels()}>
+                    <SaveIcon />
+                  </IconButton>
+                </Tooltip>
 
-              <Tooltip title="Download Labels">
-                <IconButton aria-label="Download Labels" onClick={() => this.downloadLabels()}>
-                  <DownloadIcon />
-                </IconButton>
-              </Tooltip>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row" }}>
-              <Paper className="waveform" style={{ flex: "auto", minWidth: "30vw" }}>
-                <audio
-                  controls={false}
-                  src={this.state.audioUrl}
-                  ref={ref => {
-                    this.audio = ref;
-                  }}
-                >
-                  Your browser does not support the <code>audio</code> element.
-                </audio>
-                <div
-                  className="wavesurfer"
-                  style={{
-                    backgroundColor: "white",
-                    zIndex: 0,
-                    border: "1px solid ghostwhite",
-                  }}
-                >
+                <Tooltip title="Download Labels">
+                  <IconButton aria-label="Download Labels" onClick={() => this.downloadLabels()}>
+                    <DownloadIcon />
+                  </IconButton>
+                </Tooltip>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row" }}>
+                <Paper className="waveform" style={{ flex: "auto", minWidth: "30vw" }}>
+                  <audio
+                    controls={false}
+                    src={this.state.audioUrl}
+                    ref={ref => {
+                      this.audio = ref;
+                    }}
+                  >
+                    Your browser does not support the <code>audio</code> element.
+                  </audio>
                   <div
+                    className="wavesurfer"
                     style={{
-                      display: this.state.loadingProgress === 100 ? "initial" : "none",
+                      backgroundColor: "white",
+                      zIndex: 0,
+                      border: "1px solid ghostwhite",
                     }}
                   >
                     <div
-                      ref={ref => {
-                        this.wavesurfer = ref;
-                      }}
-                    />
-                    <div
-                      ref={ref => {
-                        this.wavesurferTimeline = ref;
-                      }}
-                    />
-                    <div
-                      ref={ref => {
-                        this.wavesurferSpectrogram = ref;
-                      }}
                       style={{
-                        textAlign: "start",
-                        padding: "-1em 0 0 0",
-                        zIndex: 0,
+                        display: this.state.loadingProgress === 100 ? "initial" : "none",
                       }}
-                    />
+                    >
+                      <div
+                        ref={ref => {
+                          this.wavesurfer = ref;
+                        }}
+                      />
+                      <div
+                        ref={ref => {
+                          this.wavesurferTimeline = ref;
+                        }}
+                      />
+                      <div
+                        ref={ref => {
+                          this.wavesurferSpectrogram = ref;
+                        }}
+                        style={{
+                          textAlign: "start",
+                          padding: "-1em 0 0 0",
+                          zIndex: 0,
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              </Paper>
-              <Paper className="controls" style={{ flex: "1" }}>
-                <Table style={{ height: "438px", display: "block", overflow: "scroll" }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell numeric>Start</TableCell>
-                      <TableCell numeric>End</TableCell>
-                      <TableCell>Label</TableCell>
-                      <TableCell />
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {regions.length > 0 ? (
-                      regions
-                    ) : (
+                </Paper>
+                <Paper className="controls" style={{ flex: "1" }}>
+                  <Table style={{ height: "438px", display: "block", overflow: "scroll" }}>
+                    <TableHead>
                       <TableRow>
-                        <TableCell colSpan={4}>
-                          {this.state.wavesurferReady ? <p>No labels</p> : <LinearProgress />}
-                        </TableCell>
+                        <TableCell numeric>Start</TableCell>
+                        <TableCell numeric>End</TableCell>
+                        <TableCell>Label</TableCell>
+                        <TableCell />
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </Paper>
+                    </TableHead>
+                    <TableBody>
+                      {regions.length > 0 ? (
+                        regions
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4}>
+                            {this.state.wavesurferReady ? <p>No labels</p> : <LinearProgress />}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </Paper>
+              </div>
             </div>
-          </div>
-        </Paper>
-        <Snackbar
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          open={this.state.snackbarOpen}
-          onClose={this.handleSnackbarRequestClose}
-          SnackbarContentProps={{
-            "aria-describedby": "message-id",
-          }}
-          message={<span id="message-id">{this.state.snackbarMessage}</span>}
-        />
-      </div>
+          </Paper>
+          <Snackbar
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            open={this.state.snackbarOpen}
+            onClose={this.handleSnackbarRequestClose}
+            SnackbarContentProps={{
+              "aria-describedby": "message-id",
+            }}
+            message={<span id="message-id">{this.state.snackbarMessage}</span>}
+          />
+        </div>
+      </GlobalHotKeys>
     );
   }
 }
