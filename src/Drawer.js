@@ -124,50 +124,56 @@ class PermanentDrawer extends React.Component {
             </List>
           </Drawer>
           <main className={classes.content}>
-            {containers.map(container => (
-              <div key={container.name}>
-                {/* File List */}
-                <Route
-                  exact
-                  // path={`/${container.account}/:container([^/]+)`}
-                  path={`/${container.account}/${container.name}`}
-                  render={() =>
-                    container ? (
-                      <Container
-                        storageAccount={container.account}
-                        blobs={Array.isArray(blobs[container.name]) ? blobs[container.name] : []}
-                        name={container.name}
-                        lastModified={container.lastModified}
-                        key={container.name}
-                      />
-                    ) : (
-                      <NotFoundCard heading="Container not found :(" />
-                    )
-                  }
-                />
-                {/* File View */}
-                <Route
-                  exact
-                  // path={`/${container.account}/:container([^/]+)/:filename(.+)`}
-                  path={`/${container.account}/${container.name}/:filename(.+)`}
-                  render={({ match }) => {
-                    const containerBlobs = container && blobs[container.name];
-                    const blob =
-                      containerBlobs &&
-                      containerBlobs.find(potential => potential.name === match.params.filename);
-                    return container && blob ? (
-                      <AudioFile
-                        storageAccount={container.account}
-                        container={container.name}
-                        filename={match.params.filename}
-                      />
-                    ) : (
-                      <NotFoundCard />
-                    );
-                  }}
-                />
-              </div>
-            ))}
+            {/* File List */}
+            <Route
+              path="/:account/:container"
+              // path={`/${container.account}/${container.name}`}
+              render={({ match }) => {
+                const container = containers.find(c => c.name === match.params.container);
+
+                if (!container) {
+                  return <NotFoundCard heading="Container not found :(" />;
+                }
+                return (
+                  <Container
+                    storageAccount={container.account}
+                    blobs={Array.isArray(blobs[container.name]) ? blobs[container.name] : []}
+                    name={container.name}
+                    lastModified={container.lastModified}
+                    key={container.name}
+                  />
+                );
+              }}
+            />
+            {/* File View */}
+            <Route
+              // exact
+              path="/:account/:container([^/]+)/:filename(.+)"
+              // path={`/${container.account}/${container.name}/:filename(.+)`}
+              render={({ match }) => {
+                const container = containers.find(c => c.name === match.params.container);
+                const containerBlobs = container && blobs[container.name];
+                const blobIndex =
+                  containerBlobs &&
+                  containerBlobs.findIndex(potential => potential.name === match.params.filename);
+                const blob = containerBlobs && containerBlobs[blobIndex];
+                const prevBlob = (containerBlobs && containerBlobs[blobIndex - 1]) || {};
+                const nextBlob = (containerBlobs && containerBlobs[blobIndex + 1]) || {};
+
+                return container && blob ? (
+                  <AudioFile
+                    storageAccount={container.account}
+                    container={container.name}
+                    filename={match.params.filename}
+                    nextFilename={nextBlob.name}
+                    previousFilename={prevBlob.name}
+                  />
+                ) : (
+                  <NotFoundCard />
+                );
+              }}
+            />
+
             <Route
               exact
               path="/"
