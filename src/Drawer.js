@@ -124,32 +124,9 @@ class PermanentDrawer extends React.Component {
             </List>
           </Drawer>
           <main className={classes.content}>
-            {/* File List */}
-            <Route
-              path="/:account/:container"
-              // path={`/${container.account}/${container.name}`}
-              render={({ match }) => {
-                const container = containers.find(c => c.name === match.params.container);
-
-                if (!container) {
-                  return <NotFoundCard heading="Container not found :(" />;
-                }
-                return (
-                  <Container
-                    storageAccount={container.account}
-                    blobs={Array.isArray(blobs[container.name]) ? blobs[container.name] : []}
-                    name={container.name}
-                    lastModified={container.lastModified}
-                    key={container.name}
-                  />
-                );
-              }}
-            />
             {/* File View */}
             <Route
-              // exact
               path="/:account/:container([^/]+)/:filename(.+)"
-              // path={`/${container.account}/${container.name}/:filename(.+)`}
               render={({ match }) => {
                 const container = containers.find(c => c.name === match.params.container);
                 const containerBlobs = container && blobs[container.name];
@@ -170,6 +147,27 @@ class PermanentDrawer extends React.Component {
                   />
                 ) : (
                   <NotFoundCard />
+                );
+              }}
+            />
+            {/* File List */}
+            <Route
+              exact
+              path="/:account/:container"
+              render={({ match }) => {
+                const container = containers.find(c => c.name === match.params.container);
+
+                if (!container) {
+                  return <NotFoundCard heading="Container not found :(" />;
+                }
+                return (
+                  <Container
+                    storageAccount={container.account}
+                    blobs={Array.isArray(blobs[container.name]) ? blobs[container.name] : []}
+                    name={container.name}
+                    lastModified={container.lastModified}
+                    key={container.name}
+                  />
                 );
               }}
             />

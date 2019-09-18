@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 import WaveSurfer from "wavesurfer.js";
 import SpectrogramPlugin from "wavesurfer.js/dist/plugin/wavesurfer.spectrogram";
 import RegionsPlugin from "wavesurfer.js/dist/plugin/wavesurfer.regions";
@@ -25,6 +26,7 @@ import Snackbar from "material-ui/Snackbar";
 import Table, { TableBody, TableCell, TableHead, TableRow } from "material-ui/Table";
 import { downloadFile } from "./lib/azure";
 import { loadLabels, saveLabels } from "./lib/labels";
+import { utcToZonedTime, format } from "date-fns-tz";
 
 class AudioFile extends React.Component {
   /**
@@ -55,46 +57,18 @@ class AudioFile extends React.Component {
   }
 
   componentDidMount() {
-    // const downloadUrl = generateAzureBlobURL(this.props.container, this.props.filename);
-    downloadFile(this.props.storageAccount, this.props.container, this.props.filename)
-      .then(url => {
-        this.setState({ audioUrl: url });
-      })
-      .then(() => {
-        this.initWavesurfer().then(() => {
-          loadLabels(this.props.storageAccount, this.props.container, this.props.filename).then(
-            labels => {
-              const regions = [];
-              labels.forEach(label => {
-                regions[
-                  Math.random()
-                    .toString(36)
-                    .substring(10)
-                ] = label;
-              });
-              this.setState(
-                {
-                  regions,
-                },
-                () => {
-                  this.syncRegions();
-                },
-              );
-            },
-          );
-        });
-      })
-      .catch((e) => {
-        console.error(e);
-        this.showMessage("Error downloading audio file");
-      });
+    this.triggerNewFileDownload();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     // Scroll label table to show currently playing
     const currentlyPlaying = this.activeLabelRows.filter(e => e).pop();
     if (currentlyPlaying) {
       currentlyPlaying.scrollIntoView({ block: "end", behavior: "smooth" });
+    }
+
+    if (prevProps.filename !== this.props.filename) {
+      this.destroyWavesurfer().then(() => this.triggerNewFileDownload());
     }
   }
 
@@ -387,6 +361,41 @@ class AudioFile extends React.Component {
     this.setState({ snackbarOpen: false });
   };
 
+  triggerNewFileDownload = () => {
+    return downloadFile(this.props.storageAccount, this.props.container, this.props.filename)
+      .then(url => {
+        this.setState({ audioUrl: url });
+      })
+      .then(() => {
+        this.initWavesurfer().then(() => {
+          loadLabels(this.props.storageAccount, this.props.container, this.props.filename).then(
+            labels => {
+              const regions = [];
+              labels.forEach(label => {
+                regions[
+                  Math.random()
+                    .toString(36)
+                    .substring(10)
+                ] = label;
+              });
+              this.setState(
+                {
+                  regions,
+                },
+                () => {
+                  this.syncRegions();
+                },
+              );
+            },
+          );
+        });
+      })
+      .catch(e => {
+        console.error(e);
+        this.showMessage("Error downloading audio file");
+      });
+  };
+
   render() {
     this.activeLabelRows = [];
     const regionIds = Object.keys(this.state.regions);
@@ -453,11 +462,39 @@ class AudioFile extends React.Component {
         );
       });
 
+    const { filename, storageAccount, container, nextFilename, previousFilename } = this.props;
+
+    const blobDate = filename
+      .replace(".wav.mp3", "")
+      .split(" ")
+      .join("T")
+      .concat("Z");
+    const zonedDate = utcToZonedTime(blobDate, "America/Los_Angeles");
+    const localTime = format(zonedDate, "eee yyyy-MM-dd h:mma (z)");
     return (
       <div className="AudioFile">
         <Paper style={{ padding: "1em" }}>
-          <Typography type="headline">{this.props.filename}</Typography>
-
+          <Typography type="headline">{filename}</Typography>
+          <Typography type="subheading">{localTime}</Typography>
+          <Link
+            to={`/${storageAccount}/${container}/${previousFilename}`}
+            href={`/${storageAccount}/${container}/${previousFilename}`}
+            key={`/${storageAccount}/${container}/${previousFilename}`}
+            style={{ textDecoration: "none", color: "black" }}
+          >
+            Previous
+          </Link>
+          &nbsp;-&nbsp;
+          <Link
+            to={`/${storageAccount}/${container}/${nextFilename}`}
+            href={`/${storageAccount}/${container}/${nextFilename}`}
+            key={`/${storageAccount}/${container}/${nextFilename}`}
+            style={{ textDecoration: "none", color: "black" }}
+          >
+            Next
+          </Link>
+          &nbsp;-&nbsp;
+          <Link to={`/${storageAccount}/${container}`}>Back to container</Link>
           {/* Audio Download Progress */}
           {this.state.loadingProgress < 100 && (
             <div>
@@ -466,16 +503,13 @@ class AudioFile extends React.Component {
               <LinearProgress />
             </div>
           )}
-
           {/* Audio downloade, WaveSurfer decoding and drawing */}
-          {this.state.loadingProgress >= 100 &&
-            !this.state.wavesurferReady && (
-              <div>
-                <p>Analysing Audio Data...</p>
-                <LinearProgress />
-              </div>
-            )}
-
+          {this.state.loadingProgress >= 100 && !this.state.wavesurferReady && (
+            <div>
+              <p>Analysing Audio Data...</p>
+              <LinearProgress />
+            </div>
+          )}
           {/* Wavesurfer ready; render labels and player */}
           <div className="editor">
             <div>
@@ -643,6 +677,8 @@ AudioFile.propTypes = {
   storageAccount: PropTypes.string.isRequired,
   container: PropTypes.string.isRequired,
   filename: PropTypes.string.isRequired,
+  nextFilename: PropTypes.string.isRequired,
+  previousFilename: PropTypes.string.isRequired,
 };
 
 export default AudioFile;
