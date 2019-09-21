@@ -45,6 +45,7 @@ class AudioFile extends React.Component {
       ...props,
       audioUrl: "",
       defaultLabel: localStorage.getItem("defaultLabel") || "",
+      redirectTo: undefined,
       // Wavesurver stuff
       regions: [],
       wavesurfer: null,
@@ -336,12 +337,16 @@ class AudioFile extends React.Component {
 
   goToNextFile = () => {
     const { storageAccount, container, nextFilename } = this.props;
-    return <Redirect to={`/${storageAccount}/${container}/${nextFilename}`} />;
+    this.setState({
+      redirectTo: `/${storageAccount}/${container}/${nextFilename}`
+    });
   };
 
   goToPreviousFile = () => {
     const { storageAccount, container, previousFilename } = this.props;
-    return <Redirect to={`/${storageAccount}/${container}/${previousFilename}`} />;
+    this.setState({
+      redirectTo: `/${storageAccount}/${container}/${previousFilename}`
+    });
   };
 
   /**
@@ -408,6 +413,10 @@ class AudioFile extends React.Component {
   };
 
   render() {
+    const { redirectTo } = this.state;
+    if (redirectTo) {
+      return (<Redirect to={redirectTo} />);
+    }
     this.activeLabelRows = [];
     const regionIds = Object.keys(this.state.regions);
     const regions = regionIds
