@@ -10,6 +10,7 @@
     "babel-eslint": "^8.2.3",
     "bcrypt": "^3.0.0",
     "bcrypt-nodejs": "0.0.3",
+    "cache-manager": "2.10.0",
     "config": "^2.0.1",
     "date-fns": "2.2.1",
     "date-fns-tz": "1.0.7",
@@ -69,6 +70,7 @@
   "devDependencies": {
     "@types/bcrypt": "^2.0.0",
     "@types/bcrypt-nodejs": "0.0.30",
+    "@types/cache-manager": "2.10.0",
     "@types/config": "0.0.34",
     "@types/fs-extra": "^5.0.2",
     "@types/gm": "^1.17.33",

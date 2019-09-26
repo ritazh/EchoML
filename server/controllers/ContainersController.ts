@@ -3,6 +3,10 @@ import { AzureBlobContainer } from "../lib/AzureBlobContainer";
 import { AzureBlobService } from "../lib/AzureBlobService";
 import { User } from "../lib/User";
 import { Logger } from "../Logger";
+const cacheManager = require("cache-manager");
+
+const ONE_HOUR = 1 * 60 * 60;
+const memoryCache = cacheManager.caching({ store: "memory", max: 100, ttl: ONE_HOUR });
 
 export class ContainersController {
   public static async index(ctx: Koa.Context) {
@@ -52,8 +56,13 @@ export class ContainersController {
       const user = await User.getUser(ctx.state.user.email);
       if (user) {
         for (const account of user.storageAccounts || []) {
-          const service = new AzureBlobService(account.name, account.accessKey);
-          const userContainers = await service.getContainers();
+          const userContainers = memoryCache.wrap(
+            `getAllContainers-user-${ctx.state.user.email}`,
+            () => {
+              const service = new AzureBlobService(account.name, account.accessKey);
+              return service.getContainers();
+            },
+          );
           containers.push(...userContainers);
         }
       }
