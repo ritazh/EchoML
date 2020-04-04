@@ -5,6 +5,7 @@
   "dependencies": {
     "@koa/cors": "^2.2.1",
     "@types/passport-local": "^1.0.33",
+    "aws-sdk": "2.650.0",
     "axios": "^0.18.0",
     "azure-storage": "^2.8.1",
     "babel-eslint": "^8.2.3",
@@ -46,8 +47,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && tsc || true",
-    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
+    "test": "jest",
     "server": "nodemon --watch 'server/**/*.{ts,tsx}' --exec 'ts-node' server/index.ts",
     "dev": "concurrently \"npm run server\" \"npm run start\"",
     "prod": "NODE_ENV=production node build/server",
@@ -68,12 +69,14 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-typescript": "7.9.0",
     "@types/bcrypt": "^2.0.0",
     "@types/bcrypt-nodejs": "0.0.30",
     "@types/cache-manager": "2.10.0",
     "@types/config": "0.0.34",
     "@types/fs-extra": "^5.0.2",
     "@types/gm": "^1.17.33",
+    "@types/jest": "25.1.5",
     "@types/kcors": "^2.2.3",
     "@types/koa": "^2.0.45",
     "@types/koa-bodyparser": "^5.0.1",
@@ -85,6 +88,7 @@
     "@types/koa-static": "^4.0.0",
     "@types/mkdirp": "^0.5.1",
     "@types/mongoose": "^5.0.10",
+    "@types/node": "13.11.0",
     "@types/react": "^16.3.11",
     "@types/react-dom": "^16.0.5",
     "@types/request": "^2.47.0",
@@ -98,6 +102,7 @@
     "husky": "^0.14.3",
     "lint-staged": "^7.0.4",
     "nodemon": "^1.17.3",
+    "ts-jest": "25.3.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0",

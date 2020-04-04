@@ -6,7 +6,7 @@ import { Logger } from "../Logger";
 export interface IUser extends mongoose.Document {
   email: string;
   password: string;
-  storageAccounts: Array<{ name: string; accessKey: string }>;
+  storageAccounts: Array<{ name: string; accessKey: string; endpoint?: string }>;
 }
 
 export class User {

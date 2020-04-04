@@ -1,6 +1,6 @@
 import * as Koa from "koa";
-import { AzureBlobContainer } from "../lib/AzureBlobContainer";
-import { AzureBlobService } from "../lib/AzureBlobService";
+import { S3BlobContainer } from "../lib/S3BlobContainer";
+import { S3BlobService } from "../lib/S3BlobService";
 import { User } from "../lib/User";
 import { Logger } from "../Logger";
 const cacheManager = require("cache-manager");
@@ -10,12 +10,12 @@ const memoryCache = cacheManager.caching({ store: "memory", max: 100, ttl: ONE_H
 
 export class ContainersController {
   public static async index(ctx: Koa.Context) {
-    const containers: AzureBlobContainer[] = await ContainersController.getAllContainers(ctx);
+    const containers: S3BlobContainer[] = await ContainersController.getAllContainers(ctx);
     ctx.response.body = containers;
   }
 
   public static async show(ctx: Koa.Context, name: string) {
-    const containers: AzureBlobContainer[] = await ContainersController.getAllContainers(ctx);
+    const containers: S3BlobContainer[] = await ContainersController.getAllContainers(ctx);
     const match = containers.find(container => !!container.name.match(new RegExp(name, "i")));
 
     if (match) {
@@ -26,7 +26,7 @@ export class ContainersController {
   }
 
   public static async blobs(ctx: Koa.Context, name: string) {
-    const containers: AzureBlobContainer[] = await ContainersController.getAllContainers(ctx);
+    const containers: S3BlobContainer[] = await ContainersController.getAllContainers(ctx);
     const match = containers.find(container => !!container.name.match(new RegExp(name, "i")));
 
     if (match) {
@@ -38,7 +38,7 @@ export class ContainersController {
   }
 
   public static async labels(ctx: Koa.Context, name: string) {
-    const containers: AzureBlobContainer[] = await ContainersController.getAllContainers(ctx);
+    const containers: S3BlobContainer[] = await ContainersController.getAllContainers(ctx);
     const match = containers.find(container => !!container.name.match(new RegExp(name, "i")));
 
     if (match) {
@@ -49,17 +49,21 @@ export class ContainersController {
     }
   }
 
-  private static async getAllContainers(ctx: Koa.Context): Promise<AzureBlobContainer[]> {
-    const containers: AzureBlobContainer[] = [];
+  private static async getAllContainers(ctx: Koa.Context): Promise<S3BlobContainer[]> {
+    const containers: S3BlobContainer[] = [];
     try {
-      containers.push(...(await AzureBlobService.getConfigContainers()));
+      containers.push(...(await S3BlobService.getConfigContainers()));
       const user = await User.getUser(ctx.state.user.email);
       if (user) {
         for (const account of user.storageAccounts || []) {
           const userContainers = memoryCache.wrap(
             `getAllContainers-user-${ctx.state.user.email}`,
             () => {
-              const service = new AzureBlobService(account.name, account.accessKey);
+              const service = new S3BlobService(
+                account.name,
+                account.accessKey,
+                account.endpoint || "",
+              );
               return service.getContainers();
             },
           );

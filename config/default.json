@@ -18,9 +18,12 @@
   "HOSTNAME": "0.0.0.0",
   "PORT": 4000,
   "AUTH_KEY": "MY SECURE KEY",
-  "MONGO_HOST": null,
-  "MONGO_USERNAME": null,
-  "MONGO_PASSWORD": null,
-  "STORAGE_ACCOUNT": null,
-  "STORAGE_ACCESS_KEY": null
+  "MONGO_HOST": "mongodb+srv://cluster0-zpqpj.azure.mongodb.net/babblefish?ssl=true",
+  "MONGO_USERNAME": "babblefish",
+  "MONGO_PASSWORD": "D5VJoMKKlPNKvN8h",
+  "STORAGE_ACCOUNT": "babbletest",
+  "STORAGE_ACCESS_KEY": "2W5bTSJ3GYG8jYBd+5wzkj7C9DcFQDSZGhKieVLjxME2JdsM7wsOiLd0RzKqVsLr1mJEBVe/yayIUlbqhQwNNA==",
+  "S3_STORAGE_ACCESS_KEY": "BNPJ5LO5BR32PJPV6FV2",
+  "S3_STORAGE_SECRET_KEY": "2h4c59QP+2lw9VbVX08lOs9T6A/aDHt1CDAkDCYl8rE",
+  "S3_ENDPOINT": "sfo2.digitaloceanspaces.com"
 }

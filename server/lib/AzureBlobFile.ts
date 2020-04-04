@@ -14,7 +14,6 @@ export interface IAzureBlobFile {
   // mtime: string;
   contentType: string;
   contentLength: string;
-  // path: string;
 }
 
 export class AzureBlobFile implements IAzureBlobFile {
