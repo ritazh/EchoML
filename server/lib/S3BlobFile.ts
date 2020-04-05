@@ -10,9 +10,8 @@ import * as mkdirp from "mkdirp";
 import * as path from "path";
 
 export class S3BlobFile implements IAzureBlobFile {
-
-  public static async download(s3Service: S3Type, bucket: string, filename: string) {
-    const filepath = `files/${bucket}/${filename}`;
+  public static async download(s3Service: S3Type, container: string, filename: string) {
+    const filepath = `files/${container}/${filename}`;
     const dirname = path.dirname(filepath);
 
     // Create directory if it doesn't exist
@@ -21,7 +20,7 @@ export class S3BlobFile implements IAzureBlobFile {
       await promisify(mkdirp)(dirname);
     }
 
-    const downloadUrl = await S3BlobFile.getDownloadURL(s3Service, bucket, filename);
+    const downloadUrl = await S3BlobFile.getDownloadURL(s3Service, container, filename);
     const { data } = await axios.get<ArrayBuffer>(downloadUrl, { responseType: "arraybuffer" });
     const writeFile = promisify(fs.writeFile);
     await writeFile(filepath, data);
@@ -41,29 +40,40 @@ export class S3BlobFile implements IAzureBlobFile {
   public name: string;
   public contentType: string;
   public contentLength: string;
-  public bucket: () => S3BlobContainer;
+  public container: () => S3BlobContainer;
 
-  constructor(bucket: S3BlobContainer, s3Object: S3Type.Object) {
-    this.name = s3Object.Key || "__NA__";
-    this.contentType = "__NA__";
+  constructor(container: S3BlobContainer, s3Object: S3Type.Object) {
+    let fileName;
+    let fileExtension = "wav";
+
+    if (s3Object.Key) {
+      const parts = s3Object.Key.split("/");
+      fileName = parts[1].replace(/\\/, "");
+
+      const extensionParts = s3Object.Key.split(".");
+      fileExtension = extensionParts[extensionParts.length - 1];
+    }
+
+    this.name = fileName || "__NA__";
+    this.contentType = `audio/${fileExtension}`;
     this.contentLength = s3Object.Size ? s3Object.Size.toString() : "__NA__";
-    this.bucket = () => bucket;
+    this.container = () => container;
   }
 
   public async getLabels(): Promise<ILabel[]> {
-    const storageAccount = this.bucket().service().name;
-    const bucket = this.bucket().name;
-    return Label.getLabels(storageAccount, bucket, this.name);
+    const storageAccount = this.container().service().name;
+    const container = this.container().name;
+    return Label.getLabels(storageAccount, container, this.name);
   }
 
   public async downloadFile(): Promise<string> {
-    const bucket = this.bucket().name;
+    const container = this.container().name;
 
     return S3BlobFile.download(
-      this.bucket()
+      this.container()
         .service()
         .service(),
-      bucket,
+      container,
       this.name,
     );
   }

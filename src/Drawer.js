@@ -67,16 +67,14 @@ class PermanentDrawer extends React.Component {
     classes: PropTypes.object.isRequired,
     storageAccount: PropTypes.string.isRequired,
     containers: PropTypes.array,
-    blobs: PropTypes.object,
   };
 
   static defaultProps = {
     containers: [],
-    blobs: {},
   };
 
   render() {
-    const { classes, containers, blobs } = this.props;
+    const { classes, containers } = this.props;
     // const storageAccounts = [...new Set(containers.map(container => container.account))];
 
     return (
@@ -129,21 +127,12 @@ class PermanentDrawer extends React.Component {
               path="/:account/:container([^/]+)/:filename(.+)"
               render={({ match }) => {
                 const container = containers.find(c => c.name === match.params.container);
-                const containerBlobs = container && blobs[container.name];
-                const blobIndex =
-                  containerBlobs &&
-                  containerBlobs.findIndex(potential => potential.name === match.params.filename);
-                const blob = containerBlobs && containerBlobs[blobIndex];
-                const prevBlob = (containerBlobs && containerBlobs[blobIndex - 1]) || {};
-                const nextBlob = (containerBlobs && containerBlobs[blobIndex + 1]) || {};
 
-                return container && blob ? (
+                return container ? (
                   <AudioFile
                     storageAccount={container.account}
                     container={container.name}
                     filename={match.params.filename}
-                    nextFilename={nextBlob.name}
-                    previousFilename={prevBlob.name}
                   />
                 ) : (
                   <NotFoundCard />
@@ -163,7 +152,6 @@ class PermanentDrawer extends React.Component {
                 return (
                   <Container
                     storageAccount={container.account}
-                    blobs={Array.isArray(blobs[container.name]) ? blobs[container.name] : []}
                     name={container.name}
                     lastModified={container.lastModified}
                     key={container.name}

@@ -26,7 +26,7 @@ import Snackbar from "material-ui/Snackbar";
 import Table, { TableBody, TableCell, TableHead, TableRow } from "material-ui/Table";
 import { utcToZonedTime, format } from "date-fns-tz";
 import { GlobalHotKeys } from "react-hotkeys";
-import { downloadFile } from "./lib/azure";
+import { downloadFile, getBlobs } from "./lib/azure";
 import { loadLabels, saveLabels } from "./lib/labels";
 
 class AudioFile extends React.Component {
@@ -42,7 +42,6 @@ class AudioFile extends React.Component {
     super(props);
     this.activeLabelRows = [];
     this.state = {
-      ...props,
       audioUrl: "",
       defaultLabel: localStorage.getItem("defaultLabel") || "",
       redirectTo: undefined,
@@ -55,10 +54,13 @@ class AudioFile extends React.Component {
       wavesurferShouldScroll: false,
       regionsBeingPlayed: [],
       loadingProgress: 0,
+      nextFilename: undefined,
+      previousFilename: undefined,
     };
   }
 
   componentDidMount() {
+    this.fetchPrevNextLinks();
     this.triggerNewFileDownload();
   }
 
@@ -71,6 +73,7 @@ class AudioFile extends React.Component {
 
     if (prevProps.filename !== this.props.filename) {
       this.destroyWavesurfer().then(() => this.triggerNewFileDownload());
+      this.fetchPrevNextLinks();
     }
   }
 
@@ -336,16 +339,18 @@ class AudioFile extends React.Component {
   };
 
   goToNextFile = () => {
-    const { storageAccount, container, nextFilename } = this.props;
+    const { storageAccount, container } = this.props;
+    const { nextFilename } = this.state;
     this.setState({
-      redirectTo: `/${storageAccount}/${container}/${nextFilename}`
+      redirectTo: `/${storageAccount}/${container}/${nextFilename}`,
     });
   };
 
   goToPreviousFile = () => {
-    const { storageAccount, container, previousFilename } = this.props;
+    const { storageAccount, container } = this.props;
+    const { previousFilename } = this.state;
     this.setState({
-      redirectTo: `/${storageAccount}/${container}/${previousFilename}`
+      redirectTo: `/${storageAccount}/${container}/${previousFilename}`,
     });
   };
 
@@ -412,11 +417,23 @@ class AudioFile extends React.Component {
       });
   };
 
+  fetchPrevNextLinks = () => {
+    const { container, filename } = this.props;
+    getBlobs(container).then(containerBlobs => {
+      const blobIndex = containerBlobs && containerBlobs.findIndex(c => c.name === filename);
+      const prevBlob = (containerBlobs && containerBlobs[blobIndex - 1]) || {};
+      const nextBlob = (containerBlobs && containerBlobs[blobIndex + 1]) || {};
+      this.setState({ previousFilename: prevBlob.name, nextFilename: nextBlob.name });
+    });
+  };
+
   render() {
     const { redirectTo } = this.state;
     if (redirectTo) {
-      return (<Redirect to={redirectTo} />);
+      this.setState({ redirectTo: undefined });
+      return <Redirect push to={redirectTo} />;
     }
+
     this.activeLabelRows = [];
     const regionIds = Object.keys(this.state.regions);
     const regions = regionIds
@@ -482,10 +499,12 @@ class AudioFile extends React.Component {
         );
       });
 
-    const { filename, storageAccount, container, nextFilename, previousFilename } = this.props;
+    const { filename, storageAccount, container } = this.props;
+    const { previousFilename, nextFilename } = this.state;
 
     const blobDate = filename
-      .replace(".wav.mp3", "")
+      .replace(".wav", "")
+      .replace(".mp3", "")
       .split(" ")
       .join("T")
       .concat("Z");
@@ -514,24 +533,24 @@ class AudioFile extends React.Component {
           <Paper style={{ padding: "1em" }}>
             <Typography type="headline">{filename}</Typography>
             <Typography type="subheading">{localTime}</Typography>
-            <Link
-              to={`/${storageAccount}/${container}/${previousFilename}`}
-              href={`/${storageAccount}/${container}/${previousFilename}`}
-              key={`/${storageAccount}/${container}/${previousFilename}`}
-              style={{ textDecoration: "none", color: "black" }}
-            >
-              Previous
-            </Link>
-            &nbsp;-&nbsp;
-            <Link
-              to={`/${storageAccount}/${container}/${nextFilename}`}
-              href={`/${storageAccount}/${container}/${nextFilename}`}
-              key={`/${storageAccount}/${container}/${nextFilename}`}
-              style={{ textDecoration: "none", color: "black" }}
-            >
-              Next
-            </Link>
-            &nbsp;-&nbsp;
+            {previousFilename && nextFilename && (
+              <React.Fragment>
+                <Link
+                  to={`/${storageAccount}/${container}/${previousFilename}`}
+                  key={`/${storageAccount}/${container}/${previousFilename}`}
+                >
+                  Previous
+                </Link>
+                &nbsp;-&nbsp;
+                <Link
+                  to={`/${storageAccount}/${container}/${nextFilename}`}
+                  key={`/${storageAccount}/${container}/${nextFilename}`}
+                >
+                  Next
+                </Link>
+                &nbsp;-&nbsp;
+              </React.Fragment>
+            )}
             <Link to={`/${storageAccount}/${container}`}>Back to container</Link>
             {/* Audio Download Progress */}
             {this.state.loadingProgress < 100 && (
@@ -716,8 +735,6 @@ AudioFile.propTypes = {
   storageAccount: PropTypes.string.isRequired,
   container: PropTypes.string.isRequired,
   filename: PropTypes.string.isRequired,
-  nextFilename: PropTypes.string.isRequired,
-  previousFilename: PropTypes.string.isRequired,
 };
 
 export default AudioFile;

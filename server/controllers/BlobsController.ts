@@ -39,10 +39,21 @@ export class BlobsController {
     ctx.response.body = files;
   }
 
-  public static async download(ctx: Koa.Context, account: string, filename: string) {
+  public static async download(
+    ctx: Koa.Context,
+    account: string,
+    container: string,
+    filename: string,
+  ) {
+    console.log(account, container, filename);
     try {
       const s3Service = S3BlobService.getConfigService().service();
-      const filepath = await S3BlobFile.download(s3Service, account, filename);
+      const reconstitutedFilename = filename.replace(" ", "\\ ");
+      const filepath = await S3BlobFile.download(
+        s3Service,
+        account,
+        `${container}/${reconstitutedFilename}`,
+      );
       await send(ctx, filepath);
     } catch (err) {
       ctx.throw(err);

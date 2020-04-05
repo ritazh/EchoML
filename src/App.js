@@ -3,7 +3,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
 import LoginCard from "./LoginCard";
 import Drawer from "./Drawer";
-import { getBlobs, getContainers } from "./lib/azure";
+import { getContainers } from "./lib/azure";
 import { isLoggedIn } from "./lib/auth";
 
 class App extends Component {
@@ -12,7 +12,6 @@ class App extends Component {
     this.state = {
       storageAccount: "",
       containers: [],
-      blobs: {},
     };
   }
 
@@ -33,17 +32,19 @@ class App extends Component {
     const containers = await getContainers();
     this.setState({ containers });
 
-    const mappedBlobs = {};
-    containers.forEach(container => {
-      getBlobs(container.name).then(blobs => {
-        const containerName = container.name;
-        if (!mappedBlobs[containerName]) {
-          mappedBlobs[containerName] = [];
-        }
-        mappedBlobs[containerName] = blobs;
-        this.setState({ blobs: mappedBlobs });
-      });
-    });
+    // const mappedBlobs = {};
+    // await Promise.all(
+    //   containers.map(container => {
+    //     return getBlobs(container.name).then(blobs => {
+    //       const containerName = container.name;
+    //       if (!mappedBlobs[containerName]) {
+    //         mappedBlobs[containerName] = [];
+    //       }
+    //       mappedBlobs[containerName] = blobs;
+    //       this.setState({ blobs: mappedBlobs });
+    //     });
+    //   }),
+    // );
   };
 
   render() {
@@ -51,11 +52,7 @@ class App extends Component {
       <div className="App">
         {this.state.isLoggedIn ? (
           <Router>
-            <Drawer
-              storageAccount={this.state.storageAccount}
-              containers={this.state.containers}
-              blobs={this.state.blobs}
-            />
+            <Drawer storageAccount={this.state.storageAccount} containers={this.state.containers} />
           </Router>
         ) : (
           <div

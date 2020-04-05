@@ -4,6 +4,8 @@ import { Label } from "./Label";
 import { S3BlobFile } from "./S3BlobFile";
 import { S3BlobService } from "./S3BlobService";
 
+const DAY_MINUTES = 24 * 60;
+
 /**
  * An S3BlobContainer is a top-level S3 folder in a bucket, in an attempt to mimic Azure's "Container" hierarchy.
  */
@@ -36,8 +38,9 @@ export class S3BlobContainer implements IAzureBlobContainer {
 
   public async getBlobs(): Promise<S3BlobFile[]> {
     return new Promise<S3BlobFile[]>((resolve, reject) => {
-      const params = {
+      const params: S3Type.ListObjectsV2Request = {
         Bucket: this.account,
+        MaxKeys: DAY_MINUTES,
         Prefix: this.name,
       };
       this.s3Service.listObjectsV2(params, (err, result) => {

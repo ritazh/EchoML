@@ -16,6 +16,7 @@ import Input, { InputLabel } from "material-ui/Input";
 import { FormControl } from "material-ui/Form";
 
 import { downloadAllLabels } from "./lib/labels";
+import { getBlobs } from "./lib/azure";
 
 async function downloadLabels(containerName) {
   const labels = await downloadAllLabels(containerName);
@@ -49,25 +50,16 @@ function getIcon(contentType) {
 class Container extends React.PureComponent {
   static propTypes = {
     storageAccount: PropTypes.string.isRequired,
-    blobs: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        contentLength: PropTypes.string.isRequired,
-        contentSettings: PropTypes.shape({
-          contentType: PropTypes.string,
-        }),
-      }),
-    ),
     name: PropTypes.string.isRequired,
     lastModified: PropTypes.string,
   };
 
   static defaultProps = {
-    blobs: [],
     lastModified: "",
   };
 
   state = {
+    blobs: [],
     defaultLabel: localStorage.getItem("defaultLabel") || "",
   };
 
@@ -77,8 +69,14 @@ class Container extends React.PureComponent {
     this.setState({ defaultLabel });
   };
 
+  componentDidMount = () => {
+    const { name } = this.props;
+    getBlobs(name).then(blobs => this.setState({ blobs }));
+  };
+
   render() {
-    const { storageAccount, blobs, name } = this.props;
+    const { storageAccount, name } = this.props;
+    const { blobs } = this.state;
     const listItems = [];
     let currentPath = [];
     blobs.forEach(blob => {
@@ -87,7 +85,8 @@ class Container extends React.PureComponent {
       const filepath = blob.name.split("/");
 
       const blobDate = blob.name
-        .replace(".wav.mp3", "")
+        .replace(".wav", "")
+        .replace(".mp3", "")
         .split(" ")
         .join("T")
         .concat("Z");
@@ -102,23 +101,18 @@ class Container extends React.PureComponent {
           currentPath = path;
         }
 
+        const url = `/${storageAccount}/${name}/${blob.name}`;
+
         if (index + 1 === filepath.length) {
           const link = (
             <Link
               to={
-                contentType.match(/audio/i)
-                  ? `/${storageAccount}/${name}/${blob.name}`
-                  : window.location.pathname // dont do anything for non-audio
+                contentType.match(/audio/i) ? url : window.location.pathname // dont do anything for non-audio
               }
-              href={`/${storageAccount}/${name}/${blob.name}`}
-              key={`/${storageAccount}/${name}/${blob.name}`}
+              key={url}
               style={{ textDecoration: "none", color: "black" }}
             >
-              <ListItem
-                button
-                style={{ paddingLeft: `${currentPath.length * 2}em` }}
-                key={`/${storageAccount}/${name}/${blob.name}`}
-              >
+              <ListItem button style={{ paddingLeft: `${currentPath.length * 2}em` }} key={url}>
                 <ListItemIcon>{icon}</ListItemIcon>
                 <ListItemText
                   primary={node}

@@ -63,7 +63,12 @@ export class S3BlobService {
                 return reject(err);
               }
               const containers = (results.CommonPrefixes || []).map(
-                prefix => new S3BlobContainer(this, prefix.Prefix || "__NA__", bucketName),
+                prefix =>
+                  new S3BlobContainer(
+                    this,
+                    prefix.Prefix ? prefix.Prefix.replace(/\/$/, "") : "__NA__",
+                    bucketName,
+                  ),
               );
               return resolve(containers);
             });
